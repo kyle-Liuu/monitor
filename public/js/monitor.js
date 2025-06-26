@@ -158,8 +158,7 @@ function createParticle(x, y) {
   }
 }
 
-const app = new Vue({
-  el: '#app',
+const app = Vue.createApp({
   data() {
     return {
       loading: {
@@ -296,6 +295,7 @@ const app = new Vue({
       ],
       drawerVisible: false,
       drawerData: {},
+      drawerRemark: '',
       intervals: {
         deviceList: null,
         cpuMemory: null,
@@ -304,21 +304,13 @@ const app = new Vue({
       }
     }
   },
-  created() {
-    this.fetchDeviceList() // 启动时自动请求设备列表
-    this.initializeGroupStates()
-    // 移除 Vue 外部的 updateTime 和 setInterval
-    // 只保留 Vue 内部的 updateTime 逻辑
-  },
   computed: {
     deviceGroups() {
       const groups = {}
       const UNGROUPED_ID = 'ungrouped'
-
       this.deviceList.forEach((device) => {
         const groupId = device.groupid === 0 ? UNGROUPED_ID : device.groupid
         const groupName = device.groupid === 0 ? '未分组' : device.groupname
-
         if (!groups[groupId]) {
           const expandedState = this.groupStates[groupId]
             ? this.groupStates[groupId].expanded
@@ -332,7 +324,6 @@ const app = new Vue({
         }
         groups[groupId].devices.push(device)
       })
-
       const sortedGroups = Object.values(groups).sort((a, b) => {
         if (a.id === UNGROUPED_ID) return 1
         if (b.id === UNGROUPED_ID) return -1
@@ -345,24 +336,21 @@ const app = new Vue({
     initializeGroupStates() {
       const initialStates = {}
       const uniqueGroupIds = new Set()
-
       this.deviceList.forEach((device) => {
         const groupId = device.groupid === 0 ? 'ungrouped' : device.groupid
         uniqueGroupIds.add(groupId)
       })
-
       uniqueGroupIds.forEach((id) => {
         // 默认设置为折叠状态
-        this.$set(initialStates, id, { expanded: false })
+        initialStates[id] = { expanded: false }
       })
       this.groupStates = initialStates
     },
     toggleGroup(groupId) {
-      // 确保 groupStates[groupId] 存在
       if (!this.groupStates[groupId]) {
-        this.$set(this.groupStates, groupId, { expanded: true })
+        this.groupStates[groupId] = { expanded: true }
       }
-      this.$set(this.groupStates[groupId], 'expanded', !this.groupStates[groupId].expanded)
+      this.groupStates[groupId].expanded = !this.groupStates[groupId].expanded
       const groupName = this.deviceGroups.find((g) => g.id === groupId)?.name || '未知分组'
       console.log(`分组 "${groupName}" ${this.groupStates[groupId].expanded ? '展开' : '折叠'}`)
     },
@@ -544,7 +532,7 @@ const app = new Vue({
         if (container) {
           const newPlayer = this.createPlayer(container, this.config)
           if (newPlayer) {
-            this.$set(this.playerList, this.selectedScreenId, newPlayer)
+            this.playerList[this.selectedScreenId] = newPlayer
             await newPlayer.play(this.videoUrl)
             this.isPlay = true
           }
@@ -583,7 +571,7 @@ const app = new Vue({
         if (selectedPlayer?.destroy) {
           await selectedPlayer.destroy()
           this.isPlay = false
-          this.$set(this.playerList, this.selectedScreenId, null)
+          this.playerList[this.selectedScreenId] = null
 
           const container = document.getElementById(
             'easyplayer-container-' + (this.selectedScreenId + 1)
@@ -840,25 +828,22 @@ const app = new Vue({
       }
     }
   },
+  created() {
+    this.fetchDeviceList()
+    this.initializeGroupStates()
+  },
   mounted() {
     this.$nextTick(() => {
-      // 初始化图表
       this.initCpuChart()
       this.initGaugeCharts()
       this.createPlayers()
-
-      // 更新时间
       this.updateTime()
       this.intervals.time = setInterval(this.updateTime, 1000)
-
-      // 获取设备列表
       this.fetchDeviceList()
       this.intervals.deviceList = setInterval(
         () => this.fetchDeviceList(),
         CONFIG.UPDATE_INTERVALS.DEVICE_LIST
       )
-
-      // 初始化存储条
       this.updateStorageBar(45)
       this.intervals.storage = setInterval(() => {
         const percent = Math.floor(Math.random() * 31) + 40
@@ -866,31 +851,19 @@ const app = new Vue({
       }, CONFIG.UPDATE_INTERVALS.STORAGE)
     })
   },
-  beforeDestroy() {
-    // 清理定时器
+  beforeUnmount() {
     Object.values(this.intervals).forEach((interval) => {
       if (interval) clearInterval(interval)
     })
-
-    // 销毁图表实例
-    if (this.cpuChartInstance) {
-      this.cpuChartInstance.dispose()
-    }
-    if (this.startupGaugeChartInstance) {
-      this.startupGaugeChartInstance.dispose()
-    }
-    if (this.onlineGaugeChartInstance) {
-      this.onlineGaugeChartInstance.dispose()
-    }
-
-    // 销毁播放器
+    if (this.cpuChartInstance) this.cpuChartInstance.dispose()
+    if (this.startupGaugeChartInstance) this.startupGaugeChartInstance.dispose()
+    if (this.onlineGaugeChartInstance) this.onlineGaugeChartInstance.dispose()
     this.playerList.forEach((player) => {
-      if (player?.destroy) {
-        player.destroy()
-      }
+      if (player?.destroy) player.destroy()
     })
   }
 })
+app.mount('#app')
 // 后台按钮
 const backBtn = document.getElementById('back')
 if (backBtn) {
@@ -903,3 +876,78 @@ if (backBtn) {
     }
   })
 }
+
+// 组织树渲染逻辑
+;(function () {
+  const orgTree = window.ORG_TREE_MOCK || []
+  const rootUl = document.getElementById('org-tree-root')
+  let selectedOrgId = null
+  const orgStates = {}
+
+  function renderTree(nodes, parentUl) {
+    nodes.forEach((node) => {
+      const li = document.createElement('li')
+      const nodeDiv = document.createElement('div')
+      nodeDiv.className = 'node-content parent'
+      if (node.status === '禁用') nodeDiv.classList.add('disabled')
+      if (selectedOrgId === node.id) nodeDiv.classList.add('selected')
+      // 展开/收起按钮和名称整体区域
+      if (node.children && node.children.length) {
+        const indicator = document.createElement('span')
+        indicator.className = 'indicator'
+        indicator.textContent = orgStates[node.id] && orgStates[node.id].expanded ? '▼' : '▶'
+        // 点击指示器或名称都可展开/收起
+        const expandHandler = function (e) {
+          e.stopPropagation()
+          orgStates[node.id] = orgStates[node.id] || { expanded: false }
+          orgStates[node.id].expanded = !orgStates[node.id].expanded
+          updateTree()
+        }
+        indicator.onclick = expandHandler
+        nodeDiv.appendChild(indicator)
+        // 名称span
+        const nameSpan = document.createElement('span')
+        nameSpan.textContent = node.name
+        nameSpan.style.cursor = 'pointer'
+        nameSpan.onclick = expandHandler
+        nodeDiv.appendChild(nameSpan)
+      } else {
+        // 无子节点只显示名称
+        const nameSpan = document.createElement('span')
+        nameSpan.textContent = node.name
+        nodeDiv.appendChild(nameSpan)
+      }
+      // 选中逻辑（禁用节点不可选）
+      nodeDiv.onclick = function (e) {
+        e.stopPropagation()
+        if (node.status === '禁用') return
+        selectedOrgId = node.id
+        updateTree()
+      }
+      li.appendChild(nodeDiv)
+      // 子节点
+      if (
+        node.children &&
+        node.children.length &&
+        orgStates[node.id] &&
+        orgStates[node.id].expanded
+      ) {
+        const childUl = document.createElement('ul')
+        renderTree(node.children, childUl)
+        li.appendChild(childUl)
+      }
+      parentUl.appendChild(li)
+    })
+  }
+
+  function updateTree() {
+    rootUl.innerHTML = ''
+    renderTree(orgTree, rootUl)
+  }
+
+  // 初始化全部收起
+  orgTree.forEach((node) => {
+    orgStates[node.id] = { expanded: false }
+  })
+  updateTree()
+})()

@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>智能监控平台</title>
     <script src="./js/echarts.min.js"></script>
-    <script src="./js/2.6.14_vue.min.js"></script>
+    <!-- <script src="./js/2.6.14_vue.min.js"></script> -->
+    <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
     <script src="./js/EasyPlayer-pro.js"></script>
+    <script src="./js/orgTreeMock.js"></script>
     <link rel="stylesheet" href="./css/monitor.css" />
   </head>
 
   <body>
     <div class="container" id="app">
       <div class="header">
-        <button class="back-button" id="back">后台</button>
+        <button class="back-button" id="back">后台调度</button>
         <h1>智能监控平台</h1>
       </div>
       <div class="left-panel">
@@ -21,36 +23,7 @@
           <div class="section-title">设备列表</div>
           <div class="tree-view-wrapper">
             <div class="tree-view">
-              <ul>
-                <template v-for="group in deviceGroups">
-                  <li v-if="group.devices.length > 0">
-                    <div class="node-content parent" @click="toggleGroup(group.id)">
-                      <span
-                        class="indicator"
-                        :class="{ 'collapsed': !(groupStates[group.id] && groupStates[group.id].expanded) }"
-                      >
-                        {{ (groupStates[group.id] && groupStates[group.id].expanded) ? '▼' : '▶' }}
-                      </span>
-                      <span>{{ group.name }}</span>
-                    </div>
-                    <ul
-                      class="nested"
-                      :class="{ 'active': groupStates[group.id] && groupStates[group.id].expanded }"
-                    >
-                      <li v-for="device in group.devices" :key="device.deviceid">
-                        <div
-                          class="node-content"
-                          :class="{ 'disabled': !device.online, 'selected': selectedDeviceId === device.deviceid }"
-                          @click="handleDeviceClick(device)"
-                        >
-                          <span class="device-status" :class="getDeviceStatusClass(device)"></span>
-                          <span>{{ device.devicename }}</span>
-                        </div>
-                      </li>
-                    </ul>
-                  </li>
-                </template>
-              </ul>
+              <ul id="org-tree-root"></ul>
             </div>
           </div>
         </div>
@@ -113,7 +86,7 @@
               </span>
               <div class="divider"></div>
               <span
-                v-for="item in [1,4]"
+                v-for="item in [1,4,9]"
                 :key="item"
                 :class="['screen-btn', {active: screenCount===item}]"
                 @click="switchScreen(item)"
@@ -129,13 +102,23 @@
                   ></path>
                 </svg>
                 <svg
-                  v-else
+                  v-else-if="item === 4"
                   viewBox="0 0 1024 1024"
                   version="1.1"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M480 96v288c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h288c53 0 96 43 96 96zM1024 96v288c0 53-43 96-96 96H640c-53 0-96-43-96-96V96c0-53 43-96 96-96h288c53 0 96 43 96 96zM480 640v288c0 53-43 96-96 96H96c-53 0-96-43-96-96V640c0-53 43-96 96-96h288c53 0 96 43 96 96zM1024 640v288c0 53-43 96-96 96H640c-53 0-96-43-96-96V640c0-53 43-96 96-96h288c53 0 96 43 96 96z"
+                  ></path>
+                </svg>
+                <svg
+                  v-else-if="item === 9"
+                  viewBox="0 0 1024 1024"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M267.094423 22.942738c15.17106 15.217597 22.75659 33.73932 22.756589 55.56517v133.188874c0 21.872387-7.58553 40.347573-22.803126 55.56517-15.17106 15.17106-33.646246 22.803127-55.518633 22.803127H78.340378c-21.872387 0-40.347573-7.632067-55.518633-22.803127A75.576077 75.576077 0 0 1 0.018618 211.696782V78.507908C0.018618 56.635521 7.604148 38.160334 22.821745 22.942738 37.992805 7.771678 56.514528 0.186148 78.340378 0.186148h133.188875c21.872387 0 40.347573 7.58553 55.56517 22.75659z m369.271041 0c15.217597 15.217597 22.803127 33.73932 22.803127 55.56517v133.188874c0 21.872387-7.58553 40.347573-22.803127 55.56517-15.17106 15.17106-33.692783 22.803127-55.472096 22.803127H445.28457c-21.779313 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.56517V78.507908c0-21.872387 7.632067-40.347573 22.803127-55.56517C404.983534 7.771678 423.505257 0.186148 445.28457 0.186148h135.608798c21.779313 0 40.301036 7.58553 55.472096 22.75659z m364.66388 0c15.217597 15.217597 22.803127 33.73932 22.803126 55.56517v133.188874c0 21.872387-7.58553 40.347573-22.803126 55.56517-15.17106 15.17106-33.692783 22.803127-55.518633 22.803127h-135.562262c-21.82585 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.56517V78.507908c0-21.872387 7.632067-40.347573 22.803127-55.56517 15.217597-15.17106 33.692783-22.75659 55.518633-22.75659h135.562262c21.872387 0 40.347573 7.58553 55.518633 22.75659zM267.14096 389.933467c15.17106 15.217597 22.75659 33.692783 22.756589 55.518633v133.235411c0 21.82585-7.58553 40.347573-22.803126 55.518633-15.17106 15.217597-33.646246 22.803127-55.518633 22.803127H78.340378c-21.872387 0-40.347573-7.58553-55.518633-22.803127A75.576077 75.576077 0 0 1 0.018618 578.687511V445.4521c0-21.82585 7.58553-40.301036 22.803127-55.518633a75.669151 75.669151 0 0 1 55.518633-22.75659h133.188875c21.872387 0 40.347573 7.58553 55.56517 22.803127z m369.271041 0c15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.82585-7.58553 40.347573-22.803127 55.518633-15.17106 15.217597-33.692783 22.803127-55.472096 22.803127H445.28457c-21.779313 0-40.301036-7.58553-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633V445.4521c0-21.82585 7.632067-40.301036 22.803127-55.518633a75.669151 75.669151 0 0 1 55.518633-22.75659h135.608798c21.779313 0 40.301036 7.58553 55.472096 22.803127z m364.663879 0c15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.82585-7.58553 40.347573-22.803127 55.518633-15.17106 15.217597-33.692783 22.803127-55.518632 22.803127h-135.562262c-21.82585 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633a75.669151 75.669151 0 0 1 55.518633-22.75659h135.562262c21.872387 0 40.347573 7.58553 55.518633 22.75659zM267.14096 756.924196c15.17106 15.217597 22.75659 33.692783 22.756589 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803126 55.518633-15.17106 15.17106-33.646246 22.803127-55.518633 22.803127H78.340378c-21.872387 0-40.347573-7.632067-55.518633-22.803127A75.576077 75.576077 0 0 1 0.018618 945.67824v-133.235411c0-21.872387 7.58553-40.301036 22.803127-55.518633 15.17106-15.17106 33.692783-22.803127 55.518633-22.803127h133.188875c21.872387 0 40.347573 7.632067 55.56517 22.803127z m313.798945-22.803127c21.779313 0 40.301036 7.632067 55.472096 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.472096 22.803127H445.28457c-21.779313 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.73932-22.803127 55.518633-22.803127h135.608798z m364.617343 0c21.872387 0 40.347573 7.632067 55.518632 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.518632 22.803127h-135.562262c-21.82585 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.692783-22.803127 55.518633-22.803127h135.562262c21.872387 0 40.347573 7.58553 55.518633 22.75659zM267.14096 756.924196c15.17106 15.217597 22.75659 33.692783 22.756589 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803126 55.518633-15.17106 15.17106-33.646246 22.803127-55.518633 22.803127H78.340378c-21.872387 0-40.347573-7.632067-55.518633-22.803127A75.576077 75.576077 0 0 1 0.018618 945.67824v-133.235411c0-21.872387 7.58553-40.301036 22.803127-55.518633 15.17106-15.17106 33.692783-22.803127 55.518633-22.803127h133.188875c21.872387 0 40.347573 7.632067 55.56517 22.803127z m313.798945-22.803127c21.779313 0 40.301036 7.632067 55.472096 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.472096 22.803127H445.28457c-21.779313 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.73932-22.803127 55.518633-22.803127h135.608798z m364.617343 0c21.872387 0 40.347573 7.632067 55.518632 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.518632 22.803127h-135.562262c-21.82585 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.692783-22.803127 55.518633-22.803127h135.562262c21.872387 0 40.347573 7.58553 55.518633 22.75659zM267.14096 756.924196c15.17106 15.217597 22.75659 33.692783 22.756589 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803126 55.518633-15.17106 15.17106-33.646246 22.803127-55.518633 22.803127H78.340378c-21.872387 0-40.347573-7.632067-55.518633-22.803127A75.576077 75.576077 0 0 1 0.018618 945.67824v-133.235411c0-21.872387 7.58553-40.301036 22.803127-55.518633 15.17106-15.17106 33.692783-22.803127 55.518633-22.803127h133.188875c21.872387 0 40.347573 7.632067 55.56517 22.803127z m313.798945-22.803127c21.779313 0 40.301036 7.632067 55.472096 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.472096 22.803127H445.28457c-21.779313 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.73932-22.803127 55.518633-22.803127h135.608798z m364.617343 0c21.872387 0 40.347573 7.632067 55.518632 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.518632 22.803127h-135.562262c-21.82585 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.692783-22.803127 55.518633-22.803127h135.562262c21.872387 0 40.347573 7.58553 55.518633 22.75659zM267.14096 756.924196c15.17106 15.217597 22.75659 33.692783 22.756589 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803126 55.518633-15.17106 15.17106-33.646246 22.803127-55.518633 22.803127H78.340378c-21.872387 0-40.347573-7.632067-55.518633-22.803127A75.576077 75.576077 0 0 1 0.018618 945.67824v-133.235411c0-21.872387 7.58553-40.301036 22.803127-55.518633 15.17106-15.17106 33.692783-22.803127 55.518633-22.803127h133.188875c21.872387 0 40.347573 7.632067 55.56517 22.803127z m313.798945-22.803127c21.779313 0 40.301036 7.632067 55.472096 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.472096 22.803127H445.28457c-21.779313 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.73932-22.803127 55.518633-22.803127h135.608798z m364.617343 0c21.872387 0 40.347573 7.632067 55.518632 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.518632 22.803127h-135.562262c-21.82585 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.692783-22.803127 55.518633-22.803127h135.562262c21.872387 0 40.347573 7.58553 55.518633 22.75659zM267.14096 756.924196c15.17106 15.217597 22.75659 33.692783 22.756589 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803126 55.518633-15.17106 15.17106-33.646246 22.803127-55.518633 22.803127H78.340378c-21.872387 0-40.347573-7.632067-55.518633-22.803127A75.576077 75.576077 0 0 1 0.018618 945.67824v-133.235411c0-21.872387 7.58553-40.301036 22.803127-55.518633 15.17106-15.17106 33.692783-22.803127 55.518633-22.803127h133.188875c21.872387 0 40.347573 7.632067 55.56517 22.803127z m313.798945-22.803127c21.779313 0 40.301036 7.632067 55.472096 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.472096 22.803127H445.28457c-21.779313 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.73932-22.803127 55.518633-22.803127h135.608798z m364.617343 0c21.872387 0 40.347573 7.632067 55.518632 22.803127 15.217597 15.217597 22.803127 33.692783 22.803127 55.518633v133.235411c0 21.779313-7.58553 40.301036-22.803127 55.518633-15.17106 15.17106-33.692783 22.803127-55.518632 22.803127h-135.562262c-21.82585 0-40.301036-7.632067-55.518633-22.803127a75.576077 75.576077 0 0 1-22.803127-55.518633v-133.235411c0-21.872387 7.632067-40.301036 22.803127-55.518633 15.217597-15.17106 33.692783-22.803127 55.518633-22.803127h135.562262c21.872387 0 40.347573 7.58553 55.518633 22.75659z"
                   ></path>
                 </svg>
               </span>
@@ -212,67 +195,237 @@
         </div>
       </div>
       <div v-if="drawerVisible" class="alert-drawer-overlay" @click.self="closeAlertDrawer">
-        <div class="alert-drawer">
-          <div class="alert-drawer-header">
-            <div class="alert-icon">
-              <img
-                :src="drawerData.icon"
-                alt="Alert Icon"
-                style="width: 100%; height: 100%; object-fit: cover"
-              />
-            </div>
-            <div class="alert-title">{{ drawerData.title }}</div>
+        <div class="alert-drawer monitor-alert-drawer">
+          <div class="monitor-alert-header">
+            <div class="monitor-alert-title">告警详情</div>
           </div>
-          <div class="alert-drawer-img" v-if="drawerData.img">
-            <img
-              :src="drawerData.img"
-              alt="抓拍图片"
-              style="width: 100%; height: auto; display: block"
-            />
+          <div class="monitor-alert-info-grid">
+            <div class="info-block"
+              ><span class="info-label">状态：</span
+              ><span
+                :style="{color: drawerData.status === '未处理' ? '#f56c6c' : '#67c23a', fontWeight: 600}"
+                >{{ drawerData.status || '未处理' }}</span
+              ></div
+            >
+            <div class="info-block"
+              ><span class="info-label">数据源：</span
+              ><span>{{ drawerData.location || '-' }}</span></div
+            >
+            <div class="info-block"
+              ><span class="info-label">IP：</span><span>{{ drawerData.ip || '-' }}</span></div
+            >
+            <div class="info-block"
+              ><span class="info-label">危险等级：</span
+              ><span style="color: #e6a23c; font-weight: 600"
+                >{{ drawerData.level || '-' }}</span
+              ></div
+            >
+            <div class="info-block"
+              ><span class="info-label">告警类型：</span
+              ><span style="color: #409eff; font-weight: 600"
+                >{{ drawerData.type || '-' }}</span
+              ></div
+            >
+            <div class="info-block"
+              ><span class="info-label">检测时间：</span
+              ><span>{{ drawerData.time || '-' }}</span></div
+            >
           </div>
-          <div class="alert-drawer-info">
-            <div class="alert-drawer-info-row">
-              <span class="alert-drawer-info-label">类型</span>
-              <span class="alert-drawer-info-value">{{ drawerData.type || '未知' }}</span>
-            </div>
-            <div class="alert-drawer-info-row">
-              <span class="alert-drawer-info-label">等级</span>
-              <span class="alert-drawer-info-value">{{ drawerData.level || '一般' }}</span>
-            </div>
-            <div class="alert-drawer-info-row">
-              <span class="alert-drawer-info-label">时间</span>
-              <span class="alert-drawer-info-value">{{ drawerData.time }}</span>
-            </div>
-            <div class="alert-drawer-info-row">
-              <span class="alert-drawer-info-label">布点</span>
-              <span class="alert-drawer-info-value">{{ drawerData.location }}</span>
-            </div>
-            <div class="alert-drawer-info-row">
-              <span class="alert-drawer-info-label">处理状态</span>
-              <span class="alert-drawer-info-value">{{ drawerData.status || '未处理' }}</span>
-            </div>
-            <div class="alert-drawer-info-row">
-              <span class="alert-drawer-info-label">处理人</span>
-              <span class="alert-drawer-info-value">{{ drawerData.handler || '-' }}</span>
-            </div>
-            <div class="alert-drawer-info-row">
-              <span class="alert-drawer-info-label">处理时间</span>
-              <span class="alert-drawer-info-value">{{ drawerData.handleTime || '-' }}</span>
-            </div>
+          <div class="monitor-alert-img-box">
+            <img :src="drawerData.img" alt="抓拍图片" class="monitor-alert-img" />
           </div>
-          <div class="alert-drawer-desc" v-if="drawerData.desc"> {{ drawerData.desc }} </div>
-          <div class="alert-drawer-info-row" v-if="drawerData.remark">
-            <span class="alert-drawer-info-label">备注</span>
-            <span class="alert-drawer-info-value">{{ drawerData.remark }}</span>
-          </div>
-          <div class="alert-drawer-actions">
-            <button class="alert-drawer-action-btn" @click="onAlertAction(drawerData)">
-              处理
-            </button>
+          <div class="monitor-alert-bottom-bar">
+            <input class="monitor-alert-input" v-model="drawerRemark" placeholder="处理意见" />
+            <div class="monitor-alert-btns">
+              <button class="monitor-btn confirm" @click="onAlertActionConfirm(drawerData)"
+                >确认</button
+              >
+              <button class="monitor-btn error" @click="onAlertActionError(drawerData)"
+                >误报</button
+              >
+              <button class="monitor-btn reset" @click="drawerRemark=''">重置</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <script src="./js/monitor.js"></script>
+    <style>
+      .alert-drawer-overlay {
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .monitor-alert-drawer {
+        background: #202b3a;
+        color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px #000a;
+        width: 800px;
+        max-width: 96vw;
+        padding: 0 0 24px 0;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        animation: fadeIn 0.2s;
+      }
+      .monitor-alert-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 18px 0 8px 0;
+        border-bottom: 1px solid #2c3e50;
+      }
+      .monitor-alert-title {
+        font-size: 20px;
+        color: #1ec6ff;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+      .monitor-alert-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, auto);
+        gap: 10px 32px;
+        padding: 18px 36px 8px 36px;
+        font-size: 15px;
+      }
+      .monitor-alert-info-grid .info-block {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .monitor-alert-info-grid .info-label {
+        color: #8fa3b7;
+        font-weight: 500;
+      }
+      .monitor-alert-img-box {
+        width: 100%;
+        padding: 0 36px;
+        margin: 0 0 18px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .monitor-alert-img {
+        width: 100%;
+        max-width: 500px;
+        border-radius: 8px;
+        box-shadow: 0 2px 12px #0006;
+        background: #111a2a;
+        object-fit: contain;
+        display: block;
+      }
+      .monitor-alert-bottom-bar {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 36px;
+        margin-top: 8px;
+      }
+      .monitor-alert-input {
+        flex: 1;
+        height: 36px;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+        padding: 0 12px;
+        font-size: 15px;
+        background: #263445;
+        color: #fff;
+        margin-right: 12px;
+      }
+      .monitor-alert-btns {
+        display: flex;
+        gap: 12px;
+      }
+      .monitor-btn {
+        min-width: 64px;
+        height: 36px;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+      .monitor-btn.confirm {
+        background: #1ec6ff;
+        color: #fff;
+      }
+      .monitor-btn.confirm:hover {
+        background: #0ea6e9;
+      }
+      .monitor-btn.error {
+        background: #f56c6c;
+        color: #fff;
+      }
+      .monitor-btn.error:hover {
+        background: #d93030;
+      }
+      .monitor-btn.reset {
+        background: #374151;
+        color: #fff;
+      }
+      .monitor-btn.reset:hover {
+        background: #222c37;
+      }
+      @media (max-width: 900px) {
+        .monitor-alert-drawer {
+          width: 98vw;
+          padding: 0 0 18px 0;
+        }
+        .monitor-alert-info-grid,
+        .monitor-alert-img-box,
+        .monitor-alert-bottom-bar {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        .monitor-alert-img {
+          max-width: 98vw;
+        }
+      }
+      @media (max-width: 600px) {
+        .monitor-alert-info-grid {
+          grid-template-columns: 1fr;
+          gap: 8px 0;
+        }
+        .monitor-alert-img {
+          max-width: 100vw;
+        }
+        .monitor-alert-bottom-bar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+        .monitor-alert-input {
+          margin-right: 0;
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    </style>
   </body>
 </html>

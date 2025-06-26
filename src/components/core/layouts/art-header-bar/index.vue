@@ -245,6 +245,16 @@
   // BroadcastChannel全屏同步
   const fullscreenChannel = new window.BroadcastChannel('fullscreen-sync')
   let isSyncingFullscreen = false
+  let isChannelClosed = false
+
+  function safePostMessage(data: any) {
+    if (isChannelClosed) return
+    try {
+      fullscreenChannel.postMessage(data)
+    } catch (e) {
+      // BroadcastChannel已关闭，忽略
+    }
+  }
 
   const setFullscreen = (full: boolean) => {
     if (full && !document.fullscreenElement) {
@@ -257,18 +267,24 @@
   const toggleFullScreen = () => {
     toggleFullscreen()
     // 主动广播
-    fullscreenChannel.postMessage({ fullscreen: !isFullscreen.value })
+    safePostMessage({ fullscreen: !isFullscreen.value })
   }
+
+  const route = useRoute()
 
   onMounted(() => {
     initLanguage()
     document.addEventListener('click', bodyCloseNotice)
+    // 同步 isFullscreen 状态
+    isFullscreen.value = !!document.fullscreenElement
     // 监听fullscreenchange，广播当前状态
     document.addEventListener('fullscreenchange', () => {
       if (!isSyncingFullscreen) {
-        fullscreenChannel.postMessage({ fullscreen: !!document.fullscreenElement })
+        safePostMessage({ fullscreen: !!document.fullscreenElement })
       }
       isSyncingFullscreen = false
+      // 同步 isFullscreen 状态
+      isFullscreen.value = !!document.fullscreenElement
     })
     // 监听频道消息
     fullscreenChannel.onmessage = (e) => {
@@ -281,9 +297,18 @@
     }
   })
 
+  // 路由切换时同步 isFullscreen 状态
+  watch(
+    () => route.fullPath,
+    () => {
+      isFullscreen.value = !!document.fullscreenElement
+    }
+  )
+
   onUnmounted(() => {
     document.removeEventListener('click', bodyCloseNotice)
     fullscreenChannel.close()
+    isChannelClosed = true
   })
 
   const topBarWidth = (): string => {

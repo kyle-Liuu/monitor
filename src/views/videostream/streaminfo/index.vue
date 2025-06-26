@@ -155,8 +155,8 @@
             <ElCard>
               <div style="font-weight: bold; margin-bottom: 10px">{{ getAlgoLabel(algo) }}</div>
               <ElFormItem label="标定检测区域" required>
-                <ElButton @click="calibrateDialogVisible = true">标定检测区域</ElButton>
-                <ElButton>查看检测区域</ElButton>
+                <ElButton @click="onCalibrateClick">标定检测区域</ElButton>
+                <ElButton @click="onViewCalibrateClick">查看检测区域</ElButton>
               </ElFormItem>
               <ElFormItem label="告警间隔">
                 <ElInput
@@ -191,7 +191,7 @@
             </ElCard>
           </div>
           <ElFormItem label="启用">
-            <ElSwitch v-model="formData.disable" />
+            <ElSwitch v-model="formData.enable" />
           </ElFormItem>
           <div style="text-align: right; margin-top: 20px">
             <ElButton @click="drawerVisible = false">取消</ElButton>
@@ -224,7 +224,6 @@
         :show-close="true"
       >
         <div style="padding: 0 8px">
-          <!-- 顶部按钮 -->
           <div
             style="
               display: flex;
@@ -235,39 +234,74 @@
           >
             <ElButton type="info" icon="el-icon-camera">获取原始图片</ElButton>
           </div>
-          <!-- 图片区域 -->
           <div
             style="
+              position: relative;
               background: #fff;
               text-align: center;
               border-radius: 8px;
               padding: 18px 0;
               box-shadow: 0 2px 8px #0001;
+              overflow: scroll;
+              max-height: 600px;
             "
           >
-            <img
-              src="/assets/image.png"
-              style="max-width: 95%; border-radius: 8px; box-shadow: 0 1px 6px #0002"
-            />
+            <div :style="{ position: 'relative', display: 'inline-block' }">
+              <img
+                ref="calibrateImg"
+                :src="calibrateImgUrl"
+                :style="{
+                  maxWidth: '95%',
+                  borderRadius: '8px',
+                  boxShadow: '0 1px 6px #0002',
+                  transform: `scale(${imgScale})`,
+                  userSelect: 'none',
+                  pointerEvents: 'none',
+                  position: 'relative',
+                  zIndex: 1
+                }"
+                draggable="false"
+                @load="onImgLoad"
+              />
+              <canvas
+                v-show="showCalibrateActions"
+                ref="calibrateCanvas"
+                :width="imgNaturalWidth"
+                :height="imgNaturalHeight"
+                :style="{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  transform: `scale(${imgScale})`,
+                  pointerEvents: editingPolygon ? 'auto' : 'none',
+                  zIndex: 10,
+                  userSelect: 'none',
+                  cursor: editingPolygon ? 'crosshair' : 'default',
+                  background: '#00330022'
+                }"
+                @mousedown="editingPolygon ? onCanvasMouseDown : undefined"
+                @dblclick="editingPolygon ? onCanvasDblClick : undefined"
+                draggable="false"
+              ></canvas>
+            </div>
           </div>
-          <!-- 底部按钮 -->
           <div
+            v-if="showCalibrateActions"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
               margin-top: 24px;
+              gap: 12px;
             "
           >
             <div>
-              <ElButton type="primary" size="small" style="margin-right: 10px"
-                >*编辑多边形</ElButton
-              >
-              <ElButton type="danger" size="small" style="margin-right: 10px">清除</ElButton>
-              <ElButton size="small" style="margin-right: 6px">+</ElButton>
-              <ElButton size="small">-</ElButton>
+              <ElButton type="primary" size="small" @click="startEditPolygon">编辑多边形</ElButton>
+              <ElButton type="danger" size="small" @click="clearPolygon">清除</ElButton>
+              <ElButton size="small" @click="zoomIn">+</ElButton>
+              <ElButton size="small" @click="zoomOut">-</ElButton>
             </div>
-            <ElButton type="warning" size="small">保存</ElButton>
+            <ElButton type="warning" size="small" @click="savePolygon">保存</ElButton>
           </div>
         </div>
       </ElDialog>
@@ -321,7 +355,7 @@
     streamName: '',
     streamCode: '',
     protocol: '',
-    disable: ''
+    enable: ''
   })
 
   const formItems: SearchFormItem[] = [
@@ -339,7 +373,7 @@
     },
     {
       label: '启用',
-      prop: 'disable',
+      prop: 'enable',
       type: 'select',
       config: { clearable: true },
       options: () => [
@@ -371,14 +405,14 @@
     streamCode: string
     protocol: string
     description: string
-    disable: boolean
+    enable: boolean
   }>({
     orgId: '',
     streamName: '',
     streamCode: '',
     protocol: 'rtsp',
     description: '',
-    disable: false
+    enable: false
   })
 
   const rules: FormRules = {
@@ -448,12 +482,12 @@
       }
     },
     {
-      prop: 'disable',
+      prop: 'enable',
       label: '启用',
       width: 80,
       formatter: (row: any) => {
-        return h(ElTag, { type: row.disable ? 'info' : 'success' }, () =>
-          row.disable ? '禁用' : '启用'
+        return h(ElTag, { type: row.enable ? 'success' : 'info' }, () =>
+          row.enable ? '启用' : '禁用'
         )
       }
     },
@@ -542,7 +576,7 @@
       formData.streamCode = row.streamCode
       formData.protocol = row.protocol
       formData.description = row.description
-      formData.disable = row.disable ?? false
+      formData.enable = row.enable ?? false
       // 回显算法标签和配置（如有）
       selectedAlgos.value = row.algos || []
       Object.assign(algoConfigs, row.algoConfigs || {})
@@ -553,7 +587,7 @@
       formData.streamCode = ''
       formData.protocol = 'rtsp'
       formData.description = ''
-      formData.disable = false
+      formData.enable = false
       selectedAlgos.value = []
       Object.keys(algoConfigs).forEach((key) => delete algoConfigs[key])
       expandedOrgKeys.value = []
@@ -565,7 +599,7 @@
     formFilters.streamName = ''
     formFilters.streamCode = ''
     formFilters.protocol = ''
-    formFilters.disable = ''
+    formFilters.enable = ''
     pagination.currentPage = 1
     getTableData()
   }
@@ -671,9 +705,9 @@
       if (formFilters.protocol) {
         filtered = filtered.filter((item) => item.protocol === formFilters.protocol)
       }
-      if (formFilters.disable !== '') {
-        if (formFilters.disable === '0') filtered = filtered.filter((item) => !item.disable)
-        if (formFilters.disable === '1') filtered = filtered.filter((item) => item.disable)
+      if (formFilters.enable !== '') {
+        if (formFilters.enable === '0') filtered = filtered.filter((item) => !item.enable)
+        if (formFilters.enable === '1') filtered = filtered.filter((item) => item.enable)
       }
       if (props.orgId) {
         filtered = filtered.filter((item) => item.orgId === props.orgId)
@@ -868,7 +902,11 @@
   }
 
   function handleClose(done: () => void) {
-    ElMessageBox.confirm('确定要关闭吗？').then(() => done())
+    ElMessageBox.confirm('确定要关闭吗？')
+      .then(() => done())
+      .catch(() => {
+        // 用户点击取消或关闭弹窗，不做处理，防止Promise未捕获异常
+      })
   }
 
   const checkStatus = ref('')
@@ -932,6 +970,105 @@
   )
 
   const calibrateDialogVisible = ref(false)
+  const showCalibrateActions = ref(true)
+  const calibrateImgUrl = ref('/assets/image.png')
+  const calibrateImg = ref<HTMLImageElement | null>(null)
+  const calibrateCanvas = ref<HTMLCanvasElement | null>(null)
+  const imgNaturalWidth = ref(0)
+  const imgNaturalHeight = ref(0)
+  const imgScale = ref(1)
+  const editingPolygon = ref(false)
+  const polygonPoints = ref<{ x: number; y: number }[]>([])
+  const tempPoints = ref<{ x: number; y: number }[]>([])
+
+  function onCalibrateClick() {
+    showCalibrateActions.value = true
+    calibrateDialogVisible.value = true
+  }
+  function onViewCalibrateClick() {
+    showCalibrateActions.value = false
+    calibrateDialogVisible.value = true
+  }
+  function onImgLoad(e: Event) {
+    const target = e.target as HTMLImageElement
+    imgNaturalWidth.value = target.naturalWidth
+    imgNaturalHeight.value = target.naturalHeight
+    drawPolygon()
+  }
+  function onCanvasMouseDown(e: MouseEvent) {
+    if (!editingPolygon.value) return
+    if (!calibrateImg.value) return
+    const rect = calibrateImg.value.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    tempPoints.value.push({ x, y })
+    drawPolygon(tempPoints.value)
+  }
+  function onCanvasDblClick() {
+    if (!editingPolygon.value) return
+    polygonPoints.value = [...tempPoints.value]
+    editingPolygon.value = false
+    drawPolygon()
+  }
+  function clearPolygon() {
+    polygonPoints.value = []
+    tempPoints.value = []
+    drawPolygon()
+  }
+  function zoomIn() {
+    imgScale.value = Math.min(imgScale.value + 0.1, 2)
+    drawPolygon()
+  }
+  function zoomOut() {
+    imgScale.value = Math.max(imgScale.value - 0.1, 0.5)
+    drawPolygon()
+  }
+  function savePolygon() {
+    // 输出相对坐标
+    console.log('保存多边形:', polygonPoints.value)
+  }
+  function drawPolygon(points = polygonPoints.value) {
+    const canvas = calibrateCanvas.value
+    const img = calibrateImg.value
+    if (!canvas || !img) return
+    canvas.width = imgNaturalWidth.value
+    canvas.height = imgNaturalHeight.value
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    if (!points.length) return
+    ctx.save()
+    ctx.scale(imgScale.value, imgScale.value)
+    ctx.strokeStyle = '#00ff00'
+    ctx.lineWidth = 2 / imgScale.value
+    ctx.beginPath()
+    ctx.moveTo(points[0].x * imgNaturalWidth.value, points[0].y * imgNaturalHeight.value)
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x * imgNaturalWidth.value, points[i].y * imgNaturalHeight.value)
+    }
+    if (!editingPolygon.value && points.length > 2) ctx.closePath()
+    ctx.stroke()
+    // 画顶点小圆点
+    ctx.fillStyle = '#00ff00'
+    for (const pt of points) {
+      ctx.beginPath()
+      ctx.arc(
+        pt.x * imgNaturalWidth.value,
+        pt.y * imgNaturalHeight.value,
+        5 / imgScale.value,
+        0,
+        2 * Math.PI
+      )
+      ctx.fill()
+    }
+    ctx.restore()
+  }
+  watch(calibrateDialogVisible, (val) => {
+    if (val) {
+      imgScale.value = 1
+      nextTick(() => drawPolygon())
+    }
+  })
 
   function onAlgoBoxClick(e: MouseEvent) {
     const target = e.target as HTMLElement
@@ -945,6 +1082,11 @@
     if (idx !== -1) selectedAlgos.value.splice(idx, 1)
     // 同步移除配置
     if (algoConfigs[algo]) delete algoConfigs[algo]
+  }
+
+  function startEditPolygon() {
+    editingPolygon.value = true
+    tempPoints.value = [...polygonPoints.value]
   }
 
   onMounted(() => {

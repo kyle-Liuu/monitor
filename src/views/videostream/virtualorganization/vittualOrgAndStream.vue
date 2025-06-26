@@ -42,7 +42,7 @@
         <!-- </VueDraggable> -->
       </ElCard>
       <!-- 新增流穿梭框弹窗 -->
-      <ElDialog v-model="transferVisible" title="分配视频流到当前组织" width="520px" align-center>
+      <ElDialog v-model="transferVisible" title="分配视频流到当前组织" align-center>
         <div class="custom-transfer-wrapper">
           <ElTransfer
             v-model="transferValue"
@@ -51,7 +51,6 @@
             :filter-method="filterMethod"
             filter-placeholder="流名称/拼音"
             :titles="['未分配组织', '当前组织']"
-            style="width: 400px; height: 320px"
             class="custom-dark-transfer"
             @change="handleTransferChange"
           />
@@ -59,14 +58,14 @@
         <template #footer>
           <div class="dialog-footer">
             <ElButton @click="transferVisible = false">取消</ElButton>
-            <ElButton type="primary" @click="transferVisible = false">确定</ElButton>
+            <ElButton type="primary" @click="handleTransferOk">确定</ElButton>
           </div>
         </template>
       </ElDialog>
       <!-- 编辑流弹窗 -->
       <ElDialog
         v-model="dialogVisible"
-        :title="dialogType === 'add' ? '新增流' : '编辑流'"
+        :title="dialogType === 'add' ? '新增' : '编辑'"
         width="420px"
         align-center
       >
@@ -385,7 +384,7 @@
           streamCode: Math.random().toString(36).slice(2, 10),
           protocol: 'rtsp',
           description: formData.value.description,
-          disable: false,
+          enable: false,
           algos: [],
           algoConfigs: {},
           createTime: now
@@ -395,6 +394,7 @@
         const idx = tableData.value.findIndex((item) => item.id === editRowId.value)
         if (idx !== -1) {
           const orgName = findOrgNameById(orgTree.value, formData.value.orgId)
+          // 更新表格数据
           tableData.value[idx] = {
             ...tableData.value[idx],
             streamName: formData.value.streamName,
@@ -402,7 +402,16 @@
             orgName,
             description: formData.value.description
           }
+          // 同步更新mock数据
+          const mockItem = STREAM_LIST_MOCK.find((item) => item.id === editRowId.value)
+          if (mockItem) {
+            mockItem.streamName = formData.value.streamName
+            mockItem.orgId = formData.value.orgId
+            mockItem.orgName = orgName
+            mockItem.description = formData.value.description
+          }
         }
+        getTableData()
       }
       dialogVisible.value = false
     })
@@ -424,14 +433,14 @@
   const transferVisible = ref(false)
   const transferValue = ref<number[]>([])
   const transferData = computed(() => {
-    // 所有流，未分配组织的在左侧
-    return tableData.value
-      .filter((item) => !item.orgId || item.orgId === '')
-      .map((item) => ({
-        key: item.id,
-        label: item.streamName,
-        initial: item.streamName // 可扩展拼音首字母
-      }))
+    // 只显示未分配组织的流和当前组织下的流
+    return STREAM_LIST_MOCK.filter(
+      (item) => !item.orgId || item.orgId === '' || item.orgId === props.orgId
+    ).map((item) => ({
+      key: item.id,
+      label: item.streamName,
+      initial: item.streamName // 可扩展拼音首字母
+    }))
   })
   watchEffect(() => {
     // 当前组织下的流 id
@@ -447,18 +456,7 @@
     direction: TransferDirection,
     movedKeys: TransferKey[]
   ) => {
-    if (direction === 'right') {
-      movedKeys.forEach((id) => {
-        const stream = tableData.value.find((item) => item.id === id)
-        if (stream) stream.orgId = props.orgId || ''
-      })
-    } else {
-      movedKeys.forEach((id) => {
-        const stream = tableData.value.find((item) => item.id === id)
-        if (stream) stream.orgId = ''
-      })
-    }
-    getTableData()
+    // 这里不做任何数据修改和刷新
   }
 
   // 编辑弹窗组织字段联动路径
@@ -489,7 +487,44 @@
   }
 
   function openTransfer() {
+    // 每次打开都重置 transferValue
+    transferValue.value = STREAM_LIST_MOCK.filter((item) => item.orgId === props.orgId).map(
+      (item) => item.id
+    )
     transferVisible.value = true
+  }
+
+  function handleTransferOk() {
+    // 1. 找出本次新加入当前组织的流
+    const newIds = transferValue.value.filter((id) => {
+      const stream = STREAM_LIST_MOCK.find((item) => item.id === id)
+      return stream && stream.orgId !== props.orgId
+    })
+    // 2. 找出本次被移除出当前组织的流
+    const removedIds = STREAM_LIST_MOCK.filter(
+      (item) => item.orgId === props.orgId && !transferValue.value.includes(item.id)
+    ).map((item) => item.id)
+
+    // 3. 只给新加入的流赋 orgId/orgName
+    newIds.forEach((id) => {
+      const stream = STREAM_LIST_MOCK.find((item) => item.id === id)
+      if (stream) {
+        stream.orgId = props.orgId || ''
+        stream.orgName = findOrgNameById(ORG_TREE_MOCK, props.orgId || '')
+      }
+    })
+
+    // 4. 只给被移除的流清空 orgId/orgName
+    removedIds.forEach((id) => {
+      const stream = STREAM_LIST_MOCK.find((item) => item.id === id)
+      if (stream) {
+        stream.orgId = ''
+        stream.orgName = ''
+      }
+    })
+
+    transferVisible.value = false
+    getTableData()
   }
 
   defineExpose({

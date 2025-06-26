@@ -87,54 +87,123 @@
       :with-header="true"
     >
       <template #default>
-        <div v-if="drawerData" class="drawer-detail-content">
-          <div class="drawer-imgs">
-            <el-image
-              :src="drawerData.snap_imgurl"
-              :preview-src-list="[drawerData.snap_imgurl]"
-              :initial-index="0"
-              fit="cover"
-              style="width: 60%; border-radius: 8px; box-shadow: 0 2px 8px #0002"
-            >
-              <template #placeholder>
-                <div class="image-slot">加载中<span class="dot">...</span></div>
-              </template>
-            </el-image>
+        <div v-if="drawerData" class="drawer-detail-content drawer-flex-layout">
+          <!-- 顶部信息区（三行两列的grid分组） -->
+          <div class="drawer-info-header-horizontal info-header-grid-3x2">
+            <div class="info-block">
+              <span class="info-label">状态：</span>
+              <span
+                :style="{
+                  color: drawerData.process_status === 72 ? '#f56c6c' : '#67c23a',
+                  fontWeight: 600
+                }"
+              >
+                {{ drawerData.process_status === 72 ? '未处理' : '已处理' }}
+              </span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">等级：</span>
+              <span style="color: #e6a23c; font-weight: 600">{{ drawerData.process_level }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">类型：</span>
+              <span style="color: #409eff; font-weight: 600">{{ drawerData.algo_name }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">时间：</span>
+              <span>{{ drawerData.snap_time }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">数据源：</span>
+              <span>{{ drawerData.device_name }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">IP：</span>
+              <span>{{ drawerData.device_ip || '-' }}</span>
+            </div>
           </div>
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="事件类型">{{ drawerData.algo_name }}</el-descriptions-item>
-            <el-descriptions-item label="事件时间">{{ drawerData.snap_time }}</el-descriptions-item>
-            <el-descriptions-item label="事件地点">
-              <span class="ellipsis" :title="drawerData.device_name">{{
-                drawerData.device_name
-              }}</span>
-            </el-descriptions-item>
-            <el-descriptions-item label="事件设备">{{ drawerData.device_id }}</el-descriptions-item>
-            <el-descriptions-item label="处理等级">{{
-              drawerData.process_level
-            }}</el-descriptions-item>
-            <el-descriptions-item label="处理状态">{{
-              drawerData.process_status === 72 ? '未处理' : '已处理'
-            }}</el-descriptions-item>
-            <el-descriptions-item label="处理人">{{
-              drawerData.process_username
-            }}</el-descriptions-item>
-            <el-descriptions-item label="处理时间">{{
-              drawerData.process_time
-            }}</el-descriptions-item>
-            <el-descriptions-item label="事件备注">
-              <span class="ellipsis" :title="drawerData.process_remark">{{
-                drawerData.process_remark
-              }}</span>
-            </el-descriptions-item>
-          </el-descriptions>
-          <div style="margin-top: 24px">
-            <el-table :data="historyList" border class="drawer-history-table">
-              <el-table-column prop="time" label="处理时间" width="160" />
-              <el-table-column prop="user" label="处理人" width="120" />
-              <el-table-column prop="result" label="处理结果" />
-              <el-table-column prop="remark" label="备注" />
-            </el-table>
+          <div class="drawer-main-flex drawer-main-2col">
+            <!-- 左侧：视频+图片 -->
+            <div class="drawer-imgs">
+              <div class="drawer-video-box">
+                <ArtVideoPlayer
+                  v-if="true"
+                  :playerId="'drawer-video-' + drawerData.snap_id"
+                  :videoUrl="drawerData.snap_videourl"
+                  :posterUrl="drawerData.snap_imgurl"
+                  :autoplay="false"
+                  :volume="1"
+                  :playbackRates="[0.5, 1, 1.5, 2]"
+                  style="width: 100%; max-width: 320px; margin: 0 auto; background: transparent"
+                />
+              </div>
+              <el-image
+                :src="drawerData.snap_imgurl"
+                :preview-src-list="[drawerData.snap_imgurl]"
+                :initial-index="0"
+                fit="cover"
+                style="
+                  width: 100%;
+                  max-width: 320px;
+                  margin: 16px auto 0 auto;
+                  background: transparent;
+                "
+              >
+                <template #placeholder>
+                  <div class="image-slot">加载中<span class="dot">...</span></div>
+                </template>
+              </el-image>
+              <div class="media-btn-bar media-btn-bar-center">
+                <el-button
+                  v-if="drawerData.snap_videourl"
+                  type="primary"
+                  :icon="Download"
+                  @click="downloadVideo(drawerData.snap_videourl, 'warning-video.mp4')"
+                  >下载视频</el-button
+                >
+                <el-button
+                  type="primary"
+                  :icon="Download"
+                  @click="downloadImage(drawerData.snap_imgurl, 'warning-image.jpg')"
+                  >下载图片</el-button
+                >
+              </div>
+            </div>
+            <!-- 右侧：处理历史+操作 -->
+            <div class="drawer-info-ops">
+              <div class="drawer-history-block">
+                <el-timeline>
+                  <el-timeline-item
+                    v-for="(h, idx) in drawerData.process_history || []"
+                    :key="idx"
+                    :timestamp="h.time"
+                    :color="
+                      h.result === '误报' ? '#f56c6c' : h.result === '确认' ? '#67c23a' : '#409EFF'
+                    "
+                  >
+                    <div>
+                      <b>{{ h.user }}</b
+                      >：{{ h.result }}
+                      <div v-if="h.remark" style="color: #888; font-size: 13px"
+                        >意见：{{ h.remark }}</div
+                      >
+                    </div>
+                  </el-timeline-item>
+                </el-timeline>
+              </div>
+              <div class="drawer-process-block">
+                <el-input
+                  v-model="processRemark"
+                  placeholder="处理意见"
+                  style="width: 100%; margin-bottom: 12px"
+                />
+                <div class="process-btn-group">
+                  <el-button type="success" @click="handleProcess('确认')">确认</el-button>
+                  <el-button type="danger" @click="handleProcess('误报')">误报</el-button>
+                  <el-button @click="resetProcessInput">重置</el-button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -150,6 +219,7 @@
   import { useRoute } from 'vue-router'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import type { SearchFormItem } from '@/types'
+  import ArtVideoPlayer from '@/components/core/media/art-video-player/index.vue'
 
   const searchForm = ref({
     startTime: '',
@@ -293,10 +363,19 @@
 
   const selectedItems = ref<string[]>([])
 
-  function downloadImage(url: string) {
+  function downloadImage(url: string, filename = `warning-${Date.now()}.jpg`) {
     const link = document.createElement('a')
     link.href = url
-    link.download = `warning-${Date.now()}.jpg`
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  function downloadVideo(url: string, filename = `warning-${Date.now()}.mp4`) {
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -327,6 +406,26 @@
           message: '已取消删除'
         })
       })
+  }
+
+  // 假设有全局用户名变量 userName，如无则mock
+  const userName = '张伟'
+  const processUser = ref(userName)
+  const processRemark = ref('')
+  function handleProcess(result: string) {
+    if (!processUser.value) return ElMessage.warning('请输入处理人')
+    if (!drawerData.value) return
+    if (!drawerData.value.process_history) drawerData.value.process_history = []
+    drawerData.value.process_history.unshift({
+      time: new Date().toLocaleString(),
+      user: processUser.value,
+      result,
+      remark: processRemark.value
+    })
+    processRemark.value = ''
+  }
+  function resetProcessInput() {
+    processRemark.value = ''
   }
 </script>
 
@@ -417,66 +516,137 @@
   .drawer-detail-content {
     padding: 12px 0;
   }
+  .drawer-flex-layout {
+    display: block;
+  }
+  .drawer-main-flex {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
   .drawer-imgs {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 24px auto;
+  }
+  .drawer-info-ops {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  @media (min-width: 900px) {
+    .drawer-flex-layout {
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-main-flex {
+      flex-direction: row;
+      gap: 48px;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+    .drawer-imgs {
+      width: 320px;
+      margin: 0 0 0 0;
+    }
+    .drawer-info-ops {
+      width: 400px;
+      margin: 0;
+    }
+  }
+  .drawer-info-header-horizontal.info-header-grid-3x2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    grid-template-rows: repeat(3, auto);
+    gap: 14px 32px;
+    align-items: center;
+    padding: 18px 24px 12px 24px;
+    margin-bottom: 24px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  @media (max-width: 900px) {
+    .drawer-info-header-horizontal.info-header-grid-3x2 {
+      grid-template-columns: 1fr;
+      grid-template-rows: none;
+      gap: 10px 0;
+      padding: 14px 10px 8px 10px;
+    }
+  }
+  .drawer-info-header-horizontal .info-block {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .drawer-info-header-horizontal .info-label {
+    color: #888;
+    font-weight: 500;
+  }
+  .drawer-main-2col {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  @media (min-width: 900px) {
+    .drawer-main-2col {
+      flex-direction: row;
+      gap: 48px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+  }
+  .drawer-imgs-card {
+    padding: 24px 18px 18px 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
+    min-width: 0;
   }
-  .drawer-imgs img {
-    border: 1px solid var(--art-gray-900);
-    aspect-ratio: 16/9;
-    object-fit: cover;
+  .media-btn-bar-center {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 18px;
+    margin-bottom: 0;
   }
-  .drawer-history-table {
-    background: var(--art-root-card-border-color);
-    color: var(--art-text-gray-800);
+  .drawer-info-ops-card {
+    padding: 24px 18px 18px 18px;
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    align-items: stretch;
   }
-  .drawer-history-table .el-table__header th {
-    background: var(--art-main-bg-color);
-    color: var(--art-text-gray-800);
+  .drawer-history-block {
+    margin-bottom: 0;
   }
-  .drawer-history-table .el-table__row {
-    background: var(--art-root-card-border-color);
-  }
-  .pager-bar {
-    text-align: center;
-  }
-  .pager-bar :deep(.el-pagination) {
-    display: inline-flex;
-    background: var(--art-root-card-border-color);
-    border-radius: 8px;
-    padding: 12px 24px;
-    box-shadow: 0 2px 8px #0002;
+  .drawer-process-block {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    gap: 12px;
   }
-  .pager-bar :deep(.el-pagination__total),
-  .pager-bar :deep(.el-pagination__sizes),
-  .pager-bar :deep(.el-pagination__jump) {
-    color: var(--art-text-gray-800);
+  .process-btn-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    width: 100%;
   }
-  .pager-bar :deep(.el-pagination__editor.el-input .el-input__inner) {
-    /* background: var(--art-main-bg-color); */
-    color: var(--art-text-gray-800);
-    border-radius: 6px;
-  }
-  .pager-bar :deep(.el-pager li) {
-    background: var(--art-main-bg-color);
-    color: var(--art-text-gray-800);
-    border-radius: 6px;
-    margin: 0 2px;
-    transition:
-      background 0.2s,
-      color 0.2s;
-  }
-  .pager-bar :deep(.el-pager li.is-active) {
-    background: #6c7fff;
-    color: #fff;
-    border-radius: 6px;
-  }
-  .pager-bar :deep(.el-pager li:hover) {
-    color: var(--art-primary);
+  .image-slot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background: var(--el-fill-color-light);
+    color: var(--el-text-color-secondary);
   }
   .checkbox-wrapper {
     position: absolute;
@@ -521,13 +691,20 @@
     border-color: var(--el-border-color-hover);
     color: var(--el-color-primary);
   }
-  .image-slot {
+  .media-btn-bar {
     display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+  .pager-bar {
+    text-align: center;
+    margin-top: 16px;
+  }
+  .pager-bar :deep(.el-pagination) {
+    display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
-    background: var(--el-fill-color-light);
-    color: var(--el-text-color-secondary);
   }
 </style>

@@ -9,7 +9,7 @@ export interface StreamItem {
   streamCode: string
   protocol: string
   description: string
-  disable: boolean
+  enable: boolean
   algos: string[]
   algoConfigs: Record<string, any>
   createTime: string
@@ -121,7 +121,7 @@ export const STREAM_LIST_MOCK: StreamItem[] = Array(50)
       streamCode: `rtsp://192.168.1.${(index % 100) + 1}/stream/${index + 1}`,
       protocol: protocols[index % protocols.length],
       description: `${descriptions[index % descriptions.length]} - ${index + 1}号`,
-      disable: orgStatus === '禁用' ? true : Math.random() > 0.5,
+      enable: orgStatus === '禁用' ? false : Math.random() > 0.5,
       algos,
       algoConfigs: randomAlgoConfigs(algos),
       createTime: new Date(
@@ -140,7 +140,7 @@ for (let i = 1; i <= 5; i++) {
     streamCode: `rtsp://192.168.1.200/stream/${i}`,
     protocol: 'rtsp',
     description: `未分配组织的视频流${i}`,
-    disable: false,
+    enable: false,
     algos: [],
     algoConfigs: {},
     createTime: new Date().toLocaleString()
