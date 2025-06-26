@@ -109,7 +109,7 @@ export default ({ mode }) => {
         ext: '.gz', // 压缩后的文件名后缀
         threshold: 10240, // 只有大小大于该值的资源会被处理 10240B = 10KB
         deleteOriginFile: false // 压缩后是否删除原文件
-      }),
+      })
       // 图片压缩
       // viteImagemin({
       //   verbose: true, // 是否在控制台输出压缩结果

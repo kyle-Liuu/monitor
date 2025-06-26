@@ -240,20 +240,51 @@
     return width.value * 0.5
   })
 
+  const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
+
+  // BroadcastChannel全屏同步
+  const fullscreenChannel = new window.BroadcastChannel('fullscreen-sync')
+  let isSyncingFullscreen = false
+
+  const setFullscreen = (full: boolean) => {
+    if (full && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+    } else if (!full && document.fullscreenElement) {
+      document.exitFullscreen()
+    }
+  }
+
+  const toggleFullScreen = () => {
+    toggleFullscreen()
+    // 主动广播
+    fullscreenChannel.postMessage({ fullscreen: !isFullscreen.value })
+  }
+
   onMounted(() => {
     initLanguage()
     document.addEventListener('click', bodyCloseNotice)
+    // 监听fullscreenchange，广播当前状态
+    document.addEventListener('fullscreenchange', () => {
+      if (!isSyncingFullscreen) {
+        fullscreenChannel.postMessage({ fullscreen: !!document.fullscreenElement })
+      }
+      isSyncingFullscreen = false
+    })
+    // 监听频道消息
+    fullscreenChannel.onmessage = (e) => {
+      if (typeof e.data.fullscreen === 'boolean') {
+        if (!!document.fullscreenElement !== e.data.fullscreen) {
+          isSyncingFullscreen = true
+          setFullscreen(e.data.fullscreen)
+        }
+      }
+    }
   })
 
   onUnmounted(() => {
     document.removeEventListener('click', bodyCloseNotice)
+    fullscreenChannel.close()
   })
-
-  const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
-
-  const toggleFullScreen = () => {
-    toggleFullscreen()
-  }
 
   const topBarWidth = (): string => {
     const { TOP, DUAL_MENU, TOP_LEFT } = MenuTypeEnum

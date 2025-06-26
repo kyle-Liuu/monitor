@@ -368,46 +368,46 @@ const app = new Vue({
     },
     async fetchDeviceList() {
       this.loading.deviceList = true
-      try {
-        const cachedData = cache.get('deviceList')
-        if (cachedData) {
-          this.deviceList = cachedData
-          this.updateDeviceStats()
-          return
-        }
+      // try {
+      //   const cachedData = cache.get('deviceList')
+      //   if (cachedData) {
+      //     this.deviceList = cachedData
+      //     this.updateDeviceStats()
+      //     return
+      //   }
 
-        const response = await fetchWithTimeout(
-          `${CONFIG.API_BASE_URL}/get_devList?token=${CONFIG.TOKEN}`
-        )
+      //   const response = await fetchWithTimeout(
+      //     `${CONFIG.API_BASE_URL}/get_devList?token=${CONFIG.TOKEN}`
+      //   )
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+      //   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
-        const data = await response.json()
-        this.deviceList = data
-        console.log(this.deviceList)
-        cache.set('deviceList', data)
-        this.updateDeviceStats()
+      //   const data = await response.json()
+      //   this.deviceList = data
+      //   console.log(this.deviceList)
+      //   cache.set('deviceList', data)
+      //   this.updateDeviceStats()
 
-        // 在获取到设备列表后,重新初始化分组状态
-        const newGroupStates = {}
-        const uniqueGroupIds = new Set()
-        this.deviceList.forEach((device) => {
-          const groupId = device.groupid === 0 ? 'ungrouped' : device.groupid
-          uniqueGroupIds.add(groupId)
-        })
+      //   // 在获取到设备列表后,重新初始化分组状态
+      //   const newGroupStates = {}
+      //   const uniqueGroupIds = new Set()
+      //   this.deviceList.forEach((device) => {
+      //     const groupId = device.groupid === 0 ? 'ungrouped' : device.groupid
+      //     uniqueGroupIds.add(groupId)
+      //   })
 
-        uniqueGroupIds.forEach((id) => {
-          // 保持之前已有的展开状态,如果没有则默认为折叠
-          const currentExpanded = this.groupStates[id] ? this.groupStates[id].expanded : false
-          this.$set(newGroupStates, id, { expanded: currentExpanded })
-        })
-        this.groupStates = newGroupStates
-      } catch (error) {
-        handleError(error, '获取设备列表')
-        this.showError('获取设备列表失败')
-      } finally {
-        this.loading.deviceList = false
-      }
+      //   uniqueGroupIds.forEach((id) => {
+      //     // 保持之前已有的展开状态,如果没有则默认为折叠
+      //     const currentExpanded = this.groupStates[id] ? this.groupStates[id].expanded : false
+      //     this.$set(newGroupStates, id, { expanded: currentExpanded })
+      //   })
+      //   this.groupStates = newGroupStates
+      // } catch (error) {
+      //   handleError(error, '获取设备列表')
+      //   this.showError('获取设备列表失败')
+      // } finally {
+      //   this.loading.deviceList = false
+      // }
     },
     showError(message) {
       console.log(message)
@@ -891,9 +891,15 @@ const app = new Vue({
     })
   }
 })
-
 // 后台按钮
-document.getElementById('back').addEventListener('click', function () {
-  // 跳转到后台管理系统
-  window.location.href = './'
-})
+const backBtn = document.getElementById('back')
+if (backBtn) {
+  backBtn.addEventListener('click', function () {
+    // 跳转到Vue主页面
+    if (window.parent !== window) {
+      window.parent.location.href = '/#/'
+    } else {
+      window.location.href = '/#/'
+    }
+  })
+}

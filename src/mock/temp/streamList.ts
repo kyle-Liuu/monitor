@@ -18,7 +18,7 @@ export interface StreamItem {
 // 获取所有启用组织id
 function getEnabledOrgIds(tree: any[]): string[] {
   let ids: string[] = []
-  tree.forEach(node => {
+  tree.forEach((node) => {
     if (node.status === '启用') ids.push(node.id)
     if (node.children) ids = ids.concat(getEnabledOrgIds(node.children))
   })
@@ -26,7 +26,7 @@ function getEnabledOrgIds(tree: any[]): string[] {
 }
 
 // 新增：根据id查找组织名称
-function findOrgNameById(tree: any[], id: string): string {
+export function findOrgNameById(tree: any[], id: string): string {
   for (const node of tree) {
     if (node.id === id) return node.name
     if (node.children) {
@@ -52,24 +52,41 @@ function findOrgStatusById(tree: any[], id: string): string {
 const enabledOrgIds = getEnabledOrgIds(ORG_TREE_MOCK)
 
 const allAlgos = [
-  'abnormal_park', 'car_count', 'car_illegal_park', 'car_type',
-  'ebike_illegal_park', 'ebike_elevator', 'car_emergency_lane', 'car_count_limit',
-  'solid_lane_change', 'cross_diversion', 'car_recognition', 'small_car_illegal_park',
-  'traffic_flow', 'truck_count', 'truck_fast_lane', 'truck_lane_change',
-  'truck_area_illegal_park', 'truck_reverse', 'car_attribute', 'car_periodic_check',
-  'car_speed', 'no_helmet', 'person_intrusion'
+  'abnormal_park',
+  'car_count',
+  'car_illegal_park',
+  'car_type',
+  'ebike_illegal_park',
+  'ebike_elevator',
+  'car_emergency_lane',
+  'car_count_limit',
+  'solid_lane_change',
+  'cross_diversion',
+  'car_recognition',
+  'small_car_illegal_park',
+  'traffic_flow',
+  'truck_count',
+  'truck_fast_lane',
+  'truck_lane_change',
+  'truck_area_illegal_park',
+  'truck_reverse',
+  'car_attribute',
+  'car_periodic_check',
+  'car_speed',
+  'no_helmet',
+  'person_intrusion'
 ]
 
 function randomAlgos() {
   // 让每条数据有 8~10 个算法标签
-  const count = Math.floor(Math.random() * 3) + 8 // 8~10
+  const count = Math.floor(Math.random() * 7) // 8~10
   const shuffled = allAlgos.sort(() => 0.5 - Math.random())
   return shuffled.slice(0, count)
 }
 
 function randomAlgoConfigs(algos: string[]) {
   const configs: Record<string, any> = {}
-  algos.forEach(algo => {
+  algos.forEach((algo) => {
     configs[algo] = {
       interval: Math.floor(Math.random() * 10) + 1,
       window: Math.floor(Math.random() * 10) + 1,
@@ -112,3 +129,20 @@ export const STREAM_LIST_MOCK: StreamItem[] = Array(50)
       ).toLocaleString()
     }
   })
+
+// 添加5条未分配组织的视频流
+for (let i = 1; i <= 5; i++) {
+  STREAM_LIST_MOCK.unshift({
+    id: 1000 + i,
+    orgId: '',
+    orgName: '',
+    streamName: `未分配流_${i}`,
+    streamCode: `rtsp://192.168.1.200/stream/${i}`,
+    protocol: 'rtsp',
+    description: `未分配组织的视频流${i}`,
+    disable: false,
+    algos: [],
+    algoConfigs: {},
+    createTime: new Date().toLocaleString()
+  })
+}
