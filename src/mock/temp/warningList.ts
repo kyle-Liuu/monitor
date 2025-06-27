@@ -42,7 +42,7 @@ export const WARNING_LIST_MOCK: WarningInfoMock[] = Array.from({ length: 200 }).
   )
   return {
     snap_id: `sanpgAocvsQ1G_${i + 1}`,
-    snap_imgurl: lockImg,
+    snap_imgurl: 'https://picsum.photos/1280/720',
     snap_videourl:
       '//lf3-static.bytednsdoc.com/obj/eden-cn/nupenuvpxnuvo/xgplayer_doc/xgplayer-demo.mp4',
     snap_time: `2025-05-${String((i % 30) + 1).padStart(2, '0')} ${String(8 + (i % 12)).padStart(2, '0')}:${String(8 + (i % 50)).padStart(2, '0')}:19`,

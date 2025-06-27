@@ -389,7 +389,8 @@
     },
     "warning": {
       "title": "警告管理",
-      "info": "警告信息"
+      "info": "警告信息",
+      "datapush": "数据推送"
     },
     "videostream": {
       "title": "视频流管理",
@@ -400,6 +401,11 @@
     "algorithm": {
       "title": "算法管理",
       "info": "算法信息"
+    },
+    "repository": {
+      "title": "底库管理",
+      "face": "人脸底库",
+      "uniform": "工服底库"
     }
   },
   "table": {

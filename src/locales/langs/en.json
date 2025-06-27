@@ -397,7 +397,8 @@
     },
     "warning": {
       "title": "Warning Management",
-      "info": "Warning Info"
+      "info": "Warning Info",
+      "datapush": "Data Push"
     },
     "videostream": {
       "title": "Video Stream Management",
@@ -408,6 +409,11 @@
     "algorithm": {
       "title": "Algorithm Management",
       "info": "Algorithm Info"
+    },
+    "repository": {
+      "title": "Repository",
+      "face": "Face Library",
+      "uniform": "Uniform Library"
     }
   },
   "table": {

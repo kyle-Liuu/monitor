@@ -639,6 +639,15 @@ export const asyncRoutes: AppRouteRecord[] = [
           title: 'menus.warning.info',
           keepAlive: true
         }
+      },
+      {
+        path: 'datapush',
+        name: 'DataPush',
+        component: RoutesAlias.DataPush,
+        meta: {
+          title: 'menus.warning.datapush',
+          keepAlive: true
+        }
       }
     ]
   },
@@ -697,6 +706,36 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.AlgorithmInfo,
         meta: {
           title: 'menus.algorithm.info',
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/repository',
+    name: 'Repository',
+    component: RoutesAlias.Home,
+    meta: {
+      title: 'menus.repository.title',
+      icon: '&#xe7c3;', // 可根据项目图标库选择合适icon
+      keepAlive: true
+    },
+    children: [
+      {
+        path: 'face',
+        name: 'RepositoryFace',
+        component: RoutesAlias.RepositoryFace,
+        meta: {
+          title: 'menus.repository.face',
+          keepAlive: true
+        }
+      },
+      {
+        path: 'uniform',
+        name: 'RepositoryUniform',
+        component: RoutesAlias.RepositoryUniform,
+        meta: {
+          title: 'menus.repository.uniform',
           keepAlive: true
         }
       }

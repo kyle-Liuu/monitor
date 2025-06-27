@@ -51,16 +51,16 @@
       >
         <ElForm ref="formRef" :model="formData" :rules="rules" label-width="100px">
           <ElFormItem label="流名称" prop="streamName">
-            <ElInput v-model="formData.streamName" />
+            <ElInput v-model="formData.streamName" name="streamName" />
           </ElFormItem>
           <ElFormItem label="协议" prop="protocol">
-            <ElSelect v-model="formData.protocol">
+            <ElSelect v-model="formData.protocol" name="protocol">
               <ElOption label="rtsp" value="rtsp" />
               <ElOption label="GB28181" value="GB28181" disabled />
             </ElSelect>
           </ElFormItem>
           <ElFormItem label="流地址" prop="streamCode">
-            <ElInput v-model="formData.streamCode" />
+            <ElInput v-model="formData.streamCode" name="streamCode" />
           </ElFormItem>
           <ElFormItem label="检测">
             <div style="display: flex; align-items: center">
@@ -77,7 +77,7 @@
             </div>
           </ElFormItem>
           <ElFormItem label="描述" prop="description">
-            <ElInput v-model="formData.description" type="textarea" :rows="3" />
+            <ElInput v-model="formData.description" type="textarea" :rows="3" name="description" />
           </ElFormItem>
           <ElFormItem label="绑定组织" prop="orgId">
             <ElTreeSelect
@@ -96,6 +96,7 @@
               clearable
               style="width: 100%"
               :render-after-expand="false"
+              name="orgId"
             >
               <template #default="{ node, data }">
                 <span
@@ -128,15 +129,14 @@
                 align-items: center;
                 gap: 8px;
                 width: 100%;
-                min-height: 40px;
                 flex-wrap: wrap;
                 border: 1px solid var(--el-border-color);
                 border-radius: 4px;
-                padding: 4px 8px;
+                padding: 4px 12px;
                 cursor: pointer;
                 background: var(--el-fill-color-blank);
               "
-              @click="onAlgoBoxClick"
+              @click="openAlgoDialog"
             >
               <ElTag
                 v-for="algo in selectedAlgos"
@@ -147,6 +147,9 @@
               >
                 {{ getAlgoLabel(algo) }}
               </ElTag>
+              <span class="algo-tag-icon" @click.stop="openAlgoDialog">
+                <i class="iconfont-sys">&#xe70b;</i>
+              </span>
               <span v-if="!selectedAlgos.length" style="color: #aaa">点击选择算法</span>
             </div>
           </ElFormItem>
@@ -155,8 +158,8 @@
             <ElCard>
               <div style="font-weight: bold; margin-bottom: 10px">{{ getAlgoLabel(algo) }}</div>
               <ElFormItem label="标定检测区域" required>
-                <ElButton @click="onCalibrateClick">标定检测区域</ElButton>
-                <ElButton @click="onViewCalibrateClick">查看检测区域</ElButton>
+                <ElButton @click="openCalibrateDialog('edit', algo)">标定检测区域</ElButton>
+                <ElButton @click="openCalibrateDialog('view', algo)">查看检测区域</ElButton>
               </ElFormItem>
               <ElFormItem label="告警间隔">
                 <ElInput
@@ -164,6 +167,7 @@
                   type="number"
                   style="width: 120px"
                   suffix="秒"
+                  :name="`algo-interval-${algo}`"
                 />
               </ElFormItem>
               <ElFormItem label="告警窗口长度">
@@ -172,6 +176,7 @@
                   type="number"
                   style="width: 120px"
                   suffix="秒"
+                  :name="`algo-window-${algo}`"
                 />
               </ElFormItem>
               <ElFormItem label="告警阈值">
@@ -180,18 +185,19 @@
                   type="number"
                   style="width: 120px"
                   suffix="秒"
+                  :name="`algo-threshold-${algo}`"
                 />
               </ElFormItem>
               <ElFormItem label="浏览器语音播报">
-                <ElInput v-model="algoConfigs[algo].voice" />
+                <ElInput v-model="algoConfigs[algo].voice" :name="`algo-voice-${algo}`" />
               </ElFormItem>
               <ElFormItem label="危险等级">
-                <ElInput v-model="algoConfigs[algo].level" />
+                <ElInput v-model="algoConfigs[algo].level" :name="`algo-level-${algo}`" />
               </ElFormItem>
             </ElCard>
           </div>
           <ElFormItem label="启用">
-            <ElSwitch v-model="formData.enable" />
+            <ElSwitch v-model="formData.enable" name="enable" />
           </ElFormItem>
           <div style="text-align: right; margin-top: 20px">
             <ElButton @click="drawerVisible = false">取消</ElButton>
@@ -203,8 +209,14 @@
           <ElTabs v-model="algoTab">
             <ElTabPane v-for="tab in algoTabs" :key="tab.name" :label="tab.label" :name="tab.name">
               <ElCheckboxGroup v-model="algoDialogChecked">
-                <ElCheckbox v-for="item in tab.items" :key="item.value" :label="item.value"
-                  >{{ item.label }}
+                <ElCheckbox
+                  v-for="item in tab.items"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                  :id="item.id"
+                >
+                  {{ item.label }}
                 </ElCheckbox>
               </ElCheckboxGroup>
             </ElTabPane>
@@ -216,93 +228,234 @@
         </ElDialog>
       </ElDrawer>
 
-      <ElDialog
-        v-model="calibrateDialogVisible"
-        width="900px"
-        top="40px"
-        append-to-body
-        :show-close="true"
-      >
-        <div style="padding: 0 8px">
-          <div
-            style="
-              display: flex;
-              justify-content: flex-start;
-              align-items: center;
-              margin-bottom: 12px;
-            "
-          >
-            <ElButton type="info" icon="el-icon-camera">获取原始图片</ElButton>
+      <ElDialog v-model="calibrateDialogVisible" width="900px" append-to-body :show-close="true">
+        <div class="calibrate-dialog-content">
+          <!-- 调试：显示 polygons 数据 -->
+          <!-- <div style="color: red; font-size: 12px; word-break: break-all">{{ polygons }}</div> -->
+          <!-- 顶部按钮 -->
+          <div class="calibrate-dialog-header">
+            <ElButton type="info">获取原始图片</ElButton>
           </div>
+          <!-- 图片区域 -->
           <div
-            style="
-              position: relative;
-              background: #fff;
-              text-align: center;
-              border-radius: 8px;
-              padding: 18px 0;
-              box-shadow: 0 2px 8px #0001;
-              overflow: scroll;
-              max-height: 600px;
-            "
+            class="calibrate-dialog-image"
+            ref="imgBoxRef"
+            @click="onImgBoxClick"
+            @mousemove="onImgBoxMouseMove"
+            @dblclick="onImgBoxDblClick"
+            @contextmenu="onImgBoxContextMenu"
           >
-            <div :style="{ position: 'relative', display: 'inline-block' }">
-              <img
-                ref="calibrateImg"
-                :src="calibrateImgUrl"
-                :style="{
-                  maxWidth: '95%',
-                  borderRadius: '8px',
-                  boxShadow: '0 1px 6px #0002',
-                  transform: `scale(${imgScale})`,
-                  userSelect: 'none',
-                  pointerEvents: 'none',
-                  position: 'relative',
-                  zIndex: 1
-                }"
-                draggable="false"
-                @load="onImgLoad"
+            <img
+              ref="imgRef"
+              src="/assets/bus.jpg"
+              alt="检测区域图片"
+              loading="lazy"
+              @load="onImgLoaded"
+              style="display: block; width: 100%"
+            />
+            <div
+              v-if="calibrateImgLoading"
+              class="calibrate-img-loading"
+              style="
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10;
+                background: rgba(255, 255, 255, 0.7);
+              "
+            >
+              <span class="el-loading-spinner" style="font-size: 32px"
+                ><svg viewBox="25 25 50 50" class="circular" width="40" height="40">
+                  <circle
+                    class="path"
+                    cx="50"
+                    cy="50"
+                    r="20"
+                    fill="none"
+                    stroke-width="5"
+                    stroke="#409EFF"
+                  ></circle></svg
+              ></span>
+            </div>
+            <svg
+              v-if="
+                !calibrateImgLoading &&
+                imgBoxRef &&
+                imgBoxRef.offsetWidth > 0 &&
+                imgBoxRef.offsetHeight > 0
+              "
+              :width="imgBoxRef.offsetWidth"
+              :height="imgBoxRef.offsetHeight"
+              class="polygon-svg"
+              style="
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 2;
+              "
+              :key="imgResizeTrigger"
+            >
+              <!-- 已保存多边形始终渲染 -->
+              <g v-for="(poly, idx) in polygons" :key="'poly-' + idx">
+                <polygon
+                  :points="
+                    getPixelPoints(poly.normalizedPoints)
+                      .map((p) => `${p.x},${p.y}`)
+                      .join(' ')
+                  "
+                  :fill="
+                    viewMode === 'edit'
+                      ? selectedPolygonIdx === idx
+                        ? 'rgba(255,128,0,0.25)'
+                        : 'rgba(0,128,255,0.15)'
+                      : 'rgba(0,128,255,0.15)'
+                  "
+                  :stroke="
+                    viewMode === 'edit'
+                      ? selectedPolygonIdx === idx
+                        ? '#ff8000'
+                        : '#0080ff'
+                      : '#0080ff'
+                  "
+                  stroke-width="2"
+                  style="cursor: pointer; pointer-events: auto"
+                  @click.stop="viewMode === 'edit' ? handleSelectPolygon(idx) : null"
+                />
+                <text
+                  v-if="poly.normalizedPoints.length"
+                  :x="getPixelPoints(poly.normalizedPoints)[0]?.x"
+                  :y="getPixelPoints(poly.normalizedPoints)[0]?.y - 8"
+                  :fill="
+                    viewMode === 'edit'
+                      ? selectedPolygonIdx === idx
+                        ? '#ff8000'
+                        : '#0080ff'
+                      : '#0080ff'
+                  "
+                  font-size="14"
+                  font-weight="bold"
+                >
+                  {{ poly.name }}
+                </text>
+                <circle
+                  v-for="(p, pidx) in getPixelPoints(poly.normalizedPoints)"
+                  :key="'polypt-' + idx + '-' + pidx"
+                  :cx="p.x"
+                  :cy="p.y"
+                  r="4"
+                  fill="#fff"
+                  :stroke="
+                    viewMode === 'edit'
+                      ? selectedPolygonIdx === idx
+                        ? '#ff8000'
+                        : '#0080ff'
+                      : '#0080ff'
+                  "
+                  stroke-width="2"
+                />
+              </g>
+              <!-- 当前正在绘制的多边形只在edit模式下显示 -->
+              <polyline
+                v-if="currentPolygon.length && viewMode === 'edit'"
+                :points="currentPolygonPath"
+                fill="rgba(255,0,0,0.15)"
+                stroke="red"
+                stroke-width="2"
               />
-              <canvas
-                v-show="showCalibrateActions"
-                ref="calibrateCanvas"
-                :width="imgNaturalWidth"
-                :height="imgNaturalHeight"
-                :style="{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  transform: `scale(${imgScale})`,
-                  pointerEvents: editingPolygon ? 'auto' : 'none',
-                  zIndex: 10,
-                  userSelect: 'none',
-                  cursor: editingPolygon ? 'crosshair' : 'default',
-                  background: '#00330022'
-                }"
-                @mousedown="editingPolygon ? onCanvasMouseDown : undefined"
-                @dblclick="editingPolygon ? onCanvasDblClick : undefined"
-                draggable="false"
-              ></canvas>
-            </div>
+              <!-- 鼠标预览线 -->
+              <line
+                v-if="drawing && currentPolygon.length && mousePos && viewMode === 'edit'"
+                :x1="currentPolygon[currentPolygon.length - 1].x"
+                :y1="currentPolygon[currentPolygon.length - 1].y"
+                :x2="mousePos.x"
+                :y2="mousePos.y"
+                stroke="red"
+                stroke-dasharray="4,2"
+                stroke-width="2"
+              />
+              <!-- 自动闭合线（绘制中预览） -->
+              <line
+                v-if="drawing && currentPolygon.length > 1 && mousePos && viewMode === 'edit'"
+                :x1="mousePos.x"
+                :y1="mousePos.y"
+                :x2="currentPolygon[0].x"
+                :y2="currentPolygon[0].y"
+                stroke="red"
+                stroke-dasharray="2,2"
+                stroke-width="1"
+              />
+              <!-- 当前多边形顶点小圆点 -->
+              <circle
+                v-for="(p, idx) in currentPolygon"
+                v-if="viewMode === 'edit'"
+                :key="'curpt-' + idx"
+                :cx="p.x"
+                :cy="p.y"
+                r="4"
+                fill="#fff"
+                stroke="red"
+                stroke-width="2"
+              />
+            </svg>
           </div>
+          <!-- 底部操作栏，仅edit模式显示 -->
           <div
-            v-if="showCalibrateActions"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-top: 24px;
-              gap: 12px;
-            "
+            v-if="calibrateMode === 'edit' && viewMode === 'edit'"
+            class="calibrate-dialog-footer"
           >
-            <div>
-              <ElButton type="primary" size="small" @click="startEditPolygon">编辑多边形</ElButton>
-              <ElButton type="danger" size="small" @click="clearPolygon">清除</ElButton>
-              <ElButton size="small" @click="zoomIn">+</ElButton>
-              <ElButton size="small" @click="zoomOut">-</ElButton>
+            <div class="calibrate-dialog-footer-left">
+              <ElButton
+                type="primary"
+                size="small"
+                style="margin-right: 10px"
+                @click="handleEditPolygon"
+              >
+                *编辑多边形
+              </ElButton>
+              <ElButton
+                type="danger"
+                size="small"
+                style="margin-right: 10px"
+                @click="handleClearAllPolygons"
+                >清除</ElButton
+              >
+              <ElButton
+                type="danger"
+                size="small"
+                style="margin-right: 10px"
+                @click="handleRemovePolygon"
+                >删除选中多边形</ElButton
+              >
+              <span
+                v-if="drawing && !finished"
+                style="margin-left: 12px; color: #ff8000; font-size: 14px; user-select: none"
+                >右键完成绘制</span
+              >
             </div>
-            <ElButton type="warning" size="small" @click="savePolygon">保存</ElButton>
+            <ElButton type="warning" size="small" @click="handleSaveAllPolygons">保存</ElButton>
           </div>
+          <!-- 多边形命名弹窗 -->
+          <el-dialog
+            v-model="showNameInput"
+            title="多边形命名"
+            width="300px"
+            :close-on-click-modal="false"
+            :show-close="false"
+          >
+            <el-input v-model="newPolygonName" placeholder="请输入区域名称" />
+            <template #footer>
+              <el-button @click="showNameInput = false">取消</el-button>
+              <el-button type="primary" @click="savePolygonName">保存</el-button>
+            </template>
+          </el-dialog>
         </div>
       </ElDialog>
     </div>
@@ -310,7 +463,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive, onMounted, h, nextTick, computed, watch } from 'vue'
+  import { ref, reactive, onMounted, onBeforeUnmount, h, nextTick, computed, watch } from 'vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
@@ -339,16 +492,14 @@
   import { BgColorEnum } from '@/enums/appEnum'
   import type { SearchFormItem } from '@/types'
   import { STREAM_LIST_MOCK, StreamItem } from '@/mock/temp/streamList'
-  import { VueDraggable } from 'vue-draggable-plus'
   import { ORG_TREE_MOCK } from '@/mock/temp/orgTree'
+  import { mockAlgoList } from '@/mock/temp/algoList'
   import { defineProps } from 'vue'
 
-  defineOptions({ name: 'StreamInfo' })
+  const props = defineProps<{ orgId?: string }>()
 
   const { width } = useWindowSize()
   const loading = ref(false)
-  const dialogVisible = ref(false)
-  const dialogType = ref('add')
   const selectedRows = ref<any[]>([])
 
   const formFilters = reactive({
@@ -525,48 +676,6 @@
   const drawerMode = ref<'add' | 'edit'>('add')
   const drawerTitle = computed(() => (drawerMode.value === 'add' ? '新增流' : '编辑流'))
   const drawerData = ref<any>(null)
-  const treeRef = ref()
-  const isExpandAll = ref(true)
-  const isSelectAll = ref(false)
-
-  // 布控规则列表
-  const processedRuleList = ref([
-    {
-      id: 1,
-      name: 'rule_1',
-      label: '人员闯入',
-      children: [
-        { id: 11, name: 'rule_1_1', label: '禁区闯入' },
-        { id: 12, name: 'rule_1_2', label: '围栏翻越' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'rule_2',
-      label: '物品监控',
-      children: [
-        { id: 21, name: 'rule_2_1', label: '物品遗留' },
-        { id: 22, name: 'rule_2_2', label: '物品移除' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'rule_3',
-      label: '异常行为',
-      children: [
-        { id: 31, name: 'rule_3_1', label: '奔跑检测' },
-        { id: 32, name: 'rule_3_2', label: '徘徊检测' },
-        { id: 33, name: 'rule_3_3', label: '打架斗殴' }
-      ]
-    }
-  ])
-
-  const defaultProps = {
-    children: 'children',
-    label: (data: any) => data.label
-  }
-
-  const props = defineProps<{ orgId?: string }>()
 
   function openDrawer(mode: 'add' | 'edit', row?: any) {
     drawerMode.value = mode
@@ -582,6 +691,8 @@
       Object.assign(algoConfigs, row.algoConfigs || {})
       formData.orgId = row.orgId
       expandedOrgKeys.value = getOrgParentKeys(orgTree.value, row.orgId)
+      // 调试：打印回显的 algoConfigs
+      console.log('openDrawer 回显 algoConfigs:', row.algoConfigs)
     } else {
       formData.streamName = ''
       formData.streamCode = ''
@@ -625,24 +736,6 @@
 
   const handleSelectionChange = (selection: any[]) => {
     selectedRows.value = selection
-  }
-
-  const showDialog = (type: string, row?: any) => {
-    dialogVisible.value = true
-    dialogType.value = type
-
-    if (formRef.value) {
-      formRef.value.resetFields()
-    }
-
-    if (type === 'edit' && row) {
-      Object.assign(formData, row)
-    } else {
-      formData.streamName = ''
-      formData.streamCode = ''
-      formData.protocol = 'rtsp'
-      formData.description = ''
-    }
   }
 
   const handleSubmit = () => {
@@ -719,101 +812,6 @@
     }, 200)
   }
 
-  const toggleExpandAll = () => {
-    const tree = treeRef.value
-    if (!tree) return
-
-    // 使用store.nodesMap直接控制所有节点的展开状态
-    const nodes = tree.store.nodesMap
-    for (const node in nodes) {
-      nodes[node].expanded = !isExpandAll.value
-    }
-
-    isExpandAll.value = !isExpandAll.value
-  }
-
-  const toggleSelectAll = () => {
-    const tree = treeRef.value
-    if (!tree) return
-
-    if (!isSelectAll.value) {
-      // 全选：获取所有节点的key并设置为选中
-      const allKeys = getAllNodeKeys(processedRuleList.value)
-      tree.setCheckedKeys(allKeys)
-    } else {
-      // 取消全选：清空所有选中
-      tree.setCheckedKeys([])
-    }
-
-    isSelectAll.value = !isSelectAll.value
-  }
-
-  const getAllNodeKeys = (nodes: any[]): string[] => {
-    const keys: string[] = []
-    const traverse = (nodeList: any[]) => {
-      nodeList.forEach((node) => {
-        if (node.name) {
-          keys.push(node.name)
-        }
-        if (node.children && node.children.length > 0) {
-          traverse(node.children)
-        }
-      })
-    }
-    traverse(nodes)
-    return keys
-  }
-
-  const handleTreeCheck = () => {
-    const tree = treeRef.value
-    if (!tree) return
-
-    // 使用树组件的getCheckedKeys方法获取选中的节点
-    const checkedKeys = tree.getCheckedKeys()
-    const allKeys = getAllNodeKeys(processedRuleList.value)
-
-    // 判断是否全选：选中的节点数量等于总节点数量
-    isSelectAll.value = checkedKeys.length === allKeys.length && allKeys.length > 0
-  }
-
-  // tagOptions 由 processedRuleList 自动生成所有叶子节点
-  function getAllLeafNodes(nodes: any[]): { label: string; value: string }[] {
-    const result: { label: string; value: string }[] = []
-    nodes.forEach((node: any) => {
-      if (node.children && node.children.length > 0) {
-        result.push(...getAllLeafNodes(node.children))
-      } else {
-        result.push({ label: node.label, value: node.name })
-      }
-    })
-    return result
-  }
-  const tagOptions = ref(getAllLeafNodes(processedRuleList.value))
-
-  function saveRules() {
-    const tree = treeRef.value
-    if (!tree) return
-
-    const checkedNodes: any[] = tree.getCheckedNodes()
-    // 只取叶子节点
-    const leafNodes = checkedNodes.filter(
-      (node: any) => !node.children || node.children.length === 0
-    )
-    selectedAlgos.value = leafNodes.map((node: any) => node.name)
-
-    ElMessage.success('布控规则保存成功')
-    drawerVisible.value = false
-  }
-
-  const handleDrawerClose = () => {
-    drawerData.value = null
-    isExpandAll.value = true
-    isSelectAll.value = false
-    if (treeRef.value) {
-      treeRef.value.setCheckedKeys([])
-    }
-  }
-
   function formatDate(date: string | number | Date) {
     if (!date) return ''
     const d = new Date(date)
@@ -831,51 +829,21 @@
 
   // 标签选择相关
   const selectedAlgos = ref<string[]>([])
-  const algoDialogVisible = ref(false)
   const algoTab = ref('car')
-  const algoTabs = [
-    {
-      name: 'car',
-      label: '车辆管理',
-      items: [
-        { label: '异常停车检测', value: 'abnormal_park' },
-        { label: '车辆计数', value: 'car_count' },
-        { label: '车辆违停', value: 'car_illegal_park' },
-        { label: '车型识别', value: 'car_type' },
-        { label: '电瓶车违停', value: 'ebike_illegal_park' },
-        { label: '电瓶车进电梯检测', value: 'ebike_elevator' },
-        { label: '机动车走应急车道检测', value: 'car_emergency_lane' },
-        { label: '车辆计数超限检测', value: 'car_count_limit' },
-        { label: '实线变道检测', value: 'solid_lane_change' },
-        { label: '穿越导流线区域检测', value: 'cross_diversion' },
-        { label: '车辆识别', value: 'car_recognition' },
-        { label: '小汽车违停', value: 'small_car_illegal_park' },
-        { label: '车流量检测', value: 'traffic_flow' },
-        { label: '大货车计数', value: 'truck_count' },
-        { label: '货车走快车道检测', value: 'truck_fast_lane' },
-        { label: '货车变道检测', value: 'truck_lane_change' },
-        { label: '货车区域违停', value: 'truck_area_illegal_park' },
-        { label: '货车逆行检测', value: 'truck_reverse' },
-        { label: '车辆属性检测', value: 'car_attribute' },
-        { label: '车辆期检检测', value: 'car_periodic_check' },
-        { label: '车辆超速检测', value: 'car_speed' }
-      ]
-    },
-    {
-      name: 'person',
-      label: '人员管理',
-      items: [
-        { label: '未佩戴安全帽检测', value: 'no_helmet' },
-        { label: '人员闯入', value: 'person_intrusion' }
-      ]
-    }
-    // 其他tab ...
-  ]
+  // 直接使用 mockAlgoList 作为算法标签数据源
+  const algoTabs = mockAlgoList.map((tab) => ({
+    ...tab,
+    items: tab.items.map((item) => ({ ...item }))
+  }))
   const algoOptions = algoTabs.flatMap((tab) => tab.items)
+  const algoDialogVisible = ref(false)
   const algoDialogChecked = ref<string[]>([])
-
-  // 算法配置卡片数据
   const algoConfigs = reactive<Record<string, any>>({})
+  const calibrateDialogVisible = ref(false)
+  const calibrateMode = ref<'edit' | 'view'>('edit')
+  const currentAlgo = ref<string>('')
+  const calibrateImgLoading = ref(true)
+
   function getAlgoLabel(val: string) {
     return algoOptions.find((a) => a.value === val)?.label || val
   }
@@ -969,112 +937,61 @@
     }
   )
 
-  const calibrateDialogVisible = ref(false)
-  const showCalibrateActions = ref(true)
-  const calibrateImgUrl = ref('/assets/image.png')
-  const calibrateImg = ref<HTMLImageElement | null>(null)
-  const calibrateCanvas = ref<HTMLCanvasElement | null>(null)
-  const imgNaturalWidth = ref(0)
-  const imgNaturalHeight = ref(0)
-  const imgScale = ref(1)
-  const editingPolygon = ref(false)
-  const polygonPoints = ref<{ x: number; y: number }[]>([])
-  const tempPoints = ref<{ x: number; y: number }[]>([])
-
-  function onCalibrateClick() {
-    showCalibrateActions.value = true
+  function openCalibrateDialog(mode: 'edit' | 'view', algo: string) {
     calibrateDialogVisible.value = true
+    viewMode.value = mode
+    drawing.value = false
+    finished.value = false
+    currentPolygon.value = []
+    mousePos.value = null
+    currentAlgo.value = algo
+    calibrateImgLoading.value = true // 打开弹窗时重置 loading
+    // 关键：加载历史多边形
+    const polys = (algoConfigs[algo]?.polygons || []).map((p: PolygonData) => ({
+      ...p,
+      normalizedPoints: p.normalizedPoints.map((pt: { x: number; y: number }) => ({ ...pt }))
+    }))
+    polygons.value = polys
+    // 调试：打印 polygons 数据
+    console.log(
+      'openCalibrateDialog algo:',
+      algo,
+      'algoConfigs[algo].polygons:',
+      algoConfigs[algo]?.polygons,
+      'polygons.value:',
+      polygons.value
+    )
+    // 修正：弹窗打开后，图片已加载则强制刷新 SVG
+    nextTick(() => {
+      if (imgRef.value) {
+        // 重新绑定 ResizeObserver，确保每次弹窗都能监听
+        if (resizeObserver) resizeObserver.disconnect()
+        resizeObserver = new ResizeObserver(() => {
+          imgResizeTrigger.value++
+        })
+        resizeObserver.observe(imgRef.value)
+      }
+      if (imgRef.value && imgRef.value.complete) {
+        setTimeout(() => {
+          calibrateImgLoading.value = false
+          imgResizeTrigger.value++
+        }, 600)
+      }
+    })
   }
-  function onViewCalibrateClick() {
-    showCalibrateActions.value = false
-    calibrateDialogVisible.value = true
-  }
-  function onImgLoad(e: Event) {
-    const target = e.target as HTMLImageElement
-    imgNaturalWidth.value = target.naturalWidth
-    imgNaturalHeight.value = target.naturalHeight
-    drawPolygon()
-  }
-  function onCanvasMouseDown(e: MouseEvent) {
-    if (!editingPolygon.value) return
-    if (!calibrateImg.value) return
-    const rect = calibrateImg.value.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width
-    const y = (e.clientY - rect.top) / rect.height
-    tempPoints.value.push({ x, y })
-    drawPolygon(tempPoints.value)
-  }
-  function onCanvasDblClick() {
-    if (!editingPolygon.value) return
-    polygonPoints.value = [...tempPoints.value]
-    editingPolygon.value = false
-    drawPolygon()
-  }
-  function clearPolygon() {
-    polygonPoints.value = []
-    tempPoints.value = []
-    drawPolygon()
-  }
-  function zoomIn() {
-    imgScale.value = Math.min(imgScale.value + 0.1, 2)
-    drawPolygon()
-  }
-  function zoomOut() {
-    imgScale.value = Math.max(imgScale.value - 0.1, 0.5)
-    drawPolygon()
-  }
-  function savePolygon() {
-    // 输出相对坐标
-    console.log('保存多边形:', polygonPoints.value)
-  }
-  function drawPolygon(points = polygonPoints.value) {
-    const canvas = calibrateCanvas.value
-    const img = calibrateImg.value
-    if (!canvas || !img) return
-    canvas.width = imgNaturalWidth.value
-    canvas.height = imgNaturalHeight.value
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    if (!points.length) return
-    ctx.save()
-    ctx.scale(imgScale.value, imgScale.value)
-    ctx.strokeStyle = '#00ff00'
-    ctx.lineWidth = 2 / imgScale.value
-    ctx.beginPath()
-    ctx.moveTo(points[0].x * imgNaturalWidth.value, points[0].y * imgNaturalHeight.value)
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(points[i].x * imgNaturalWidth.value, points[i].y * imgNaturalHeight.value)
-    }
-    if (!editingPolygon.value && points.length > 2) ctx.closePath()
-    ctx.stroke()
-    // 画顶点小圆点
-    ctx.fillStyle = '#00ff00'
-    for (const pt of points) {
-      ctx.beginPath()
-      ctx.arc(
-        pt.x * imgNaturalWidth.value,
-        pt.y * imgNaturalHeight.value,
-        5 / imgScale.value,
-        0,
-        2 * Math.PI
-      )
-      ctx.fill()
-    }
-    ctx.restore()
-  }
-  watch(calibrateDialogVisible, (val) => {
-    if (val) {
-      imgScale.value = 1
-      nextTick(() => drawPolygon())
-    }
-  })
 
-  function onAlgoBoxClick(e: MouseEvent) {
-    const target = e.target as HTMLElement
-    // 只有点击ElTag的删除按钮（el-tag__close）不弹，其余都弹
-    if (target.classList.contains('el-tag__close')) return
+  function openAlgoDialog() {
+    algoDialogChecked.value = [...selectedAlgos.value]
     algoDialogVisible.value = true
+  }
+
+  function onImgBoxClick(e: MouseEvent) {
+    if (viewMode.value === 'edit' && !drawing.value && selectedPolygonIdx.value !== null) {
+      selectedPolygonIdx.value = null
+    }
+    if (!drawing.value || finished.value || viewMode.value === 'view') return
+    const pos = getRelativePos(e)
+    currentPolygon.value.push(pos)
   }
 
   function removeAlgo(algo: string) {
@@ -1084,13 +1001,181 @@
     if (algoConfigs[algo]) delete algoConfigs[algo]
   }
 
-  function startEditPolygon() {
-    editingPolygon.value = true
-    tempPoints.value = [...polygonPoints.value]
+  // 多边形绘制相关
+  interface PolygonData {
+    name: string
+    normalizedPoints: { x: number; y: number }[]
+  }
+  const polygons = ref<PolygonData[]>([])
+  const currentPolygon = ref<{ x: number; y: number }[]>([])
+  const drawing = ref(false)
+  const finished = ref(false)
+  const mousePos = ref<{ x: number; y: number } | null>(null)
+  const showNameInput = ref(false)
+  const newPolygonName = ref('')
+  const viewMode = ref<'edit' | 'view'>('edit')
+  const imgBoxRef = ref<HTMLDivElement | null>(null)
+  const imgRef = ref<HTMLImageElement | null>(null)
+  const selectedPolygonIdx = ref<number | null>(null)
+  const imgResizeTrigger = ref(0)
+  let resizeObserver: ResizeObserver | null = null
+
+  function handleEditPolygon() {
+    drawing.value = true
+    finished.value = false
+    currentPolygon.value = []
+    mousePos.value = null
+    viewMode.value = 'edit'
+  }
+
+  function getRelativePos(e: MouseEvent) {
+    const rect = imgBoxRef.value!.getBoundingClientRect()
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    }
+  }
+
+  function onImgBoxMouseMove(e: MouseEvent) {
+    if (!drawing.value || finished.value || viewMode.value === 'view') return
+    mousePos.value = getRelativePos(e)
+  }
+
+  function onImgBoxDblClick(e: MouseEvent) {
+    if (!drawing.value || finished.value || viewMode.value === 'view') return
+    if (currentPolygon.value.length >= 3) {
+      finished.value = true
+      drawing.value = false
+      mousePos.value = null
+      showNameInput.value = true
+    }
+  }
+
+  function onImgBoxContextMenu(e: MouseEvent) {
+    if (drawing.value && !finished.value && viewMode.value === 'edit') {
+      e.preventDefault()
+      if (currentPolygon.value.length >= 3) {
+        finished.value = true
+        drawing.value = false
+        mousePos.value = null
+        showNameInput.value = true
+      }
+    } else {
+      e.preventDefault()
+    }
+  }
+
+  function getNormalizedPoints(points: { x: number; y: number }[]) {
+    const img = imgRef.value
+    if (!img) return []
+    const rect = img.getBoundingClientRect()
+    const width = rect.width || 1
+    const height = rect.height || 1
+    return points.map((p) => ({
+      x: +(p.x / width).toFixed(6),
+      y: +(p.y / height).toFixed(6)
+    }))
+  }
+
+  function getPixelPoints(normalizedPoints: { x: number; y: number }[]) {
+    const img = imgRef.value
+    if (!img) return []
+    const rect = img.getBoundingClientRect()
+    const width = rect.width || 1
+    const height = rect.height || 1
+    return normalizedPoints.map((p) => ({
+      x: p.x * width,
+      y: p.y * height
+    }))
+  }
+
+  function savePolygonName() {
+    if (newPolygonName.value.trim() && currentPolygon.value.length >= 3) {
+      const normalizedPoints = getNormalizedPoints(currentPolygon.value)
+      const poly = {
+        name: newPolygonName.value.trim(),
+        normalizedPoints
+      }
+      polygons.value.push(poly)
+      showNameInput.value = false
+      newPolygonName.value = ''
+      currentPolygon.value = []
+      finished.value = false
+      drawing.value = false
+      // 输出到控制台
+      console.log('新建多边形（归一化）：', poly)
+    }
+  }
+
+  function handleSaveAllPolygons() {
+    if (currentAlgo.value) {
+      algoConfigs[currentAlgo.value].polygons = polygons.value.map((p: PolygonData) => ({
+        ...p,
+        normalizedPoints: p.normalizedPoints.map((pt: { x: number; y: number }) => ({ ...pt }))
+      }))
+    }
+    console.log('全部多边形信息（归一化）：', polygons.value)
+    calibrateDialogVisible.value = false
+  }
+
+  function handleSelectPolygon(idx: number) {
+    if (viewMode.value !== 'edit') return
+    if (selectedPolygonIdx.value === idx) {
+      selectedPolygonIdx.value = null // 再次点击取消选中
+    } else {
+      selectedPolygonIdx.value = idx
+    }
+  }
+
+  function handleRemovePolygon() {
+    if (selectedPolygonIdx.value === null) {
+      ElMessage.warning('请选中要删除的区域')
+      return
+    }
+    polygons.value.splice(selectedPolygonIdx.value, 1)
+    selectedPolygonIdx.value = null
+  }
+
+  // polyline自动闭合
+  const currentPolygonPath = computed(() => {
+    if (currentPolygon.value.length === 0) return ''
+    // 只用于渲染闭合，不影响数据
+    let points = currentPolygon.value.map((p) => `${p.x},${p.y}`)
+    if (finished.value && currentPolygon.value.length) {
+      points = [...points, `${currentPolygon.value[0].x},${currentPolygon.value[0].y}`]
+    }
+    return points.join(' ')
+  })
+
+  function handleClearAllPolygons() {
+    polygons.value = []
+    selectedPolygonIdx.value = null
+  }
+
+  function onImgLoaded() {
+    // 延长 loading 动画时间，图片加载后再延迟 600ms 隐藏 loading
+    setTimeout(() => {
+      calibrateImgLoading.value = false
+      imgResizeTrigger.value++
+    }, 600)
   }
 
   onMounted(() => {
     getTableData()
+    nextTick(() => {
+      if (imgRef.value) {
+        resizeObserver = new ResizeObserver(() => {
+          imgResizeTrigger.value++
+        })
+        resizeObserver.observe(imgRef.value)
+      }
+    })
+  })
+
+  onBeforeUnmount(() => {
+    if (resizeObserver && imgRef.value) {
+      resizeObserver.unobserve(imgRef.value)
+    }
   })
 
   defineExpose({
@@ -1107,7 +1192,10 @@
     rules,
     columns,
     columnChecks,
-    openDrawer
+    openDrawer,
+    onImgBoxClick,
+    removeAlgo,
+    onImgLoaded
   })
 </script>
 
@@ -1159,5 +1247,66 @@
 
   :deep(.el-pagination .el-pagination__sizes) {
     margin-right: 16px;
+  }
+
+  .calibrate-dialog-content {
+    padding: 0 8px;
+  }
+  .calibrate-dialog-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .calibrate-dialog-image {
+    position: relative;
+    text-align: center;
+    user-select: none;
+  }
+  .calibrate-dialog-image img {
+    width: 100%;
+    display: block;
+    user-select: none;
+  }
+  .calibrate-dialog-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+  }
+  .calibrate-dialog-footer-left {
+    display: flex;
+    align-items: center;
+  }
+  .polygon-svg {
+    pointer-events: none;
+  }
+  .calibrate-img-loading .el-loading-spinner .circular {
+    animation: rotate 2s linear infinite;
+  }
+  .calibrate-img-loading .el-loading-spinner .path {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -35;
+    }
+    100% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -124;
+    }
   }
 </style>

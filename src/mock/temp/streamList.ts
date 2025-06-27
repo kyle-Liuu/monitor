@@ -1,5 +1,6 @@
 // 视频流 mock 数据，结构与 streaminfo 页面一致
 import { ORG_TREE_MOCK } from './orgTree'
+import { mockAlgoList } from './algoList'
 
 export interface StreamItem {
   id: number
@@ -51,37 +52,34 @@ function findOrgStatusById(tree: any[], id: string): string {
 
 const enabledOrgIds = getEnabledOrgIds(ORG_TREE_MOCK)
 
-const allAlgos = [
-  'abnormal_park',
-  'car_count',
-  'car_illegal_park',
-  'car_type',
-  'ebike_illegal_park',
-  'ebike_elevator',
-  'car_emergency_lane',
-  'car_count_limit',
-  'solid_lane_change',
-  'cross_diversion',
-  'car_recognition',
-  'small_car_illegal_park',
-  'traffic_flow',
-  'truck_count',
-  'truck_fast_lane',
-  'truck_lane_change',
-  'truck_area_illegal_park',
-  'truck_reverse',
-  'car_attribute',
-  'car_periodic_check',
-  'car_speed',
-  'no_helmet',
-  'person_intrusion'
-]
+// 用 mockAlgoList 生成所有算法 value
+const allAlgos = mockAlgoList.flatMap((tab) => tab.items.map((item) => item.value))
 
 function randomAlgos() {
   // 让每条数据有 8~10 个算法标签
-  const count = Math.floor(Math.random() * 7) // 8~10
+  const count = Math.floor(Math.random() * 5) // 8~10
   const shuffled = allAlgos.sort(() => 0.5 - Math.random())
   return shuffled.slice(0, count)
+}
+
+function randomPolygons() {
+  // 随机生成 0~2 个多边形，每个多边形 3~6 个点
+  const count = Math.floor(Math.random() * 3) // 0,1,2
+  const polygons = []
+  for (let i = 0; i < count; i++) {
+    const pointsCount = Math.floor(Math.random() * 2) + 3 // 3~6
+    const points = Array(pointsCount)
+      .fill(null)
+      .map(() => ({
+        x: +(Math.random() * 0.8 + 0.1).toFixed(6), // 0.1~0.9
+        y: +(Math.random() * 0.8 + 0.1).toFixed(6)
+      }))
+    polygons.push({
+      name: `区域${i + 1}`,
+      normalizedPoints: points
+    })
+  }
+  return polygons
 }
 
 function randomAlgoConfigs(algos: string[]) {
@@ -92,7 +90,8 @@ function randomAlgoConfigs(algos: string[]) {
       window: Math.floor(Math.random() * 10) + 1,
       threshold: Math.floor(Math.random() * 10) + 1,
       voice: algo + '告警',
-      level: Math.random() > 0.5 ? '高' : '中'
+      level: Math.random() > 0.5 ? '高' : '中',
+      polygons: randomPolygons() // 新增多边形区域
     }
   })
   return configs
@@ -146,3 +145,7 @@ for (let i = 1; i <= 5; i++) {
     createTime: new Date().toLocaleString()
   })
 }
+
+// 调试：打印第一条有算法标签的视频流信息
+// const firstWithAlgos = STREAM_LIST_MOCK.find((item) => item.algos && item.algos.length > 0)
+// console.log('有算法标签的视频流:', firstWithAlgos)

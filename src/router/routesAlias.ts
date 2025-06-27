@@ -50,11 +50,14 @@ export enum RoutesAlias {
   Monitor = '/monitor', // 实时监控
   ChangeLog = '/change/log', // 更新日志
   WarningInfo = '/warning/warninginfo', // 警告信息
+  DataPush = '/warning/datapush', // 数据推送
   Warning = '/warning', // 警告管理
   VideoStreamInfo = '/videostream/streaminfo', // 视频流信息
   VirtualOrganization = '/videostream/virtualorganization', // 虚拟组织
   Organization = '/videostream/organization', // 组织管理
-  AlgorithmInfo = '/algorithm/algoinfo' // 算法信息
+  AlgorithmInfo = '/algorithm/algoinfo', // 算法信息
+  RepositoryFace = '/repository/face', // 人脸底库
+  RepositoryUniform = '/repository/uniform' // 工服底库
 }
 
 // 主页路由
