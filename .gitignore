@@ -4,3 +4,7 @@ dist
 dist-ssr
 *.local
 .cursor
+.vscode
+auto-imports.d.ts
+components.d.ts
+.auto-import.json
