@@ -38,25 +38,25 @@ const getColumnChecks = (columns: ColumnOption[]): ColumnCheck[] => {
       checks.push({
         prop: SELECTION_KEY,
         label: $t('table.column.selection'),
-        checked: true
+        checked: column.checked !== undefined ? column.checked : true
       })
     } else if (column.type === 'expand') {
       checks.push({
         prop: EXPAND_KEY,
         label: $t('table.column.expand'),
-        checked: true
+        checked: column.checked !== undefined ? column.checked : true
       })
     } else if (column.type === 'index') {
       checks.push({
         prop: INDEX_KEY,
         label: $t('table.column.index'),
-        checked: true
+        checked: column.checked !== undefined ? column.checked : true
       })
     } else {
       checks.push({
         prop: column.prop as string,
         label: column.label as string,
-        checked: true
+        checked: column.checked !== undefined ? column.checked : true
       })
     }
   })

@@ -5,17 +5,28 @@
         <div class="layout-container">
           <!-- 左侧标签页导航 -->
           <div class="left-tabs">
-            <ElTabs tab-position="left" class="algo-tabs" v-model="activeTabName">
-              <ElTabPane v-for="tab in algoTabs" :key="tab.name" :name="tab.name">
-                <template #label>
-                  <div class="custom-tab-label">
-                    <i :class="getTabIcon(tab.name)" class="tab-icon"></i>
-                    <span>{{ tab.label }}</span>
+            <div class="tabs-container">
+              <div v-for="tab in algoTabs" :key="tab.name" class="tab-item"
+                :class="{ 'active': activeTabName === tab.name }" @click="handleTabChange(tab.name)"
+                @contextmenu.prevent="showTabMenu($event, tab)">
+                <div class="tab-content">
+                  <i :class="getTabIcon(tab.name)" class="tab-icon"></i>
+                  <div class="tab-label" v-if="editingTab?.name !== tab.name">
+                    {{ tab.label }}
                   </div>
-                </template>
-                <!-- 空内容，只用于导航 -->
-              </ElTabPane>
-            </ElTabs>
+                  <div v-else class="tab-edit-container">
+                    <ElInput ref="tabEditInputRef" v-model="editingTab.label" size="small" class="edit-tab-input"
+                      :maxlength="20" @blur="handleTabLabelEditComplete" @keyup.enter="handleTabLabelEditComplete"
+                      @keyup.esc="cancelTabLabelEdit" placeholder="输入分类名称" autofocus />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 添加新标签页按钮 - 使用只有加号的简洁设计 -->
+              <div class="add-tab-button" @click="handleAddNewTab">
+                <i class="el-icon-plus"></i>
+              </div>
+            </div>
           </div>
 
           <!-- 右侧内容区域，保留原有的搜索和表格功能 -->
@@ -76,24 +87,29 @@
         </div>
       </template>
     </ElDialog>
+
+    <!-- 标签页右键菜单 -->
+    <ArtMenuRight ref="tabMenuRef" :menu-items="tabMenuItems" :menu-width="120" @select="handleTabMenuSelect" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, h, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { ElTabs, ElTabPane, ElCard, ElButton, ElTableColumn, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElIcon, ElOption } from 'element-plus'
+import { ref, reactive, watch, onMounted, h, computed, nextTick } from 'vue'
+import { ElMessage, ElMessageBox, ElPopconfirm, ElDialog } from 'element-plus'
+import { ElCard, ElButton, ElTableColumn, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElIcon, ElOption } from 'element-plus'
 import { mockAlgoList } from '@/mock/temp/algoList'
 import ArtTableFullScreen from '@/components/core/tables/ArtTableFullScreen.vue'
 import ArtTableHeader from '@/components/core/tables/ArtTableHeader.vue'
 import ArtTable from '@/components/core/tables/ArtTable.vue'
 import ArtButtonTable from '@/components/core/forms/ArtButtonTable.vue'
 import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
+import ArtMenuRight from '@/components/core/others/art-menu-right/index.vue'
 import { useCheckedColumns } from '@/composables/useCheckedColumns'
 import { BgColorEnum } from '@/enums/appEnum'
 import type { SearchFormItem } from '@/types'
 import type { FormInstance, FormRules, UploadFile } from 'element-plus'
-import { Upload } from '@element-plus/icons-vue'
+import type { MenuItemType } from '@/components/core/others/art-menu-right/index.vue'
+import { Upload, Plus } from '@element-plus/icons-vue'
 
 defineOptions({ name: 'AlgoInfo' })
 
@@ -105,6 +121,36 @@ const dialogVisible = ref(false)
 const dialogMode = ref<'add' | 'edit'>('add')
 const fileList = ref<UploadFile[]>([])
 const formRef = ref<FormInstance>()
+
+// 编辑标签相关
+const editingTab = ref<any>(null)
+const tabEditInputRef = ref<InstanceType<typeof ElInput> | null>(null)
+const editingTabOriginalLabel = ref('') // 保存原始标签名，用于取消编辑时恢复
+
+// 右键菜单相关
+const tabMenuRef = ref<InstanceType<typeof ArtMenuRight>>()
+const currentRightClickTab = ref<any>(null)
+
+// 右键菜单项
+const tabMenuItems = computed((): MenuItemType[] => {
+  const isDefault = isDefaultTab(currentRightClickTab.value?.name || '')
+  return [
+    {
+      key: 'rename',
+      label: '重命名',
+      icon: '&#xe706;'
+    },
+    {
+      key: 'delete',
+      label: '删除',
+      icon: '&#xe850;',
+      disabled: isDefault
+    }
+  ]
+})
+
+// 默认标签列表，这些标签不能被删除
+const defaultTabs = ['car', 'person', 'risk_control', 'industry_specific']
 
 const formFilters = reactive({
   label: '',
@@ -138,8 +184,8 @@ const tableRef = ref()
 // 表格列定义
 const { columnChecks, columns } = useCheckedColumns(() => [
   { type: 'selection', width: 55 },
-  { type: 'index', label: '序号', width: 60 },
-  { prop: 'id', label: 'ID', minWidth: 120 },
+  { type: 'index', label: '序号', width: 60, checked: false },
+  { prop: 'id', label: 'ID', minWidth: 120, checked: false },
   { prop: 'label', label: '算法名称', minWidth: 120 },
   { prop: 'value', label: '标识符', minWidth: 120 },
   { prop: 'desc', label: '描述', minWidth: 180 },
@@ -211,6 +257,226 @@ const getTabIcon = (tabName: string) => {
     industry_specific: 'iconfont-sys icon-settings'
   }
   return iconMap[tabName as keyof typeof iconMap] || 'iconfont-sys icon-data-analysis'
+}
+
+// 切换标签页
+const handleTabChange = (tabName: string) => {
+  activeTabName.value = tabName
+}
+
+// 检查是否是默认标签（不能删除）
+const isDefaultTab = (tabName: string) => {
+  return defaultTabs.includes(tabName)
+}
+
+// 右键菜单显示
+const showTabMenu = (e: MouseEvent, tab: any) => {
+  currentRightClickTab.value = tab
+  nextTick(() => {
+    tabMenuRef.value?.show(e)
+  })
+}
+
+// 处理右键菜单选择
+const handleTabMenuSelect = (item: MenuItemType) => {
+  if (!currentRightClickTab.value) return
+
+  if (item.key === 'rename') {
+    startEditTabLabel(currentRightClickTab.value)
+  } else if (item.key === 'delete') {
+    confirmDeleteTab(currentRightClickTab.value)
+  }
+}
+
+// 确认删除标签
+const confirmDeleteTab = (tab: any) => {
+  if (isDefaultTab(tab.name)) {
+    ElMessage.warning('默认分类不能删除')
+    return
+  }
+
+  // 检查标签是否有算法正在使用
+  const hasAlgorithms = tab.items && tab.items.length > 0
+
+  if (hasAlgorithms) {
+    ElMessageBox.confirm(`当前标签有算法正在使用，确认删除将影响这些算法的配置。是否继续删除"${tab.label}"？`, '删除确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      deleteTab(tab.name)
+    }).catch(() => {
+      // 用户取消，不执行操作
+    })
+  } else {
+    ElMessageBox.confirm(`确定要删除分类"${tab.label}"吗？`, '删除确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      deleteTab(tab.name)
+    }).catch(() => {
+      // 用户取消，不执行操作
+    })
+  }
+}
+
+// 删除标签页
+const deleteTab = (tabName: string) => {
+  if (isDefaultTab(tabName)) {
+    ElMessage.warning('默认分类不能删除')
+    return
+  }
+
+  const index = algoTabs.value.findIndex(tab => tab.name === tabName)
+  if (index === -1) return
+
+  // 如果删除的是当前激活的标签，需要切换到其他标签
+  if (activeTabName.value === tabName) {
+    // 优先切换到前一个标签，如果没有则切换到第一个标签
+    const nextActiveIndex = index > 0 ? index - 1 : 0
+    activeTabName.value = algoTabs.value[nextActiveIndex]?.name || ''
+  }
+
+  // 删除标签
+  algoTabs.value.splice(index, 1)
+  ElMessage.success('分类已删除')
+}
+
+// 开始编辑标签标题
+const startEditTabLabel = (tab: any) => {
+  if (isDefaultTab(tab.name)) {
+    ElMessage.warning('默认分类不能编辑')
+    return
+  }
+
+  // 检查标签是否有算法正在使用
+  const hasAlgorithms = tab.items && tab.items.length > 0
+
+  if (hasAlgorithms) {
+    ElMessageBox.confirm('当前标签有算法正在执行，确认修改将重启布控', '修改确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      // 保存原始标签名，用于取消编辑时恢复
+      editingTabOriginalLabel.value = tab.label
+      editingTab.value = { ...tab }
+
+      // 修复聚焦问题：使用正确的DOM查找方式
+      nextTick(() => {
+        setTimeout(() => {
+          try {
+            const inputEl = document.querySelector('.edit-tab-input input') as HTMLInputElement
+            if (inputEl) {
+              inputEl.focus()
+              // 将光标移动到文本末尾
+              inputEl.setSelectionRange(tab.label.length, tab.label.length)
+            }
+          } catch (e) {
+            console.error('聚焦输入框失败:', e)
+          }
+        }, 100)
+      })
+    }).catch(() => {
+      // 用户取消，不执行操作
+    })
+  } else {
+    // 保存原始标签名，用于取消编辑时恢复
+    editingTabOriginalLabel.value = tab.label
+    editingTab.value = { ...tab }
+
+    // 修复聚焦问题：使用正确的DOM查找方式
+    nextTick(() => {
+      setTimeout(() => {
+        try {
+          const inputEl = document.querySelector('.edit-tab-input input') as HTMLInputElement
+          if (inputEl) {
+            inputEl.focus()
+            // 将光标移动到文本末尾
+            inputEl.setSelectionRange(tab.label.length, tab.label.length)
+          }
+        } catch (e) {
+          console.error('聚焦输入框失败:', e)
+        }
+      }, 100)
+    })
+  }
+}
+
+// 完成标签编辑
+const handleTabLabelEditComplete = () => {
+  if (!editingTab.value) return
+
+  const label = editingTab.value.label.trim()
+
+  if (!label) {
+    ElMessage.warning('分类名称不能为空')
+    // 恢复原始名称
+    editingTab.value.label = editingTabOriginalLabel.value
+    editingTab.value = null
+    return
+  }
+
+  // 检查名称是否已存在
+  const exists = algoTabs.value.some(tab =>
+    tab.name !== editingTab.value.name && tab.label === label
+  )
+
+  if (exists) {
+    ElMessage.warning('该分类名称已存在')
+    // 恢复原始名称
+    editingTab.value.label = editingTabOriginalLabel.value
+    editingTab.value = null
+    return
+  }
+
+  // 更新标签名称
+  const tabToUpdate = algoTabs.value.find(tab => tab.name === editingTab.value.name)
+  if (tabToUpdate) {
+    tabToUpdate.label = label
+    // 如果不是新标签，显示成功消息
+    if (editingTabOriginalLabel.value !== '') {
+      ElMessage.success('分类名称已更新')
+    }
+  }
+
+  editingTab.value = null
+}
+
+// 取消标签编辑
+const cancelTabLabelEdit = () => {
+  if (!editingTab.value) return
+
+  // 恢复原始名称
+  editingTab.value.label = editingTabOriginalLabel.value
+  editingTab.value = null
+}
+
+// 直接添加新标签页
+const handleAddNewTab = () => {
+  // 生成唯一标识符
+  const timestamp = Date.now()
+  const newName = `custom_${timestamp}`
+  const defaultLabel = '右键编辑'  // 中文提示，指导用户使用右键操作
+
+  // 添加新标签
+  algoTabs.value.push({
+    name: newName,
+    label: defaultLabel,
+    items: []
+  })
+
+  // 切换到新标签
+  activeTabName.value = newName
+
+  // 显示提示消息
+  ElMessage({
+    message: '右键可以重命名标签',
+    type: 'info',
+    offset: 60,
+    duration: 3000
+  })
 }
 
 const rules: FormRules = {
@@ -508,8 +774,110 @@ onMounted(() => {
 
 .left-tabs {
   background: var(--art-main-bg-color);
-  border-right: 1px solid var(--el-border-color-light);
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  color: var(--art-sidebar-text-color);
+  height: 100%;
+  width: 150px;
+  border: 1px solid var(--art-border-color);
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+.tabs-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 46px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s;
+  color: var(--art-text-color);
+  font-size: 14px;
+
+  &:hover {
+    background-color: var(--el-color-primary-light-8);
+    color: var(--el-color-primary);
+  }
+
+  &.active {
+    background-color: var(--el-color-primary-light-9);
+    color: var(--el-color-primary);
+  }
+
+  .tab-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .tab-icon {
+    margin-right: 10px;
+    font-size: 16px;
+    color: var(--art-text-color-secondary);
+    flex-shrink: 0;
+  }
+
+  &.active .tab-icon {
+    color: var(--el-color-primary);
+  }
+
+  .tab-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+  }
+
+  .tab-edit-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .edit-tab-input {
+    width: 100%;
+  }
+}
+
+.add-tab-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--el-primary-color);
+  transition: all 0.3s;
+  margin: 12px auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: var(--el-color-primary-light-7);
+    color: var(--art-primary-hover-color);
+    transform: scale(1.05);
+  }
+
+  i {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .el-icon-plus {
+    &::before {
+      content: "+";
+      font-weight: bold;
+    }
+  }
 }
 
 .right-content {
@@ -518,6 +886,7 @@ onMounted(() => {
   flex-direction: column;
   padding-left: 8px;
   overflow: hidden;
+  background-color: var(--art-main-bg-color);
 }
 
 .art-table-card {
@@ -528,53 +897,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.algo-tabs {
-  height: 100%;
-
-  :deep(.el-tabs__header) {
-    margin: 0;
-    height: 100%;
-
-    .el-tabs__nav-wrap::after {
-      display: none; // 移除底部线条
-    }
-
-    .el-tabs__nav {
-      height: 100%;
-      border-right: none;
-    }
-
-    .el-tabs__item {
-      text-align: left;
-      padding: 0 20px;
-      height: 50px;
-      line-height: 50px;
-      font-size: 15px;
-      border-left: 3px solid transparent;
-      transition: all 0.3s;
-      margin: 4px 0;
-      color: var(--art-text-color-primary);
-      position: relative;
-
-      &:hover {
-        color: var(--el-color-primary);
-        background-color: transparent;
-      }
-
-      &.is-active {
-        color: var(--el-color-primary);
-        background-color: transparent;
-        border-left: 3px solid transparent;
-        font-weight: normal;
-      }
-    }
-  }
-
-  :deep(.el-tabs__content) {
-    display: none; // 不显示内容，只用作导航
-  }
 }
 
 :deep(.el-card__body) {
@@ -609,21 +931,9 @@ onMounted(() => {
   margin-right: 16px;
 }
 
-.custom-tab-label {
-  display: flex;
-  align-items: center;
-
-  .tab-icon {
-    margin-right: 8px;
-    font-size: 18px;
-  }
-}
-
-
 .upload-box {
   width: 100%;
 }
-
 
 .dialog-footer {
   padding-top: 10px;
@@ -631,8 +941,27 @@ onMounted(() => {
 }
 
 :deep(.el-upload-dragger) {
-  // 使用CSS变量控制内边距
   --el-upload-dragger-padding-horizontal: 10px;
   --el-upload-dragger-padding-vertical: 10px;
+}
+
+// 修改输入框样式
+:deep(.el-input.edit-tab-input .el-input__wrapper) {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none;
+  border-bottom: 1px dashed var(--el-color-primary);
+  border-radius: 0;
+}
+
+:deep(.el-input.edit-tab-input .el-input__inner) {
+  height: 28px;
+  font-size: 14px;
+  color: var(--el-color-primary) !important;
+  font-family: inherit;
+  font-weight: 500;
+  padding: 0 !important;
+  width: 100%;
 }
 </style>

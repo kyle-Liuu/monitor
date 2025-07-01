@@ -3,7 +3,7 @@
     <div class="virtual-org-root" id="table-full-screen">
       <ElSplitter>
         <!-- 左侧组织树 -->
-        <ElSplitterPanel :min="250" :size="300" collapsible>
+        <ElSplitterPanel :min="260" :size="260" collapsible>
           <div class="org-tree-panel">
             <div class="org-tree-card">
               <el-input v-model="orgSearch" placeholder="请输入区域名称" size="large" clearable @input="filterOrgTree"
@@ -31,7 +31,6 @@
             </div>
           </div>
         </ElSplitterPanel>
-        <!-- 右侧区域直接嵌入StreamInfo页面 -->
         <ElSplitterPanel :min="600">
           <VirtualOrgAndStream ref="virtualOrgStreamRef" :org-id="selectedOrgId" />
         </ElSplitterPanel>
@@ -111,7 +110,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .virtual-org-root {
-  min-width: 1200px;
+  width: 100%;
   background: var(--el-bg-color-page);
   display: flex;
   flex-direction: column;
@@ -140,7 +139,7 @@ onMounted(() => {
 }
 
 .org-search-input {
-  max-width: 220px;
+  max-width: 90%;
   margin: 12px;
 
   .el-input__wrapper {
@@ -194,6 +193,19 @@ onMounted(() => {
       background: var(--el-color-primary-light-7);
       color: var(--el-color-primary);
     }
+  }
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 1400px) {
+  .org-tree {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .org-search-input {
+    margin: 8px;
   }
 }
 </style>
