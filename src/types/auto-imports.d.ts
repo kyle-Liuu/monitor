@@ -14,7 +14,7 @@ declare global {
   const ElPopconfirm: (typeof import('element-plus/es'))['ElPopconfirm']
   const ElPopover: (typeof import('element-plus/es'))['ElPopover']
   const ElTableColumn: (typeof import('element-plus/es'))['ElTableColumn']
-  const ElTag: (typeof import('element-plus/es'))['ElTag']
+  const ElTag: typeof import('element-plus/es')['ElTag']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']

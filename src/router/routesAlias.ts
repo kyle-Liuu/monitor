@@ -60,6 +60,3 @@ export enum RoutesAlias {
   RepositoryFace = '/repository/face', // 人脸底库
   RepositoryUniform = '/repository/uniform' // 工服底库
 }
-
-// 主页路由
-export const HOME_PAGE = RoutesAlias.Dashboard
