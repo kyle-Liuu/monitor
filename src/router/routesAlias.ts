@@ -47,8 +47,9 @@ export enum RoutesAlias {
   NestedMenu31 = '/system/nested/menu3', // 嵌套菜单3-1
   NestedMenu321 = '/system/nested/menu3/menu3-2', // 嵌套菜单3-2-1
   Server = '/safeguard/server', // 服务器
-  Monitor = '/monitor', // 实时监控
   ChangeLog = '/change/log', // 更新日志
+  ExamplesTabs = '/examples/tabs', // 标签页
+  Monitor = '/monitor', // 实时监控
   WarningInfo = '/warning/warninginfo', // 警告信息
   DataPush = '/warning/datapush', // 数据推送
   Warning = '/warning', // 警告管理

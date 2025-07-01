@@ -1,16 +1,11 @@
 import { AppRouteRecordRaw } from '../utils/utils'
-import { RoutesAlias, HOME_PAGE } from '../routesAlias'
-import Home from '@views/index/index.vue'
+import { RoutesAlias } from '../routesAlias'
 
 /**
  * 静态路由配置
  * 不需要权限就能访问的路由
  */
 export const staticRoutes: AppRouteRecordRaw[] = [
-  {
-    path: '/',
-    redirect: HOME_PAGE
-  },
   {
     path: RoutesAlias.Login,
     name: 'Login',
@@ -31,7 +26,7 @@ export const staticRoutes: AppRouteRecordRaw[] = [
   },
   {
     path: '/exception',
-    component: Home,
+    component: () => import('@views/index/index.vue'),
     name: 'Exception',
     meta: { title: 'menus.exception.title' },
     children: [
@@ -57,7 +52,7 @@ export const staticRoutes: AppRouteRecordRaw[] = [
   },
   {
     path: '/outside',
-    component: Home,
+    component: () => import('@views/index/index.vue'),
     name: 'Outside',
     meta: { title: 'menus.outside.title' },
     children: [
