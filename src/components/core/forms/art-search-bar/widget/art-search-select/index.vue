@@ -1,14 +1,14 @@
 <template>
-  <ElSelect v-model="value" v-bind="config" @change="(val) => changeValue(val)">
-    <ElOption
+  <el-select v-model="value" v-bind="config" @change="(val) => changeValue(val)">
+    <el-option
       v-for="v in options"
       :key="v.value"
       :label="v.label"
       :value="v.value"
       :disabled="v.disabled || false"
     >
-    </ElOption>
-  </ElSelect>
+    </el-option>
+  </el-select>
 </template>
 
 <script setup lang="ts">

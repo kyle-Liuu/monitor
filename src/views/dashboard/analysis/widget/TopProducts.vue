@@ -1,7 +1,7 @@
 <template>
   <div class="custom-card art-custom-card top-products">
     <div class="custom-card-header">
-      <span class="title">热门产品</span>
+      <span class="title">{{ t('analysis.topProducts.title') }}</span>
     </div>
     <div class="custom-card-body">
       <art-table
@@ -13,8 +13,8 @@
         :stripe="false"
         :show-header-background="false"
       >
-        <el-table-column prop="name" label="产品名称" width="200" />
-        <el-table-column prop="popularity" label="销量">
+        <el-table-column prop="name" :label="t('analysis.topProducts.columns.name')" width="200" />
+        <el-table-column prop="popularity" :label="t('analysis.topProducts.columns.popularity')">
           <template #default="scope">
             <el-progress
               :percentage="scope.row.popularity"
@@ -24,7 +24,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="sales" label="销量" width="80">
+        <el-table-column prop="sales" :label="t('analysis.topProducts.columns.sales')" width="80">
           <template #default="scope">
             <span
               :style="{
@@ -46,37 +46,41 @@
 
 <script setup lang="ts">
   import { hexToRgb } from '@/utils/ui'
+  import { computed } from 'vue'
+  import { useI18n } from 'vue-i18n'
+  const { t } = useI18n()
 
+  // 使用 computed 来创建响应式的产品数据
   const products = computed(() => [
     {
-      name: '智能手机',
+      name: t('analysis.topProducts.products.homeDecor.name'),
       popularity: 10,
-      sales: '100'
+      sales: t('analysis.topProducts.products.homeDecor.sales')
     },
     {
-      name: '笔记本电脑',
+      name: t('analysis.topProducts.products.disneyBag.name'),
       popularity: 29,
-      sales: '100'
+      sales: t('analysis.topProducts.products.disneyBag.sales')
     },
     {
-      name: '平板电脑',
+      name: t('analysis.topProducts.products.bathroom.name'),
       popularity: 65,
-      sales: '100'
+      sales: t('analysis.topProducts.products.bathroom.sales')
     },
     {
-      name: '智能手表',
+      name: t('analysis.topProducts.products.smartwatch.name'),
       popularity: 32,
-      sales: '100'
+      sales: t('analysis.topProducts.products.smartwatch.sales')
     },
     {
-      name: '无线耳机',
+      name: t('analysis.topProducts.products.fitness.name'),
       popularity: 78,
-      sales: '100'
+      sales: t('analysis.topProducts.products.fitness.sales')
     },
     {
-      name: '智能音箱',
+      name: t('analysis.topProducts.products.earbuds.name'),
       popularity: 41,
-      sales: '100'
+      sales: t('analysis.topProducts.products.earbuds.sales')
     }
   ])
 

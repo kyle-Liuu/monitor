@@ -11,8 +11,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useCommon } from '@/composables/useCommon'
-
+  import { HOME_PAGE } from '@/router/routesAlias'
   const router = useRouter()
 
   interface ExceptionData {
@@ -34,7 +33,7 @@
   )
 
   const backHome = () => {
-    router.push(useCommon().homePath.value)
+    router.push(HOME_PAGE)
   }
 </script>
 

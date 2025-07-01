@@ -1,7 +1,7 @@
 <template>
-  <ElRadioGroup v-model="value" v-bind="config" @change="(val) => changeValue(val)">
-    <ElRadio v-for="v in options" :key="v.value" :value="v.value">{{ v.label }}</ElRadio>
-  </ElRadioGroup>
+  <el-radio-group v-model="value" v-bind="config" @change="(val) => changeValue(val)">
+    <el-radio v-for="v in options" :key="v.value" :value="v.value">{{ v.label }}</el-radio>
+  </el-radio-group>
 </template>
 
 <script setup lang="ts">

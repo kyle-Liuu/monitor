@@ -70,11 +70,6 @@ async function handleRouteGuard(
     return
   }
 
-  // 处理根路径跳转到首页
-  if (userStore.isLogin && isRouteRegistered.value && handleRootPathRedirect(to, next)) {
-    return
-  }
-
   // 处理已知的匹配路由
   if (to.matched.length > 0) {
     setWorktab(to)
@@ -120,12 +115,6 @@ async function handleDynamicRoutes(
 ): Promise<void> {
   try {
     await getMenuData(router)
-
-    // 跳转到菜单的第一个有效路由（仅在非刷新情况下）
-    if (handleRootPathRedirect(to, next)) {
-      return
-    }
-
     next({
       path: to.path,
       query: to.query,
@@ -241,32 +230,16 @@ function isValidMenuList(menuList: AppRouteRecord[]): boolean {
 
 /**
  * 重置路由相关状态
- * 通过调用存储的移除函数来精确清除动态路由
  */
-export function resetRouterState(): void {
+export function resetRouterState(router: Router): void {
   isRouteRegistered.value = false
-
-  // 通过调用存储的移除函数来清除动态路由
-  const menuStore = useMenuStore()
-  menuStore.removeAllDynamicRoutes()
-
-  // 清空菜单数据
-  menuStore.setMenuList([])
-}
-
-/**
- * 处理根路径跳转到首页
- * @param to 目标路由
- * @param next 路由跳转函数
- * @returns 是否处理了跳转
- */
-function handleRootPathRedirect(to: RouteLocationNormalized, next: NavigationGuardNext): boolean {
-  if (to.path === '/') {
-    const { homePath } = useCommon()
-    if (homePath.value) {
-      next({ path: homePath.value, replace: true })
-      return true
+  // 清理动态注册的路由
+  router.getRoutes().forEach((route) => {
+    if (route.meta?.dynamic) {
+      router.removeRoute(route.name as string)
     }
-  }
-  return false
+  })
+  // 清空菜单数据
+  const menuStore = useMenuStore()
+  menuStore.setMenuList([])
 }

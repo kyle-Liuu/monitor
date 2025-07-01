@@ -27,7 +27,10 @@
         <ArtFastEnter v-if="width >= 1200" />
 
         <!-- 面包屑 -->
-        <ArtBreadcrumb v-if="(showCrumbs && isLeftMenu) || (showCrumbs && isDualMenu)" />
+        <ArtBreadcrumb
+          v-if="(showCrumbs && isLeftMenu) || (showCrumbs && isDualMenu)"
+          :style="{ paddingLeft: !showRefreshButton && !showMenuButton ? '10px' : '0' }"
+        />
 
         <!-- 顶部菜单 -->
         <ArtHorizontalMenu v-if="isTopMenu" :list="menuList" :width="menuTopWidth" />
@@ -135,7 +138,7 @@
             popper-style="border: 1px solid var(--art-border-dashed-color); border-radius: calc(var(--custom-radius) / 2 + 4px); padding: 5px 16px; 5px 16px;"
           >
             <template #reference>
-              <img class="cover" src="@imgs/user/avatar.webp" alt="avatar" />
+              <img class="cover" src="@imgs/user/avatar.webp" />
             </template>
             <template #default>
               <div class="user-menu-box">
@@ -186,6 +189,7 @@
   import { useUserStore } from '@/store/modules/user'
   import { useFullscreen } from '@vueuse/core'
   import { ElMessageBox } from 'element-plus'
+  import { HOME_PAGE } from '@/router/routesAlias'
   import { useI18n } from 'vue-i18n'
   import { mittBus } from '@/utils/sys'
   import { useMenuStore } from '@/store/modules/menu'
@@ -236,20 +240,76 @@
     return width.value * 0.5
   })
 
-  onMounted(() => {
-    initLanguage()
-    document.addEventListener('click', bodyCloseNotice)
-  })
-
-  onUnmounted(() => {
-    document.removeEventListener('click', bodyCloseNotice)
-  })
-
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
+
+  // BroadcastChannel全屏同步
+  const fullscreenChannel = new window.BroadcastChannel('fullscreen-sync')
+  let isSyncingFullscreen = false
+  let isChannelClosed = false
+
+  function safePostMessage(data: any) {
+    if (isChannelClosed) return
+    try {
+      fullscreenChannel.postMessage(data)
+    } catch (e) {
+      // BroadcastChannel已关闭，忽略
+    }
+  }
+
+  const setFullscreen = (full: boolean) => {
+    if (full && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+    } else if (!full && document.fullscreenElement) {
+      document.exitFullscreen()
+    }
+  }
 
   const toggleFullScreen = () => {
     toggleFullscreen()
+    // 主动广播
+    safePostMessage({ fullscreen: !isFullscreen.value })
   }
+
+  const route = useRoute()
+
+  onMounted(() => {
+    initLanguage()
+    document.addEventListener('click', bodyCloseNotice)
+    // 同步 isFullscreen 状态
+    isFullscreen.value = !!document.fullscreenElement
+    // 监听fullscreenchange，广播当前状态
+    document.addEventListener('fullscreenchange', () => {
+      if (!isSyncingFullscreen) {
+        safePostMessage({ fullscreen: !!document.fullscreenElement })
+      }
+      isSyncingFullscreen = false
+      // 同步 isFullscreen 状态
+      isFullscreen.value = !!document.fullscreenElement
+    })
+    // 监听频道消息
+    fullscreenChannel.onmessage = (e) => {
+      if (typeof e.data.fullscreen === 'boolean') {
+        if (!!document.fullscreenElement !== e.data.fullscreen) {
+          isSyncingFullscreen = true
+          setFullscreen(e.data.fullscreen)
+        }
+      }
+    }
+  })
+
+  // 路由切换时同步 isFullscreen 状态
+  watch(
+    () => route.fullPath,
+    () => {
+      isFullscreen.value = !!document.fullscreenElement
+    }
+  )
+
+  onUnmounted(() => {
+    document.removeEventListener('click', bodyCloseNotice)
+    fullscreenChannel.close()
+    isChannelClosed = true
+  })
 
   const topBarWidth = (): string => {
     const { TOP, DUAL_MENU, TOP_LEFT } = MenuTypeEnum
@@ -288,7 +348,7 @@
   }
 
   const toHome = () => {
-    router.push(useCommon().homePath.value)
+    router.push(HOME_PAGE)
   }
 
   const loginOut = () => {

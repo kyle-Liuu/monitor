@@ -8,49 +8,6 @@ interface UpgradeLog {
 
 export const upgradeLogList = ref<UpgradeLog[]>([
   {
-    version: 'v2.4.2.8',
-    title: '修复 v2.4.2.7 版本访问 / 路径时显示 404 的问题',
-    date: '2025-06-26'
-  },
-  {
-    version: 'v2.4.2.7',
-    title: 'bug修复、优化用户体验',
-    date: '2025-06-25',
-    detail: [
-      '路由支持配置全屏模式',
-      '路由支持自动跳转到菜单的第一个有效路由',
-      '动态路由新增 removeAllDynamicRoutes 方法，可用于彻底清除所有动态路由',
-      '权限自定义指令优化、新增角色权限指令 v-roles、可用于控制元素的显示与隐藏',
-      '修复登录页面拖拽组件 ArtDragVerify 宽度、颜色异常bug',
-      '修复 iframe 页面混合模式、双列模式异常bug',
-      '优化锁屏页面被 el-loading 穿透bug',
-      '跨域请求携带 cookie 配置从环境变量中获取，默认关闭',
-      '针对SEO、可访问性做一些优化',
-      '新增标签页操作示例'
-    ]
-  },
-  {
-    version: 'v2.4.2.6',
-    title: '组件重构与性能优化',
-    date: '2025-06-23',
-    detail: [
-      '重构 components/core/forms 文件夹下的表单相关组件，提升可维护性与一致性',
-      '重构 ArtBreadcrumb 面包屑导航组件，优化逻辑结构与样式',
-      '优化 ArtChatWindow 与 ArtFastEnter 组件代码，提升可读性与性能',
-      '重构 ArtFireworksEffect 烟花效果组件，显著提升渲染性能与动画流畅度',
-      'README 文档新增官方网站链接，便于用户查看项目文档'
-    ]
-  },
-  {
-    version: 'v2.4.2.5',
-    title: '图表组件重构',
-    date: '2025-06-22',
-    detail: [
-      '重构图表组件，优化代码结构与可维护性',
-      '精细调整图表动画与主题配色方案，提升视觉一致性'
-    ]
-  },
-  {
     version: 'v2.4.2.4',
     title: '组件重构、代码优化',
     date: '2025-06-18',

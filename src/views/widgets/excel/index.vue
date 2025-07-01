@@ -7,15 +7,12 @@
     <ArtExcelExport
       style="margin-left: 10px"
       :data="tableData"
-      filename="用户数据-1"
+      filename="用户数据"
       sheetName="用户列表"
       type="success"
       :headers="headers"
-      auto-index
-      :columns="columnConfig"
       @export-success="handleExportSuccess"
       @export-error="handleExportError"
-      @export-progress="handleProgress"
     >
       导出 Excel
     </ArtExcelExport>
@@ -78,34 +75,12 @@
     city: '城市'
   }
 
-  const columnConfig = {
-    name: {
-      title: '姓名',
-      width: 20,
-      formatter: (value: any) => value || '未知'
-    },
-    age: {
-      title: '年龄',
-      width: 10,
-      formatter: (value: any) => `${value}岁`
-    },
-    city: {
-      title: '城市',
-      width: 12,
-      formatter: (value: any) => `${value}市`
-    }
-  }
-
   const handleExportSuccess = () => {
-    console.log('导出成功')
+    ElMessage.success('导出成功')
   }
 
   const handleExportError = (error: Error) => {
     ElMessage.error(`导出失败: ${error.message}`)
-  }
-
-  const handleProgress = (progress: number) => {
-    console.log('导出进度:', progress)
   }
 
   const handleClear = () => {

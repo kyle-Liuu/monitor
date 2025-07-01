@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { HOME_PAGE } from '@/router/routesAlias'
 import { router } from '@/router'
 import { LocationQueryRaw, Router } from 'vue-router'
 import { WorkTab } from '@/types'
-import { useCommon } from '@/composables/useCommon'
 
 interface WorktabState {
   current: Partial<WorkTab>
@@ -165,13 +165,11 @@ export const useWorktabStore = defineStore(
         addKeepAliveExclude(targetTab)
       }
 
-      const { homePath } = useCommon()
-
       // 如果关闭后无标签页，跳转首页
       if (!hasOpenedTabs.value) {
-        if (path !== homePath.value) {
+        if (path !== HOME_PAGE) {
           current.value = {}
-          safeRouterPush({ path: homePath.value })
+          safeRouterPush({ path: HOME_PAGE })
         }
         return
       }
@@ -288,14 +286,13 @@ export const useWorktabStore = defineStore(
      * 关闭所有可关闭的标签页
      */
     const removeAll = (): void => {
-      const { homePath } = useCommon()
       const hasFixedTabs = opened.value.some((tab) => tab.fixedTab)
 
       // 获取可关闭的标签页
       const closableTabs = opened.value.filter((tab) => {
         if (!isTabClosable(tab)) return false
         // 如果有固定标签，则所有可关闭的都可以关闭；否则保留首页
-        return hasFixedTabs || tab.path !== homePath.value
+        return hasFixedTabs || tab.path !== HOME_PAGE
       })
 
       if (closableTabs.length === 0) {
@@ -308,18 +305,18 @@ export const useWorktabStore = defineStore(
 
       // 保留不可关闭的标签页和首页（当没有固定标签时）
       opened.value = opened.value.filter((tab) => {
-        return !isTabClosable(tab) || (!hasFixedTabs && tab.path === homePath.value)
+        return !isTabClosable(tab) || (!hasFixedTabs && tab.path === HOME_PAGE)
       })
 
       // 处理激活状态
       if (!hasOpenedTabs.value) {
         current.value = {}
-        safeRouterPush({ path: homePath.value })
+        safeRouterPush({ path: HOME_PAGE })
         return
       }
 
       // 选择激活的标签页：优先首页，其次第一个可用标签
-      const homeTab = opened.value.find((tab) => tab.path === homePath.value)
+      const homeTab = opened.value.find((tab) => tab.path === HOME_PAGE)
       const targetTab = homeTab || opened.value[0]
 
       current.value = targetTab
@@ -441,34 +438,6 @@ export const useWorktabStore = defineStore(
       }
     }
 
-    /**
-     * 获取标签页标题
-     */
-    const getTabTitle = (path: string): WorkTab | undefined => {
-      const tab = getTab(path)
-      return tab
-    }
-
-    /**
-     * 更新标签页标题
-     */
-    const updateTabTitle = (path: string, title: string): void => {
-      const tab = getTab(path)
-      if (tab) {
-        tab.customTitle = title
-      }
-    }
-
-    /**
-     * 重置标签页标题
-     */
-    const resetTabTitle = (path: string): void => {
-      const tab = getTab(path)
-      if (tab) {
-        tab.customTitle = ''
-      }
-    }
-
     return {
       // 状态
       current,
@@ -498,10 +467,7 @@ export const useWorktabStore = defineStore(
       isTabClosable,
       addKeepAliveExclude,
       removeKeepAliveExclude,
-      markTabsToRemove,
-      getTabTitle,
-      updateTabTitle,
-      resetTabTitle
+      markTabsToRemove
     }
   },
   {
