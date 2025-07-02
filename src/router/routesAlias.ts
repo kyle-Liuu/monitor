@@ -48,5 +48,15 @@ export enum RoutesAlias {
   NestedMenu321 = '/system/nested/menu3/menu3-2', // 嵌套菜单3-2-1
   Server = '/safeguard/server', // 服务器
   ChangeLog = '/change/log', // 更新日志
-  ExamplesTabs = '/examples/tabs' // 标签页
+  ExamplesTabs = '/examples/tabs', // 标签页
+  Monitor = '/monitor', // 实时监控
+  WarningInfo = '/warning/warninginfo', // 警告信息
+  DataPush = '/warning/datapush', // 数据推送
+  Warning = '/warning', // 警告管理
+  VideoStreamInfo = '/videostream/streaminfo', // 视频流信息
+  VirtualOrganization = '/videostream/virtualorganization', // 虚拟组织
+  Organization = '/videostream/organization', // 组织管理
+  AlgorithmInfo = '/algorithm/algoinfo', // 算法信息
+  RepositoryFace = '/repository/face', // 人脸底库
+  RepositoryUniform = '/repository/uniform' // 工服底库
 }

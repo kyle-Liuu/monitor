@@ -55,6 +55,15 @@ export const asyncRoutes: AppRouteRecord[] = [
         }
       }
     ]
+  }, {
+    path: '/monitor',
+    name: 'Monitor',
+    component: RoutesAlias.Monitor,
+    meta: {
+      title: 'menus.monitor.title',
+      icon: '&#xe8ba;',
+      keepAlive: true
+    }
   },
   {
     path: '/template',
@@ -636,5 +645,124 @@ export const asyncRoutes: AppRouteRecord[] = [
       icon: '&#xe712;',
       keepAlive: false
     }
+  }, {
+    path: '/warning',
+    name: 'Warning',
+    component: RoutesAlias.Home,
+    meta: {
+      title: 'menus.warning.title',
+      icon: '&#xe8b2;', // 可根据项目图标库选择合适的icon
+      keepAlive: true
+    },
+    children: [
+      {
+        path: 'warninginfo',
+        name: 'WarningInfo',
+        component: RoutesAlias.WarningInfo,
+        meta: {
+          title: 'menus.warning.info',
+          keepAlive: true
+        }
+      },
+      {
+        path: 'datapush',
+        name: 'DataPush',
+        component: RoutesAlias.DataPush,
+        meta: {
+          title: 'menus.warning.datapush',
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/videostream',
+    name: 'VideoStream',
+    component: RoutesAlias.Home,
+    meta: {
+      title: 'menus.videostream.title',
+      icon: '&#xe8b3;', // 需根据项目图标库选择合适icon
+      keepAlive: true
+    },
+    children: [
+      {
+        path: 'info',
+        name: 'VideoStreamInfo',
+        component: RoutesAlias.VideoStreamInfo,
+        meta: {
+          title: 'menus.videostream.info',
+          keepAlive: true
+        }
+      },
+      {
+        path: 'virtualorganization',
+        name: 'VirtualOrganization',
+        component: RoutesAlias.VirtualOrganization,
+        meta: {
+          title: 'menus.videostream.virtualorganization',
+          keepAlive: true
+        }
+      },
+      {
+        path: 'organization',
+        name: 'Organization',
+        component: RoutesAlias.Organization,
+        meta: {
+          title: 'menus.videostream.organization',
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/algorithm',
+    name: 'Algorithm',
+    component: RoutesAlias.Home,
+    meta: {
+      title: 'menus.algorithm.title',
+      icon: '&#xe8b4;', // 需根据项目图标库选择合适icon
+      keepAlive: true
+    },
+    children: [
+      {
+        path: 'info',
+        name: 'AlgorithmInfo',
+        component: RoutesAlias.AlgorithmInfo,
+        meta: {
+          title: 'menus.algorithm.info',
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/repository',
+    name: 'Repository',
+    component: RoutesAlias.Home,
+    meta: {
+      title: 'menus.repository.title',
+      icon: '&#xe7c3;', // 可根据项目图标库选择合适icon
+      keepAlive: true
+    },
+    children: [
+      {
+        path: 'face',
+        name: 'RepositoryFace',
+        component: RoutesAlias.RepositoryFace,
+        meta: {
+          title: 'menus.repository.face',
+          keepAlive: true
+        }
+      },
+      {
+        path: 'uniform',
+        name: 'RepositoryUniform',
+        component: RoutesAlias.RepositoryUniform,
+        meta: {
+          title: 'menus.repository.uniform',
+          keepAlive: true
+        }
+      }
+    ]
   }
 ]

@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url'
 // import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://devtools.vuejs.org/getting-started/introduction
-import vueDevTools from 'vite-plugin-vue-devtools'
+// import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default ({ mode }) => {
   const root = process.cwd()
@@ -145,7 +145,7 @@ export default ({ mode }) => {
       //     ]
       //   }
       // })
-      vueDevTools()
+      // vueDevTools()
     ],
     // 预加载项目必需的组件
     optimizeDeps: {

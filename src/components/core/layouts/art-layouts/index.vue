@@ -1,5 +1,20 @@
 <!-- 布局容器组件 -->
 <template>
+  <div v-if="isMonitorRoute" class="monitor-container">
+      <iframe
+        src="/monitor.html"
+        frameborder="0"
+        style="
+          width: 100vw;
+          height: 100vh;
+          position: fixed;
+          left: 0;
+          top: 0;
+          z-index: 9999;
+          background: #000;
+        "
+      ></iframe>
+    </div>
   <div class="layouts" :style="layoutStyle">
     <slot></slot>
   </div>
@@ -20,6 +35,9 @@
   const router = useRouter()
 
   const { menuType, menuOpen, showWorkTab, tabStyle } = storeToRefs(settingStore)
+
+  // 判断是否为/monitor路由
+  const isMonitorRoute = computed(() => router.currentRoute.value.path === '/monitor')
 
   // 菜单宽度变化
   watchEffect(() => {
@@ -60,3 +78,15 @@
     return `${showWorkTab.value ? openTop : closeTop}px`
   })
 </script>
+
+<style scoped>
+  .monitor-container {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    background: #000;
+  }
+</style>
