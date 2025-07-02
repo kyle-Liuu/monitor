@@ -336,7 +336,7 @@
     "repository": {
       "title": "底库管理",
       "face": "人脸底库",
-      "uniform": "工服底库"
+      "open": "开放底库"
     }
   },
   "table": {

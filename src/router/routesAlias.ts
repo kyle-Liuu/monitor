@@ -58,5 +58,5 @@ export enum RoutesAlias {
   Organization = '/videostream/organization', // 组织管理
   AlgorithmInfo = '/algorithm/algoinfo', // 算法信息
   RepositoryFace = '/repository/face', // 人脸底库
-  RepositoryUniform = '/repository/uniform' // 工服底库
+  RepositoryOpen = '/repository/open' // 开放底库
 }

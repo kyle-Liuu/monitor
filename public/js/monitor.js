@@ -1,6 +1,6 @@
 // 配置项
 const CONFIG = {
-  API_BASE_URL: 'http://192.168.1.161:5001',
+  API_BASE_URL: 'http://192.168.1.186:5001',
   TOKEN: '123456',
   UPDATE_INTERVALS: {
     DEVICE_LIST: 30000,
@@ -870,15 +870,15 @@ if (backBtn) {
   backBtn.addEventListener('click', function () {
     // 跳转到Vue主页面
     if (window.parent !== window) {
-      window.parent.location.href = '/#/'
+      window.parent.location.href = '/#/dashboard/console'
     } else {
-      window.location.href = '/#/'
+      window.location.href = '/#/dashboard/console'
     }
   })
 }
 
 // 组织树渲染逻辑
-;(function () {
+; (function () {
   const orgTree = window.ORG_TREE_MOCK || []
   const rootUl = document.getElementById('org-tree-root')
   let selectedOrgId = null

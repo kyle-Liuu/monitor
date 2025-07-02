@@ -336,7 +336,7 @@
     "repository": {
       "title": "Repository",
       "face": "Face Library",
-      "uniform": "Uniform Library"
+      "open": "Open Library"
     }
   },
   "table": {

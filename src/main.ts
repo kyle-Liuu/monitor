@@ -20,7 +20,7 @@ import language from './locales'
 
 document.addEventListener(
   'touchstart',
-  function () {},
+  function () { },
   { passive: false }
 )
 

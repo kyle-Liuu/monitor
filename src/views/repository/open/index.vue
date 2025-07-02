@@ -1,12 +1,12 @@
 <template>
-  <div class="algo-info-root">
+  <div class="open-repo-root">
     <ArtTableFullScreen>
-      <div class="algo-info-page" id="table-full-screen">
+      <div class="open-repo-page" id="table-full-screen">
         <div class="layout-container">
           <!-- 左侧标签页导航 -->
           <div class="left-tabs">
             <div class="tabs-container">
-              <div v-for="tab in algoTabs" :key="tab.name" class="tab-item"
+              <div v-for="tab in openTabs" :key="tab.name" class="tab-item"
                 :class="{ 'active': activeTabName === tab.name }" @click="handleTabChange(tab.name)"
                 @contextmenu.prevent="showTabMenu($event, tab)">
                 <div class="tab-content">
@@ -29,16 +29,17 @@
             </div>
           </div>
 
-          <!-- 右侧内容区域，保留原有的搜索和表格功能 -->
+          <!-- 右侧内容区域 -->
           <div class="right-content">
             <ArtSearchBar v-model:filter="formFilters" :items="formItems" @reset="handleReset" @search="handleSearch" />
             <ElCard shadow="never" class="art-table-card">
               <ArtTableHeader :columnList="columns" v-model:columns="columnChecks" @refresh="handleRefresh">
                 <template #left>
-                  <ElButton type="primary" @click="handleAddAlgo">新增算法</ElButton>
+                  <ElButton type="primary" @click="handleAddOpen">新增</ElButton>
                   <ElButton type="danger" :disabled="!selectedRows.length" @click="handleBatchDelete">
                     批量删除
                   </ElButton>
+                  <ElButton type="warning" @click="handleLoadOpenFeatures">载入特征</ElButton>
                 </template>
               </ArtTableHeader>
               <ArtTable ref="tableRef" row-key="id" :data="tableData" :loading="loading"
@@ -49,19 +50,36 @@
                   <div class="empty-data">
                     <el-empty :image-size="120" description="暂无数据">
                       <template #description>
-                        <p>{{ !hasTabData ? '请先创建分类' : !activeTabName ? '请选择一个分类' : '当前分类下暂无算法数据' }}</p>
+                        <p>{{ !hasTabData ? '请先创建分类' : !activeTabName ? '请选择一个分类' : '当前分类下暂无数据' }}</p>
                       </template>
-                      <el-button v-if="hasTabData && activeTabName" type="primary" @click="handleAddAlgo">添加算法</el-button>
+                      <el-button v-if="hasTabData && activeTabName" type="primary" @click="handleAddOpen">添加</el-button>
                       <el-button v-else-if="!hasTabData" type="primary" @click="handleAddNewTab">创建分类</el-button>
                     </el-empty>
                   </div>
                 </template>
                 <template #default>
                   <template v-for="col in columns" :key="col.prop || col.type">
-                    <ElTableColumn v-if="col.prop === 'feature'" :prop="col.prop" :label="col.label" :width="col.width">
+                    <ElTableColumn v-if="col.prop === 'image'" :prop="col.prop" :label="col.label" :width="col.width">
                       <template #default="scope">
-                        <el-tag v-if="scope.row.feature" type="success" effect="light">{{ scope.row.feature }}</el-tag>
-                        <el-tag v-else type="info" effect="light">未载入</el-tag>
+                        <div @click="handleImageClick(scope.row.image)">
+                          <el-image
+                            style="width: 50px; height: 50px; border-radius: 4px; cursor: pointer;"
+                            :src="scope.row.image"
+                            fit="cover"
+                          />
+                        </div>
+                      </template>
+                    </ElTableColumn>
+                    <ElTableColumn v-else-if="col.prop === 'openFeature'" :prop="col.prop" :label="col.label" :width="col.width">
+                      <template #default="scope">
+                        <div @click="handleImageClick(scope.row.openFeature)" v-if="scope.row.openFeature">
+                          <el-image
+                            style="width: 50px; height: 50px; border-radius: 4px; cursor: pointer;"
+                            :src="scope.row.openFeature"
+                            fit="cover"
+                          />
+                        </div>
+                        <span v-else>暂无特征</span>
                       </template>
                     </ElTableColumn>
                     <ElTableColumn v-else v-bind="col" />
@@ -74,26 +92,29 @@
       </div>
     </ArtTableFullScreen>
 
-    <!-- 算法新增/编辑弹窗 -->
-    <ElDialog v-model="dialogVisible" :title="dialogMode === 'add' ? '新增算法' : '编辑算法'" width="500px" destroy-on-close
+    <!-- 新增/编辑弹窗 -->
+    <ElDialog v-model="dialogVisible" :title="dialogMode === 'add' ? '新增信息' : '编辑信息'" width="500px" destroy-on-close
       @close="handleDialogClose">
-      <ElForm :model="algorithmForm" :rules="rules" ref="formRef" label-width="100px">
-        <ElFormItem label="算法名称" prop="label">
-          <ElInput v-model="algorithmForm.label" placeholder="请输入算法名称" />
+      <ElForm :model="openForm" :rules="rules" ref="formRef" label-width="100px">
+        <ElFormItem label="名称" prop="name">
+          <ElInput v-model="openForm.name" placeholder="请输入名称" />
         </ElFormItem>
-        <ElFormItem label="标识符" prop="value">
-          <ElInput v-model="algorithmForm.value" placeholder="请输入标识符" @input="generateIdFromValue" />
+        <ElFormItem label="描述" prop="desc">
+          <ElInput v-model="openForm.desc" type="textarea" :rows="3" placeholder="请输入描述" />
         </ElFormItem>
-        <ElFormItem label="算法描述" prop="desc">
-          <ElInput v-model="algorithmForm.desc" type="textarea" :rows="3" placeholder="请输入算法描述" />
-        </ElFormItem>
-        <ElFormItem label="算法文件" prop="file" required>
-          <ElUpload class="upload-box" drag action="#" :auto-upload="false" :limit="1" 
+        <ElFormItem label="图片" prop="image" required>
+          <ElUpload 
+            class="upload-box" 
+            drag 
+            action="#" 
+            :auto-upload="false" 
+            :limit="1" 
             :on-exceed="handleExceed"
             :on-change="handleFileChange"
             :file-list="fileList" 
             :on-remove="handleFileRemove" 
-            :before-upload="beforeFileUpload">
+            :before-upload="beforeFileUpload"
+            accept="image/*">
             <ElIcon class="el-icon--upload">
               <Upload />
             </ElIcon>
@@ -102,7 +123,7 @@
             </div>
             <template #tip>
               <div class="el-upload__tip">
-                支持.zip/.rar/.pt/.pth/.model/.bin等格式，不超过100MB
+                只能上传JPG/PNG图片，且不超过2MB
               </div>
             </template>
           </ElUpload>
@@ -118,14 +139,21 @@
 
     <!-- 标签页右键菜单 -->
     <ArtMenuRight ref="tabMenuRef" :menu-items="tabMenuItems" :menu-width="120" @select="handleTabMenuSelect" />
+    
+    <!-- 图片预览 -->
+    <el-image-viewer
+      v-if="showViewer"
+      @close="showViewer = false"
+      :url-list="previewImages"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted, h, computed, nextTick, onBeforeUnmount } from 'vue'
-import { ElMessage, ElMessageBox, ElPopconfirm, ElDialog } from 'element-plus'
-import { ElCard, ElButton, ElTableColumn, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElIcon, ElOption } from 'element-plus'
-import { mockAlgoList } from '@/mock/temp/algoList'
+import { ElMessage, ElMessageBox, ElDialog, ElImageViewer } from 'element-plus'
+import { ElCard, ElButton, ElTableColumn, ElForm, ElFormItem, ElInput, ElSelect, ElUpload, ElIcon, ElOption, ElInputNumber, ElImage } from 'element-plus'
+import { mockOpenList } from '@/mock/temp/openList'
 import ArtTableFullScreen from '@/components/core/tables/ArtTableFullScreen.vue'
 import ArtTableHeader from '@/components/core/tables/ArtTableHeader.vue'
 import ArtTable from '@/components/core/tables/ArtTable.vue'
@@ -134,29 +162,27 @@ import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
 import ArtMenuRight from '@/components/core/others/art-menu-right/index.vue'
 import { useCheckedColumns } from '@/composables/useCheckedColumns'
 import type { SearchFormItem } from '@/types'
-import type { FormInstance, FormRules, UploadFile } from 'element-plus'
+import type { FormInstance, FormRules, UploadFile, UploadUserFile } from 'element-plus'
 import type { MenuItemType } from '@/components/core/others/art-menu-right/index.vue'
-import { Upload, Plus } from '@element-plus/icons-vue'
+import { Upload, Delete, ZoomIn, Plus } from '@element-plus/icons-vue'
 
-// 定义算法数据结构接口 - 使更宽松的类型定义来匹配现有数据
-interface AlgorithmItem {
+// 定义标签页数据结构接口
+interface OpenItem {
   id: string
-  label: string
-  value: string
-  type?: string  // 改为可选字段
+  name: string
   desc: string
-  file?: string  // 改为可选字段
+  image: string
+  openFeature: string
   createTime: string
-  [key: string]: any  // 添加索引签名以允许其他可能的字段
 }
 
 interface TabItem {
   name: string
   label: string
-  items: AlgorithmItem[]
+  items: OpenItem[]
 }
 
-// 自定义防抖函数
+// 使用lodash原生方法，不依赖lodash-es
 const debounce = (fn: Function, delay: number) => {
   let timer: number | null = null
   return function(this: any, ...args: any[]) {
@@ -168,12 +194,7 @@ const debounce = (fn: Function, delay: number) => {
   }
 }
 
-// 生成唯一标识符
-const generateUniqueId = (prefix: string) => {
-  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1000)}`
-}
-
-defineOptions({ name: 'AlgoInfo' })
+defineOptions({ name: 'RepositoryOpen' })
 
 // 保存创建的对象URL，以便在组件卸载时释放
 const createdObjectUrls = ref<string[]>([])
@@ -188,17 +209,19 @@ onBeforeUnmount(() => {
 })
 
 // 检查是否有标签页数据，使用明确的类型
-const algoTabs = ref<TabItem[]>(mockAlgoList || [])
-const hasTabData = computed(() => algoTabs.value.length > 0)
-const activeTabName = ref(hasTabData.value ? algoTabs.value[0]?.name || '' : '')
+const openTabs = ref<TabItem[]>(mockOpenList || [])
+const hasTabData = computed(() => openTabs.value.length > 0)
+const activeTabName = ref(hasTabData.value ? openTabs.value[0]?.name || '' : '')
 const loading = ref(false)
-const selectedRows = ref<AlgorithmItem[]>([])
+const selectedRows = ref<OpenItem[]>([])
 const dialogVisible = ref(false)
 const dialogMode = ref<'add' | 'edit'>('add')
 const fileList = ref<UploadFile[]>([])
 const formRef = ref<FormInstance>()
-const tableData = ref<AlgorithmItem[]>([])
-const tableRef = ref()
+
+// 图片预览相关
+const showViewer = ref(false)
+const previewImages = ref<string[]>([])
 
 // 编辑标签相关
 const editingTab = ref<TabItem | null>(null)
@@ -208,6 +231,14 @@ const editingTabOriginalLabel = ref('') // 保存原始标签名，用于取消�
 // 右键菜单相关
 const tabMenuRef = ref<InstanceType<typeof ArtMenuRight>>()
 const currentRightClickTab = ref<TabItem | null>(null)
+
+// 图片点击预览处理
+const handleImageClick = (url: string) => {
+  if (url) {
+    previewImages.value = [url]
+    showViewer.value = true
+  }
+}
 
 // 右键菜单项
 const tabMenuItems = computed((): MenuItemType[] => {
@@ -231,23 +262,21 @@ const tabMenuItems = computed((): MenuItemType[] => {
 const defaultTabs: string[] = []
 
 const formFilters = reactive({
-  label: '',
-  value: ''
+  name: '',
+  gender: ''
 })
 
 // 表单数据
-const algorithmForm = reactive({
+const openForm = reactive({
   id: '',
-  label: '',
-  value: '',
-  type: '',
+  name: '',
   desc: '',
-  file: ''
+  image: '',
+  openFeature: ''
 })
 
 const formItems: SearchFormItem[] = [
-  { label: '算法名称', prop: 'label', type: 'input', config: { clearable: true } },
-  { label: '标识符', prop: 'value', type: 'input', config: { clearable: true } }
+  { label: '名称', prop: 'name', type: 'input', config: { clearable: true } }
 ]
 
 const pagination = reactive({
@@ -256,21 +285,23 @@ const pagination = reactive({
   total: 0
 })
 
+const tableData = ref<OpenItem[]>([])
+const tableRef = ref()
+
+// 表格列定义
 const { columnChecks, columns } = useCheckedColumns(() => [
   { type: 'selection', width: 55 },
   { type: 'index', label: '序号', width: 60, checked: false },
-  { prop: 'id', label: 'ID', minWidth: 120, checked: false },
-  { prop: 'label', label: '算法名称', minWidth: 120 },
-  { prop: 'value', label: '标识符', minWidth: 120 },
+  { prop: 'name', label: '名称', minWidth: 100 },
+  { prop: 'image', label: '图片', width: 80 },
   { prop: 'desc', label: '描述', minWidth: 180 },
-  { prop: 'file', label: '算法文件', minWidth: 120 },
   { prop: 'createTime', label: '创建时间', minWidth: 150 },
   {
     prop: 'operation',
     label: '操作',
     width: 240,
     fixed: 'right',
-    formatter: (row: AlgorithmItem) => {
+    formatter: (row: OpenItem) => {
       return h('div', [
         h(ArtButtonTable, {
           type: 'edit',
@@ -295,8 +326,8 @@ watch(activeTabName, (newVal) => {
 })
 
 const handleReset = () => {
-  formFilters.label = ''
-  formFilters.value = ''
+  formFilters.name = ''
+  formFilters.gender = ''
   pagination.currentPage = 1
   getTableData()
 }
@@ -306,6 +337,7 @@ const handleSearch = () => {
   getTableData()
 }
 
+// 增加防抖处理，避免频繁刷新
 const handleRefresh = debounce(() => {
   getTableData()
 }, 300)
@@ -320,23 +352,27 @@ const handleCurrentChange = (page: number) => {
   getTableData()
 }
 
-const handleSelectionChange = (selection: AlgorithmItem[]) => {
+const handleSelectionChange = (selection: OpenItem[]) => {
   selectedRows.value = selection
 }
 
 // 获取标签对应图标
 const getTabIcon = (tabName: string) => {
   const iconMap = {
-    car: 'iconfont-sys icon-cheguanjia',
-    person: 'iconfont-sys icon-user-monitoring',
-    risk_control: 'iconfont-sys icon-alarm-clock',
-    industry_specific: 'iconfont-sys icon-settings'
+    staff: 'iconfont-sys icon-user-monitoring',
+    visitor: 'iconfont-sys icon-user',
+    vip: 'iconfont-sys icon-crown',
+    blacklist: 'iconfont-sys icon-warning'
   }
-  return iconMap[tabName as keyof typeof iconMap] || 'iconfont-sys icon-data-analysis'
+  return iconMap[tabName as keyof typeof iconMap] || 'iconfont-sys icon-people'
 }
 
 // 切换标签页
 const handleTabChange = (tabName: string) => {
+  // 如果当前有正在编辑的标签，先保存或取消编辑
+  if (editingTab.value) {
+    handleTabLabelEditComplete()
+  }
   activeTabName.value = tabName
 }
 
@@ -347,6 +383,11 @@ const isDefaultTab = (tabName: string) => {
 
 // 右键菜单显示
 const showTabMenu = (e: MouseEvent, tab: TabItem) => {
+  // 如果当前有正在编辑的标签，先保存编辑
+  if (editingTab.value) {
+    handleTabLabelEditComplete()
+  }
+  
   currentRightClickTab.value = tab
   nextTick(() => {
     tabMenuRef.value?.show(e)
@@ -364,49 +405,6 @@ const handleTabMenuSelect = (item: MenuItemType) => {
   }
 }
 
-// 删除标签页
-const deleteTab = (tabName: string) => {
-  if (isDefaultTab(tabName)) {
-    ElMessage.warning('默认分类不能删除')
-    return
-  }
-
-  const index = algoTabs.value.findIndex(tab => tab.name === tabName)
-  if (index === -1) return
-
-  // 获取待删除标签的数据
-  const tabToDelete = algoTabs.value[index]
-  const itemsCount = tabToDelete.items?.length || 0
-  
-  // 如果删除的是当前激活的标签，需要切换到其他标签
-  const isActiveTab = activeTabName.value === tabName
-  
-  // 删除标签
-  algoTabs.value.splice(index, 1)
-  
-  // 清空选中的行数据
-  selectedRows.value = []
-  
-  // 处理激活标签
-  if (algoTabs.value.length > 0) {
-    // 如果还有标签，总是切换到第一个标签
-    activeTabName.value = algoTabs.value[0].name
-  } else {
-    // 如果没有标签了，清空激活标签
-    activeTabName.value = ''
-  }
-  
-  // 如果删除的是当前激活标签或者切换了标签，则刷新表格数据
-  if (isActiveTab || activeTabName.value !== tabName) {
-    // 重置分页
-    pagination.currentPage = 1
-    getTableData()
-  }
-
-  // 显示成功消息，包含数据统计
-  ElMessage.success(`分类已删除${itemsCount > 0 ? `，同时移除了${itemsCount}条算法数据` : ''}`)
-}
-
 // 确认删除标签
 const confirmDeleteTab = (tab: TabItem) => {
   if (isDefaultTab(tab.name)) {
@@ -414,11 +412,11 @@ const confirmDeleteTab = (tab: TabItem) => {
     return
   }
 
-  // 检查标签是否有算法正在使用
-  const hasAlgorithms = tab.items && tab.items.length > 0
+  // 检查标签是否有信息正在使用
+  const hasItems = tab.items && tab.items.length > 0
 
-  if (hasAlgorithms) {
-    ElMessageBox.confirm(`当前标签有算法正在使用，确认删除将影响这些算法的配置。是否继续删除"${tab.label}"？`, '删除确认', {
+  if (hasItems) {
+    ElMessageBox.confirm(`当前分类有信息正在使用，确认删除将影响这些数据。是否继续删除"${tab.label}"？`, '删除确认', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
@@ -440,18 +438,61 @@ const confirmDeleteTab = (tab: TabItem) => {
   }
 }
 
-// 开始编辑标签标题 - 修改为使用内部函数
+// 删除标签页
+const deleteTab = (tabName: string) => {
+  if (isDefaultTab(tabName)) {
+    ElMessage.warning('默认分类不能删除')
+    return
+  }
+
+  const index = openTabs.value.findIndex(tab => tab.name === tabName)
+  if (index === -1) return
+
+  // 获取待删除标签的数据
+  const tabToDelete = openTabs.value[index]
+  const itemsCount = tabToDelete.items?.length || 0
+  
+  // 如果删除的是当前激活的标签，需要切换到其他标签
+  const isActiveTab = activeTabName.value === tabName
+  
+  // 删除标签
+  openTabs.value.splice(index, 1)
+  
+  // 清空选中的行数据
+  selectedRows.value = []
+  
+  // 处理激活标签
+  if (openTabs.value.length > 0) {
+    // 如果还有标签，总是切换到第一个标签
+    activeTabName.value = openTabs.value[0].name
+  } else {
+    // 如果没有标签了，清空激活标签
+    activeTabName.value = ''
+  }
+  
+  // 如果删除的是当前激活标签或者切换了标签，则刷新表格数据
+  if (isActiveTab || activeTabName.value !== tabName) {
+    // 重置分页
+    pagination.currentPage = 1
+    getTableData()
+  }
+
+  // 显示成功消息，包含数据统计
+  ElMessage.success(`分类已删除${itemsCount > 0 ? `，同时移除了${itemsCount}条数据` : ''}`)
+}
+
+// 开始编辑标签标题
 const startEditTabLabel = (tab: TabItem) => {
   if (isDefaultTab(tab.name)) {
     ElMessage.warning('默认分类不能编辑')
     return
   }
 
-  // 检查标签是否有算法正在使用
-  const hasAlgorithms = tab.items && tab.items.length > 0
+  // 检查标签是否有信息
+  const hasItems = tab.items && tab.items.length > 0
 
-  if (hasAlgorithms) {
-    ElMessageBox.confirm('当前标签有算法正在执行，确认修改将重启布控', '修改确认', {
+  if (hasItems) {
+    ElMessageBox.confirm('当前分类有信息，确认修改可能影响识别结果', '修改确认', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
@@ -494,7 +535,7 @@ const focusTabEditInput = () => {
   }, 100)
 }
 
-// 完成标签编辑 - 修复空值检查错误
+// 完成标签编辑
 const handleTabLabelEditComplete = () => {
   if (!editingTab.value) return
 
@@ -511,7 +552,7 @@ const handleTabLabelEditComplete = () => {
   }
 
   // 检查名称是否已存在
-  const exists = algoTabs.value.some(tab =>
+  const exists = openTabs.value.some(tab =>
     tab.name !== editingTab.value?.name && tab.label === label
   )
 
@@ -526,7 +567,7 @@ const handleTabLabelEditComplete = () => {
   }
 
   // 更新标签名称
-  const tabToUpdate = algoTabs.value.find(tab => tab.name === editingTab.value?.name)
+  const tabToUpdate = openTabs.value.find(tab => tab.name === editingTab.value?.name)
   if (tabToUpdate) {
     tabToUpdate.label = label
     // 如果不是新标签，显示成功消息
@@ -547,6 +588,11 @@ const cancelTabLabelEdit = () => {
   editingTab.value = null
 }
 
+// 生成唯一标识符
+const generateUniqueId = (prefix: string) => {
+  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+}
+
 // 直接添加新标签页
 const handleAddNewTab = () => {
   // 生成唯一标识符
@@ -559,7 +605,7 @@ const handleAddNewTab = () => {
     label: defaultLabel,
     items: []
   }
-  algoTabs.value.push(newTab)
+  openTabs.value.push(newTab)
 
   // 切换到新标签
   activeTabName.value = newName
@@ -574,20 +620,31 @@ const handleAddNewTab = () => {
 }
 
 const rules: FormRules = {
-  label: [{ required: true, message: '请输入算法名称', trigger: 'blur' }],
-  value: [{ required: true, message: '请输入标识符', trigger: 'blur' }],
-  desc: [{ required: false, message: '请输入算法描述', trigger: 'blur' }],
-  file: [{ required: true, message: '请上传算法文件', trigger: 'change' }]
+  name: [
+    { required: true, message: '请输入名称', trigger: 'blur' },
+    { min: 2, max: 20, message: '名称长度应为2-20个字符', trigger: 'blur' }
+  ],
+  desc: [{ required: false, max: 100, message: '描述不能超过100个字符', trigger: 'blur' }],
+  image: [{ required: true, message: '请上传图片', trigger: 'change' }]
 }
 
 const resetForm = () => {
-  algorithmForm.id = ''
-  algorithmForm.label = ''
-  algorithmForm.value = ''
-  algorithmForm.type = activeTabName.value
-  algorithmForm.desc = ''
-  algorithmForm.file = ''
+  // 重置表单数据
+  openForm.id = ''
+  openForm.name = ''
+  openForm.desc = ''
+  openForm.image = ''
+  openForm.openFeature = ''
+  
+  // 清空文件列表
   fileList.value = []
+  
+  // 重置表单验证状态
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate()
+    }
+  })
 }
 
 // 创建安全的对象URL，并记录以便后续释放
@@ -599,70 +656,48 @@ const createSafeObjectUrl = (file: File): string => {
 }
 
 // 文件上传变更处理
-const handleFileChange = (file: UploadFile, uploadFiles: UploadFile[]) => {
-  fileList.value = uploadFiles
-  algorithmForm.file = file.name
-
-  // 如果是本地上传的新文件，创建本地预览URL
+const handleFileChange = (file: UploadFile) => {
+  // 保证只有一个文件
+  fileList.value = [file]
+  
   if (file.raw) {
+    // 如果是本地上传的新文件，创建本地预览URL
     const localUrl = createSafeObjectUrl(file.raw)
     file.url = localUrl
+    // 保存到表单，使用本地URL预览
+    openForm.image = localUrl
+    
+    ElMessage.info(`已选择新照片"${file.name}"，点击确定后生效`)
+  } else if (file.url) {
+    // 已有图片（编辑模式）
+    openForm.image = file.url
   }
-
-  // 显示文件类型信息
-  const fileName = file.name.toLowerCase()
-  const fileExt = fileName.substring(fileName.lastIndexOf('.'))
-
-  // 根据文件类型显示不同的提示
-  let fileTypeMsg = ''
-  if (['.zip', '.rar'].includes(fileExt)) {
-    fileTypeMsg = '压缩包文件'
-  } else if (['.pt', '.pth'].includes(fileExt)) {
-    fileTypeMsg = 'PyTorch模型文件'
-  } else if (['.model', '.bin'].includes(fileExt)) {
-    fileTypeMsg = '模型文件'
-  } else if (['.enc', '.dat'].includes(fileExt)) {
-    fileTypeMsg = '加密数据文件'
-  } else {
-    fileTypeMsg = '自定义格式文件'
-  }
-
-  ElMessage.success(`已选择${fileTypeMsg}：${file.name}`)
 }
 
 // 文件移除处理
-const handleFileRemove = () => {
+const handleFileRemove = (_file?: any) => {
   fileList.value = []
-  algorithmForm.file = ''
+  // 重置为默认图片
+  openForm.image = ''
 }
 
 // 文件上传前检查
 const beforeFileUpload = (file: File) => {
-  // 允许的文件扩展名列表
-  const allowedExtensions = ['.zip', '.rar', '.pt', '.pth', '.model', '.bin', '.enc', '.dat', '.algo', '.weights']
-  const fileName = file.name.toLowerCase()
-  const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext))
-
-  // 如果没有匹配到允许的扩展名，检查MIME类型
-  const allowedMimeTypes = [
-    'application/zip',
-    'application/x-rar-compressed',
-    'application/octet-stream',
-    'application/x-model',
-    'application/x-binary'
-  ]
-  const hasAllowedMimeType = allowedMimeTypes.includes(file.type)
-
-  // 对于没有明确类型的文件，只要大小合适就允许上传
-  const isValidFile = hasAllowedExtension || hasAllowedMimeType || file.type === ''
-  const isLt100M = file.size / 1024 / 1024 < 100
-
-  if (!isValidFile) {
-    ElMessage.error('文件格式不支持，请上传有效的算法文件!')
+  // 检查是否是允许的图片类型
+  const acceptTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+  const isAcceptType = acceptTypes.includes(file.type)
+  
+  // 检查文件大小
+  const maxSize = 2 // MB
+  const isValidSize = file.size / 1024 / 1024 < maxSize
+  
+  if (!isAcceptType) {
+    ElMessage.error('只能上传JPG/PNG格式的图片!')
     return false
   }
-  if (!isLt100M) {
-    ElMessage.error('文件大小不能超过 100MB!')
+  
+  if (!isValidSize) {
+    ElMessage.error(`图片大小不能超过 ${maxSize}MB!`)
     return false
   }
   
@@ -671,25 +706,13 @@ const beforeFileUpload = (file: File) => {
     // 清空现有文件列表，让新文件能被添加
     fileList.value = []
     // 只提示一次
-    ElMessage.info('新文件将替换当前文件')
+    ElMessage.info('新照片将替换当前照片')
   }
   
   return true
 }
 
-// 超出文件数限制的处理函数
-const handleExceed = (files: File[]) => {
-  // 替换当前文件而不是提示错误
-  if (files.length > 0) {
-    // 删除已有文件
-    fileList.value = []
-    // 手动添加新文件
-    handleFileChange({raw: files[0], name: files[0].name} as UploadFile, [{raw: files[0], name: files[0].name}] as UploadFile[])
-    ElMessage.info('新上传的文件将替换当前文件')
-  }
-}
-
-const handleAddAlgo = () => {
+const handleAddOpen = () => {
   if (!hasTabData.value) {
     ElMessageBox.confirm('当前没有可用的分类，是否创建一个新分类？', '提示', {
       confirmButtonText: '创建分类',
@@ -703,7 +726,7 @@ const handleAddAlgo = () => {
         label: '右键编辑',
         items: []
       }
-      algoTabs.value.push(defaultTab)
+      openTabs.value.push(defaultTab)
       activeTabName.value = newName
       ElMessage.success('已创建默认分类')
       
@@ -719,8 +742,8 @@ const handleAddAlgo = () => {
   
   if (!activeTabName.value) {
     // 没有激活的标签页，自动选择第一个
-    if (algoTabs.value.length > 0) {
-      activeTabName.value = algoTabs.value[0].name
+    if (openTabs.value.length > 0) {
+      activeTabName.value = openTabs.value[0].name
     } else {
       ElMessage.warning('没有可用的分类')
       return
@@ -730,130 +753,188 @@ const handleAddAlgo = () => {
   openAddDialog()
 }
 
-// 抽取对话框打开逻辑为独立函数
 const openAddDialog = () => {
   dialogVisible.value = true
   dialogMode.value = 'add'
   resetForm()
   
-  // 新增时设置当前分类
-  algorithmForm.type = activeTabName.value
+  // 新增时不显示默认图片，只提供上传功能
+  fileList.value = []
+  openForm.image = ''
 }
 
-const handleEdit = (row: AlgorithmItem) => {
+const handleEdit = (row: OpenItem) => {
   dialogVisible.value = true
   dialogMode.value = 'edit'
-  Object.assign(algorithmForm, {
+  
+  // 重置表单内容
+  resetForm()
+  
+  // 填充表单数据
+  Object.assign(openForm, {
     id: row.id,
-    label: row.label,
-    value: row.value,
-    type: activeTabName.value,
+    name: row.name,
     desc: row.desc,
-    file: row.file || ''
+    image: row.image || '',
+    openFeature: row.openFeature || ''
   })
 
-  // 如果有文件，添加到文件列表中进行回显
-  fileList.value = row.file ? [{ name: row.file, url: '' }] as UploadFile[] : []
+  // 如果有图片，添加到文件列表中进行回显
+  if (row.image) {
+    // 创建文件对象用于预览
+    const fileName = row.id ? `open_${row.id.split('-').pop()}.jpg` : 'open.jpg'
+    const fileItem = { 
+      name: fileName,
+      url: row.image,
+      // 标记为已有文件，非新上传
+      status: 'success',
+      uid: Date.now()
+    }
+    fileList.value = [fileItem as unknown as UploadFile]
+  } else {
+    fileList.value = []
+  }
 }
 
 const handleSubmit = async () => {
   if (!formRef.value) return
 
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      // 这里实际应用中需要调用API保存数据
-      if (dialogMode.value === 'add') {
-        // 检查ID是否已存在
-        const isDuplicate = algoTabs.value.some(tab =>
-          tab.items.some(item => item.id === algorithmForm.id)
-        )
+  try {
+    // 表单验证
+    await formRef.value.validate()
+    
+    // 检查是否有图片
+    if (!openForm.image && fileList.value.length === 0) {
+      ElMessage.error('请上传图片')
+      return
+    }
 
-        if (isDuplicate) {
-          ElMessage.error('该标识符已存在，请修改标识符')
-          return
-        }
-
-        // 显示保存中状态
-        const savingInstance = ElMessage.info({
-          message: '正在添加算法信息...',
-          duration: 0,
-          showClose: true
-        })
-
-        try {
-          // 模拟API调用延迟
-          setTimeout(() => {
-            // 模拟添加算法
-            const newAlgo = {
-              ...algorithmForm,
-              createTime: new Date().toLocaleString()
-            }
-            // 添加到对应标签的items中
-            const currentTab = algoTabs.value.find(tab => tab.name === algorithmForm.type)
-            if (currentTab) {
-              currentTab.items.unshift(newAlgo)
-              savingInstance.close()
-              ElMessage.success('添加算法成功')
-              dialogVisible.value = false
-              getTableData()
-            } else {
-              savingInstance.close()
-              ElMessage.error('找不到当前分类，请重试')
-            }
-          }, 500)
-        } catch (error) {
-          savingInstance.close()
-          ElMessage.error('添加失败，请重试')
-          console.error('添加出错:', error)
-        }
-      } else {
-        // 显示保存中状态
-        const savingInstance = ElMessage.info({
-          message: '正在保存编辑内容...',
-          duration: 0,
-          showClose: true
-        })
-
-        try {
-          // 模拟API调用延迟
-          setTimeout(() => {
-            // 模拟编辑算法
-            const currentTab = algoTabs.value.find(tab => tab.name === algorithmForm.type)
-            if (currentTab) {
-              const idx = currentTab.items.findIndex(item => item.id === algorithmForm.id)
-              if (idx >= 0) {
-                // 获取旧数据，保留不变的字段
-                const oldData = currentTab.items[idx]
-                
-                // 更新数据
-                currentTab.items[idx] = {
-                  ...oldData,
-                  label: algorithmForm.label,
-                  value: algorithmForm.value,
-                  desc: algorithmForm.desc,
-                  file: algorithmForm.file
-                }
-                savingInstance.close()
-                ElMessage.success('编辑算法成功')
-                dialogVisible.value = false
-                getTableData()
-              } else {
-                savingInstance.close()
-                ElMessage.error('找不到要编辑的算法信息，请重试')
-              }
-            } else {
-              savingInstance.close()
-              ElMessage.error('找不到当前分类，请重试')
-            }
-          }, 500)
-        } catch (error) {
-          savingInstance.close()
-          ElMessage.error('保存失败，请重试')
-          console.error('保存出错:', error)
-        }
+    // 处理上传图片
+    let imageUrl = openForm.image
+    let needUpload = false
+    
+    // 检查是否有本地文件需要上传
+    if (fileList.value.length > 0 && fileList.value[0].raw) {
+      needUpload = true
+      
+      // 显示上传中状态
+      const loadingInstance = ElMessage.info({
+        message: '正在上传图片...',
+        duration: 0,
+        showClose: true
+      })
+      
+      try {
+        // 实际项目中，这里应该调用API上传图片到服务器
+        // 模拟上传过程
+        await new Promise(resolve => setTimeout(resolve, 800)) 
+        
+        // 保留本地预览URL作为图片路径
+        // 在实际项目中，应该使用后端返回的URL
+        imageUrl = openForm.image
+        
+        // 关闭上传提示
+        loadingInstance.close()
+        ElMessage.success('图片上传成功')
+      } catch (err) {
+        // 关闭上传提示
+        loadingInstance.close()
+        ElMessage.error('图片上传失败，请重试')
+        return
       }
     }
-  })
+
+    // 显示保存中状态
+    const savingInstance = ElMessage.info({
+      message: dialogMode.value === 'add' ? '正在添加信息...' : '正在保存编辑内容...',
+      duration: 0,
+      showClose: true
+    })
+    
+    try {
+      // 模拟API调用延迟
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      if (dialogMode.value === 'add') {
+        // 新增模式
+        // 生成唯一ID
+        const newId = generateUniqueId(`open-${activeTabName.value}`)
+        
+        // 准备新数据
+        const newOpen = {
+          id: newId,
+          name: openForm.name,
+          desc: openForm.desc,
+          image: imageUrl,
+          openFeature: needUpload ? '/assets/open.jpg' : '', // 新上传图片才生成特征图
+          createTime: new Date().toLocaleString()
+        }
+        
+        // 添加到对应标签的items中
+        const currentTab = openTabs.value.find(tab => tab.name === activeTabName.value)
+        if (currentTab) {
+          // 确保items数组存在
+          if (!currentTab.items) {
+            currentTab.items = []
+          }
+          currentTab.items.unshift(newOpen)
+          savingInstance.close()
+          ElMessage.success('添加信息成功')
+          dialogVisible.value = false
+          getTableData()
+        } else {
+          savingInstance.close()
+          ElMessage.error('找不到当前分类，请重试')
+        }
+      } else {
+        // 编辑模式
+        const currentTab = openTabs.value.find(tab => tab.name === activeTabName.value)
+        if (currentTab) {
+          // 确保items数组存在
+          if (!currentTab.items) {
+            currentTab.items = []
+            savingInstance.close()
+            ElMessage.error('找不到数据，请重试')
+            return
+          }
+          
+          const idx = currentTab.items.findIndex(item => item.id === openForm.id)
+          if (idx >= 0) {
+            // 获取旧数据，保留不变的字段
+            const oldData = currentTab.items[idx]
+            
+            // 更新数据
+            currentTab.items[idx] = {
+              ...oldData,
+              name: openForm.name,
+              desc: openForm.desc,
+              image: imageUrl,
+              // 如果上传了新图片，则生成新特征图，否则保留原特征图
+              openFeature: needUpload ? '/assets/open.jpg' : oldData.openFeature
+            }
+            
+            savingInstance.close()
+            ElMessage.success('编辑信息成功')
+            dialogVisible.value = false
+            getTableData()
+          } else {
+            savingInstance.close()
+            ElMessage.error('找不到要编辑的信息，请重试')
+          }
+        } else {
+          savingInstance.close()
+          ElMessage.error('找不到当前分类，请重试')
+        }
+      }
+    } catch (error) {
+      savingInstance.close()
+      ElMessage.error('操作失败，请重试')
+      console.error('保存出错:', error)
+    }
+  } catch (error) {
+    ElMessage.error('表单验证失败，请检查输入')
+    console.error('表单验证出错:', error)
+  }
 }
 
 function getTableData() {
@@ -868,7 +949,7 @@ function getTableData() {
     }
 
     // 根据当前选中的标签页和搜索条件筛选数据
-    const currentTab = algoTabs.value.find(tab => tab.name === activeTabName.value)
+    const currentTab = openTabs.value.find(tab => tab.name === activeTabName.value)
     if (!currentTab) {
       tableData.value = []
       pagination.total = 0
@@ -877,15 +958,12 @@ function getTableData() {
     }
 
     // 确保items数组存在
-    const items: AlgorithmItem[] = currentTab.items || []
+    const items: OpenItem[] = currentTab.items || []
     
     let filtered = [...items]
     // 应用搜索筛选
-    if (formFilters.label) {
-      filtered = filtered.filter((item) => item.label.includes(formFilters.label))
-    }
-    if (formFilters.value) {
-      filtered = filtered.filter((item) => item.value.includes(formFilters.value))
+    if (formFilters.name) {
+      filtered = filtered.filter((item) => item.name.includes(formFilters.name))
     }
 
     // 设置分页
@@ -896,15 +974,15 @@ function getTableData() {
   }, 300)
 }
 
-const handleDelete = (row: AlgorithmItem) => {
-  ElMessageBox.confirm(`确定要删除算法"${row.label}"吗？`, '删除确认', {
+const handleDelete = (row: OpenItem) => {
+  ElMessageBox.confirm(`确定要删除"${row.name}"的信息吗？`, '删除确认', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    const currentTab = algoTabs.value.find(tab => tab.name === activeTabName.value)
+    const currentTab = openTabs.value.find(tab => tab.name === activeTabName.value)
     if (currentTab && currentTab.items) {
-      const idx = currentTab.items.findIndex(item => item.id === row.id)
+      const idx = currentTab.items.findIndex((item: OpenItem) => item.id === row.id)
       if (idx >= 0) {
         currentTab.items.splice(idx, 1)
         ElMessage.success('删除成功')
@@ -930,11 +1008,11 @@ const handleBatchDelete = () => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    const currentTab = algoTabs.value.find(tab => tab.name === activeTabName.value)
+    const currentTab = openTabs.value.find(tab => tab.name === activeTabName.value)
     if (currentTab && currentTab.items) {
       const idsToDelete = selectedRows.value.map(row => row.id)
-      currentTab.items = currentTab.items.filter(item => !idsToDelete.includes(item.id))
-      ElMessage.success(`批量删除成功，已删除${idsToDelete.length}条记录`)
+      currentTab.items = currentTab.items.filter((item: OpenItem) => !idsToDelete.includes(item.id))
+      ElMessage.success('批量删除成功')
       selectedRows.value = []
       getTableData()
     } else {
@@ -945,38 +1023,10 @@ const handleBatchDelete = () => {
   })
 }
 
-// 当前标签页的标签名
-const currentTabLabel = computed(() => {
-  const currentTab = algoTabs.value.find(tab => tab.name === activeTabName.value)
-  return currentTab?.label || ''
-})
-
-// 根据标识符生成ID并检查唯一性
-const generateIdFromValue = () => {
-  if (algorithmForm.value) {
-    const newId = `algo-${algorithmForm.value.toLowerCase()}`
-    algorithmForm.id = newId
-
-    // 如果是添加模式，检查ID是否已存在
-    if (dialogMode.value === 'add') {
-      const isDuplicate = algoTabs.value.some(tab =>
-        tab.items.some(item => item.id === newId)
-      )
-
-      if (isDuplicate) {
-        ElMessage.warning('该标识符已存在，请修改标识符')
-      }
-    }
-  } else {
-    algorithmForm.id = ''
-  }
-}
-
 // 对话框关闭处理
 const handleDialogClose = () => {
-  if (formRef.value) {
-    formRef.value.resetFields()
-  }
+  // 重置表单数据和验证状态
+  resetForm()
 }
 
 // 取消按钮点击处理
@@ -1005,24 +1055,97 @@ const handleCancel = () => {
   }
 }
 
+// 添加载入特征的处理方法
+const handleLoadOpenFeatures = () => {
+  if (!activeTabName.value) {
+    ElMessage.warning('请先选择一个分类')
+    return
+  }
+  
+  const currentTab = openTabs.value.find(tab => tab.name === activeTabName.value)
+  if (!currentTab || !currentTab.items || currentTab.items.length === 0) {
+    ElMessage.warning('当前分类没有数据')
+    return
+  }
+  
+  // 计算需要处理的数量
+  const totalOpens = currentTab.items.length
+  const needProcessOpens = currentTab.items.filter((item: OpenItem) => !item.openFeature).length
+  
+  if (needProcessOpens === 0) {
+    ElMessage.success('所有特征已经载入')
+    return
+  }
+
+  ElMessageBox.confirm(`将为当前分类中${needProcessOpens}张图片生成特征，是否继续？`, '载入特征', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'info'
+  }).then(async () => {
+    // 显示处理中状态
+    const loadingInstance = ElMessage.info({
+      message: '正在载入特征...',
+      duration: 0,
+      showClose: true
+    })
+    
+    try {
+      // 模拟处理过程
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // 更新没有特征的数据
+      currentTab.items.forEach((item: OpenItem) => {
+        if (!item.openFeature) {
+          item.openFeature = '/assets/open.jpg'
+        }
+      })
+      
+      // 刷新表格
+      getTableData()
+      
+      // 关闭处理提示
+      loadingInstance.close()
+      ElMessage.success(`成功载入${needProcessOpens}张特征`)
+    } catch (error) {
+      loadingInstance.close()
+      ElMessage.error('特征载入失败，请重试')
+      console.error('载入特征出错:', error)
+    }
+  }).catch(() => {
+    // 用户取消操作
+  })
+}
+
+// 添加超出文件数限制的处理函数
+const handleExceed = (files: File[]) => {
+  // 替换当前文件而不是提示错误
+  if (files.length > 0) {
+    // 删除已有文件
+    fileList.value = []
+    // 手动添加新文件
+    handleFileChange({raw: files[0], name: files[0].name} as UploadFile)
+    ElMessage.info('新上传的照片将替换当前照片')
+  }
+}
+
 onMounted(() => {
   // 初始检查是否有标签页数据
   if (!hasTabData.value) {
-    ElMessage.info('算法库中没有分类数据，请先创建分类')
-  } else if (algoTabs.value.every(tab => !tab.items || tab.items.length === 0)) {
-    ElMessage.info('算法库中没有算法数据，请添加算法')
+    ElMessage.info('底库中没有分类数据，请先创建分类')
+  } else if (openTabs.value.every(tab => !tab.items || tab.items.length === 0)) {
+    ElMessage.info('底库中没有数据，请添加')
   }
   getTableData()
 })
 </script>
 
 <style lang="scss" scoped>
-.algo-info-root {
+.open-repo-root {
   width: 100%;
   height: 100%;
 }
 
-.algo-info-page {
+.open-repo-page {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -1228,7 +1351,43 @@ onMounted(() => {
   width: 100%;
 }
 
-/* 添加空数据样式 */
+.open-feature-preview {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 1px dashed var(--el-border-color);
+  padding: 15px;
+  border-radius: 4px;
+  background-color: var(--el-fill-color-lighter);
+}
+
+// 添加更多样式
+:deep(.el-upload-list--picture-card) {
+  .el-upload-list__item {
+    width: 160px;
+    height: 160px;
+  }
+}
+
+:deep(.el-upload--picture-card) {
+  width: 160px;
+  height: 160px;
+  line-height: 160px;
+}
+
+:deep(.el-upload-dragger) {
+  width: 100%;
+  height: 100%;
+}
+
+:deep(.el-upload-list__item-thumbnail) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// 添加空数据样式
 .empty-data {
   display: flex;
   flex-direction: column;

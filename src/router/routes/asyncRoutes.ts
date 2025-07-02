@@ -755,11 +755,11 @@ export const asyncRoutes: AppRouteRecord[] = [
         }
       },
       {
-        path: 'uniform',
-        name: 'RepositoryUniform',
-        component: RoutesAlias.RepositoryUniform,
+        path: 'open',
+        name: 'RepositoryOpen',
+        component: RoutesAlias.RepositoryOpen,
         meta: {
-          title: 'menus.repository.uniform',
+          title: 'menus.repository.open',
           keepAlive: true
         }
       }
