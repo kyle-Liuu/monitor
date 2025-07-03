@@ -19,3 +19,30 @@ const asciiArt = `
 `
 
 console.log(asciiArt)
+
+// 开发环境下启用控制台输出
+const isDev = import.meta.env.MODE === 'development'
+
+// 控制台日志工具
+export const consoleSys = {
+    log(...args: any[]) {
+        if (isDev) {
+            console.log(...args)
+        }
+    },
+    warn(...args: any[]) {
+        if (isDev) {
+            console.warn(...args)
+        }
+    },
+    error(...args: any[]) {
+        if (isDev) {
+            console.error(...args)
+        }
+    },
+    info(...args: any[]) {
+        if (isDev) {
+            console.info(...args)
+        }
+    }
+}
