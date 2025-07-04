@@ -1,0 +1,21 @@
+CREATE TABLE articles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    cover_image VARCHAR(255),
+    author_id INT,
+    category VARCHAR(50),
+    tags TEXT,
+    view_count INT DEFAULT 0,
+    like_count INT DEFAULT 0,
+    comment_count INT DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'draft' COMMENT 'draft:草稿, published:已发布, deleted:已删除',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (author_id) REFERENCES users (id),
+    INDEX idx_title (title),
+    INDEX idx_author_id (author_id),
+    INDEX idx_category (category),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
+);

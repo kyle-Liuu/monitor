@@ -17,6 +17,8 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """创建用户的请求模型"""
     password: str
+    avatar: Optional[str] = None
+    roles: Optional[List[str]] = None
 
     @validator("password")
     def password_min_length(cls, v):

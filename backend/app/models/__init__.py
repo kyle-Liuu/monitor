@@ -1,5 +1,5 @@
 # 导出用户模型
-from app.models.user import User
+from app.models.user import User, Role, UserRole
 from app.models.organization import Organization
 from app.models.virtual_organization import VirtualOrganization, virtual_org_streams
 from app.models.videostream import VideoStream
@@ -12,6 +12,8 @@ from app.models.monitor_task import MonitorTask
 # 使所有模型在导入 models 包时可用
 __all__ = [
     "User", 
+    "Role",
+    "UserRole",
     "Organization", 
     "VirtualOrganization", 
     "VideoStream", 

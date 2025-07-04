@@ -1,0 +1,20 @@
+CREATE TABLE video_streams (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    type VARCHAR(50) COMMENT 'rtsp, rtmp, hls等',
+    org_id INT,
+    status VARCHAR(20) DEFAULT 'active' COMMENT 'active:在线, inactive:离线, error:错误',
+    ip_address VARCHAR(50),
+    port INT,
+    username VARCHAR(50),
+    password VARCHAR(100),
+    description TEXT,
+    location TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (org_id) REFERENCES organizations (id),
+    INDEX idx_name (name),
+    INDEX idx_org_id (org_id),
+    INDEX idx_status (status)
+);
