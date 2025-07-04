@@ -14,7 +14,7 @@ class Warning(Base):
     algorithm_id = Column(Integer, ForeignKey("algorithms.id"), nullable=True)
     detection_time = Column(DateTime, default=func.now())
     image_path = Column(String(200), nullable=True)  # 告警截图路径
-    metadata = Column(Text, nullable=True)  # 告警详细信息 (JSON格式)
+    warning_metadata = Column(Text, nullable=True)  # 告警详细信息 (JSON格式)
     is_processed = Column(Boolean, default=False)
     processed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     processed_at = Column(DateTime, nullable=True)

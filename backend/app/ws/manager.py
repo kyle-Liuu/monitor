@@ -157,8 +157,25 @@ class WebSocketEventManager:
         # 事件队列
         self.event_queue: asyncio.Queue = asyncio.Queue()
         
-        # 启动事件处理循环
-        self.task = asyncio.create_task(self._process_events())
+        # 任务引用
+        self.task = None
+    
+    async def start(self):
+        """启动事件处理循环"""
+        if self.task is None:
+            self.task = asyncio.create_task(self._process_events())
+            logger.info("WebSocket事件管理器已启动")
+    
+    async def stop(self):
+        """停止事件处理循环"""
+        if self.task:
+            self.task.cancel()
+            try:
+                await self.task
+            except asyncio.CancelledError:
+                pass
+            self.task = None
+            logger.info("WebSocket事件管理器已停止")
     
     def register_handler(self, event_type: str, handler: Callable) -> None:
         """

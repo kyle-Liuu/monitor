@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.endpoints import auth, users, roles, organizations, virtual_organizations, videostreams, algorithms, warnings, websocket, monitor
 
+# 创建API路由器
 api_router = APIRouter()
 
 # 认证相关路由
@@ -27,13 +28,7 @@ api_router.include_router(warnings.router, prefix="/warnings", tags=["warnings"]
 # 监控任务路由
 api_router.include_router(monitor.router, prefix="/monitor", tags=["monitor"])
 
-# WebSocket路由
+# WebSocket路由 - 这些路由不会在Swagger UI中显示，因为它们是WebSocket端点
 api_router.include_router(websocket.router, tags=["websocket"])
 
-# 以下是未实现的路由，可以按需解开注释
-# api_router.include_router(algorithms.router, prefix="/algorithms", tags=["算法"])
-# api_router.include_router(videostreams.router, prefix="/videostreams", tags=["视频流"])
-# api_router.include_router(organizations.router, prefix="/organizations", tags=["组织"])
-# api_router.include_router(virtual_orgs.router, prefix="/virtualorganizations", tags=["虚拟组织"])
-# api_router.include_router(warnings.router, prefix="/warnings", tags=["告警"])
-# api_router.include_router(repository.router, prefix="/repository", tags=["资源库"]) 
+# 注意：所有路由已经注册，如需进行更新，请直接修改上述注册代码

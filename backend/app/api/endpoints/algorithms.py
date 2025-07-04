@@ -2,10 +2,9 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session
 
+from app import models, schemas
 from app.api.deps import get_db, get_current_user
-from app.schemas.algorithm import Algorithm, AlgorithmCreate, AlgorithmUpdate, AlgorithmInDB
 from app.services.algorithm_service import AlgorithmService
-from app.models.user import User
 
 router = APIRouter()
 
@@ -16,7 +15,7 @@ async def get_algorithms(
     type: Optional[str] = None,
     is_active: Optional[bool] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     获取算法列表
@@ -38,11 +37,11 @@ async def get_algorithms(
         "total": total
     }
 
-@router.get("/{algorithm_id}", response_model=AlgorithmInDB)
+@router.get("/{algorithm_id}", response_model=schemas.Algorithm)
 async def get_algorithm(
     algorithm_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     获取算法详情
@@ -52,23 +51,23 @@ async def get_algorithm(
         raise HTTPException(status_code=404, detail="算法不存在")
     return algorithm
 
-@router.post("/", response_model=AlgorithmInDB)
+@router.post("/", response_model=schemas.Algorithm)
 async def create_algorithm(
-    algorithm: AlgorithmCreate,
+    algorithm: schemas.AlgorithmCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     创建算法
     """
     return await AlgorithmService.create_algorithm(db, algorithm)
 
-@router.put("/{algorithm_id}", response_model=AlgorithmInDB)
+@router.put("/{algorithm_id}", response_model=schemas.Algorithm)
 async def update_algorithm(
     algorithm_id: int,
-    algorithm: AlgorithmUpdate,
+    algorithm: schemas.AlgorithmUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     更新算法
@@ -82,7 +81,7 @@ async def update_algorithm(
 async def delete_algorithm(
     algorithm_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     删除算法
@@ -97,7 +96,7 @@ async def upload_algorithm_model(
     algorithm_id: int = Form(...),
     model_file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     上传算法模型
@@ -110,9 +109,9 @@ async def test_algorithm(
     test_image: UploadFile = File(...),
     config_override: Optional[Dict[str, Any]] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     测试算法
     """
-    return await AlgorithmService.test_algorithm(db, algorithm_id, test_image, config_override) 
+    return await AlgorithmService.test_algorithm(db, algorithm_id, test_image, config_override)

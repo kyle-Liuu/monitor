@@ -19,7 +19,8 @@ const { VITE_API_URL, VITE_WITH_CREDENTIALS } = import.meta.env
 
 const axiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT, // 请求超时时间(毫秒)
-  baseURL: VITE_API_URL, // API地址
+  // baseURL: VITE_API_URL, // API地址
+  baseURL: 'http://localhost:8000',
   withCredentials: VITE_WITH_CREDENTIALS === 'true', // 是否携带cookie，默认关闭
   transformRequest: [(data) => JSON.stringify(data)], // 请求数据转换为 JSON 字符串
   validateStatus: (status) => status >= 200 && status < 300, // 只接受 2xx 的状态码
@@ -63,18 +64,39 @@ axiosInstance.interceptors.request.use(
 
 // 响应拦截器
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse<Api.Http.BaseResponse>) => {
-    const { code, msg } = response.data
+  (response: AxiosResponse<any>) => {
+    // 检查响应数据是否符合预期格式
+    if (response.data && typeof response.data === 'object') {
+      // 如果响应包含code和msg字段，按照标准格式处理
+      if ('code' in response.data && 'msg' in response.data) {
+        const { code, msg } = response.data
 
-    switch (code) {
-      case ApiStatus.success:
-        return response
-      case ApiStatus.unauthorized:
-        logOut()
-        throw new HttpError(msg || $t('httpMsg.unauthorized'), ApiStatus.unauthorized)
-      default:
-        throw new HttpError(msg || $t('httpMsg.requestFailed'), code)
+        switch (code) {
+          case ApiStatus.success:
+            return response
+          case ApiStatus.unauthorized:
+            logOut()
+            throw new HttpError(msg || $t('httpMsg.unauthorized'), ApiStatus.unauthorized)
+          default:
+            throw new HttpError(msg || $t('httpMsg.requestFailed'), code)
+        }
+      }
+      // 如果响应直接是数据，没有包装在标准格式中
+      else {
+        // 直接返回响应
+        return {
+          ...response,
+          data: {
+            code: ApiStatus.success,
+            msg: 'success',
+            data: response.data
+          }
+        }
+      }
     }
+
+    // 默认返回原始响应
+    return response
   },
   (error) => {
     return Promise.reject(handleError(error))
@@ -120,7 +142,20 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
 
   try {
     const res = await axiosInstance.request<Api.Http.BaseResponse<T>>(config)
-    return res.data.data as T
+
+    // 检查响应数据结构
+    if (res.data && typeof res.data === 'object') {
+      // 标准响应格式
+      if ('data' in res.data) {
+        return res.data.data as T
+      }
+      // 直接返回数据
+      else {
+        return res.data as unknown as T
+      }
+    }
+
+    return res.data as unknown as T
   } catch (error) {
     if (error instanceof HttpError) {
       // 根据配置决定是否显示错误消息

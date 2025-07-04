@@ -60,6 +60,11 @@ class Algorithm(AlgorithmInDBBase):
     pass
 
 
+# 添加AlgorithmInDB类，以兼容现有代码
+class AlgorithmInDB(AlgorithmInDBBase):
+    pass
+
+
 # 算法上传响应
 class AlgorithmUpload(BaseModel):
     algorithm_id: int

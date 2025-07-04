@@ -77,11 +77,46 @@ async def startup_event() -> None:
     # 连接到Redis（如果启用）
     await connect_to_redis()
     
+    # 启动WebSocket连接管理器
+    try:
+        from app.ws.connection import manager
+        await manager.start()
+    except Exception as e:
+        logger.error(f"启动WebSocket连接管理器失败: {str(e)}")
+    
+    # 启动WebSocket事件管理器
+    try:
+        from app.ws.manager import event_manager
+        await event_manager.start()
+    except Exception as e:
+        logger.error(f"启动WebSocket事件管理器失败: {str(e)}")
+    
     logger.info("应用启动完成")
 
 async def shutdown_event() -> None:
     """应用关闭时执行的事件"""
     logger.info("关闭应用...")
+    
+    # 停止WebSocket连接管理器
+    try:
+        from app.ws.connection import manager
+        await manager.stop()
+    except Exception as e:
+        logger.error(f"停止WebSocket连接管理器失败: {str(e)}")
+    
+    # 停止WebSocket事件管理器
+    try:
+        from app.ws.manager import event_manager
+        await event_manager.stop()
+    except Exception as e:
+        logger.error(f"停止WebSocket事件管理器失败: {str(e)}")
+    
+    # 关闭线程池
+    try:
+        from app.utils.thread_pool import thread_pool
+        thread_pool.shutdown(wait=True)
+    except Exception as e:
+        logger.error(f"关闭线程池失败: {str(e)}")
     
     # 关闭Redis连接
     await close_redis_connection()

@@ -25,9 +25,9 @@ class WarningBase(BaseModel):
     videostream_id: Optional[int] = None
     algorithm_id: Optional[int] = None
     image_path: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    warning_metadata: Optional[Dict[str, Any]] = None
 
-    @validator('metadata', pre=True)
+    @validator('warning_metadata', pre=True)
     def parse_metadata(cls, v):
         if isinstance(v, str):
             try:

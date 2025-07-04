@@ -47,8 +47,8 @@ def create_initial_superuser(db: Session) -> None:
         # 为管理员添加admin角色
         admin_role = db.query(Role).filter(Role.role_code == "admin").first()
         if admin_role:
-            user_role = UserRole(user_id=user.id, role_id=admin_role.id)
-            db.add(user_role)
+            # 使用关系添加角色，而不是直接创建UserRole实例
+            user.roles.append(admin_role)
             db.commit()
             logger.info(f"为用户admin分配角色: {admin_role.role_name}")
 
@@ -72,11 +72,11 @@ def init_test_data(db: Session) -> None:
         db: 数据库会话
     """
     # 创建测试用户
-    test_user = db.query(models.User).filter(models.User.username == "test").first()
+    test_user = db.query(User).filter(User.username == "test").first()
     if not test_user:
-        user_role = db.query(models.Role).filter(models.Role.role_code == "user").first()
+        user_role = db.query(Role).filter(Role.role_code == "user").first()
         
-        test_user = models.User(
+        test_user = User(
             username="test",
             email="test@example.com",
             hashed_password=get_password_hash("test"),

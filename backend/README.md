@@ -310,7 +310,7 @@ YOLO_DEVICE=cuda:0  # 或 'cpu'
 
 ```bash
 # 创建初始数据库表结构
-python -c "from app.db.init_db import init_db; init_db()"
+   python -c "from app.db.init_db import main; main()"
 
 # 添加测试数据 (可选)
 python -c "from app.db.init_db import create_test_data; create_test_data()"
@@ -322,6 +322,7 @@ python -c "from app.db.init_db import create_test_data; create_test_data()"
 
 ```bash
 # 使用uvicorn启动(开发环境)
+python main.py 即可
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 

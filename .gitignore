@@ -9,3 +9,7 @@ dist-ssr
 src/types/auto-imports.d.ts
 src/types/components.d.ts
 .auto-imports.json
+
+# Python
+__pycache__/
+*.py[cod]

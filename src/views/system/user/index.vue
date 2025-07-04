@@ -87,8 +87,9 @@
   import type { FormRules } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { UserService } from '@/api/usersApi'
+  import { UserService } from '@/api/userApi'
   import { SearchChangeParams, SearchFormItem } from '@/types'
+  import { useUserStore } from '@/store/modules/user'
   const { width } = useWindowSize()
 
   defineOptions({ name: 'User' }) // 定义组件名称，用于 KeepAlive 缓存控制
@@ -373,7 +374,15 @@
     role: [] as string[]
   })
 
+  // 设置JWT令牌
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTE2OTgzMjYsInN1YiI6IjEifQ.B94_q74ffDhbgOM30V05mhrLy4KorTSkEpGvCwGk6sQ"
+  const userStore = useUserStore()
+
+  // 在组件挂载时设置令牌
   onMounted(() => {
+    // 设置令牌到store中
+    userStore.setToken(`Bearer ${token}`)
+    
     getUserList()
     getRoleList()
   })
@@ -383,22 +392,66 @@
     loading.value = true
     try {
       const { currentPage, pageSize } = pagination
-
-      const { records, current, size, total } = await UserService.getUserList({
+      
+      // 使用UserService获取用户列表
+      const result = await UserService.getUserList({
         current: currentPage,
-        size: pageSize
+        size: pageSize,
+        name: formFilters.name || undefined,
+        phone: formFilters.phone || undefined,
+        status: formFilters.status !== '' ? formFilters.status : undefined
       })
-
+      
+      console.log('后端返回的用户数据:', result)
+      
+      // 处理返回的数据
+      let records: any[] = []
+      let current = currentPage
+      let size = pageSize
+      let total = 0
+      
+      // 检查返回的数据格式
+      if (result && typeof result === 'object') {
+        // 标准分页格式
+        if ('records' in result && 'total' in result) {
+          records = result.records || []
+          current = result.current || currentPage
+          size = result.size || pageSize
+          total = result.total || 0
+        } 
+        // 数组格式
+        else if (Array.isArray(result)) {
+          records = result as any[]
+          total = records.length
+        }
+      }
+      
       // 使用本地头像替换接口返回的头像
       tableData.value = records.map((item: any, index: number) => ({
         ...item,
+        userName: item.username,
+        userEmail: item.email,
+        userPhone: item.phone,
+        userGender: item.gender,
+        createTime: item.created_at,
         avatar: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar
       }))
 
       // 更新分页信息
       Object.assign(pagination, { currentPage: current, pageSize: size, total })
-    } catch (error) {
+    } catch (error: any) {
       console.error('获取用户列表失败:', error)
+      console.error('错误详情:', {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data,
+        status: error.response?.status,
+        fullError: JSON.stringify(error, null, 2)
+      })
+      ElMessage.error(`获取用户列表失败: ${error.message || '未知错误'}`)
+      // 如果API请求失败，使用模拟数据
+      tableData.value = ACCOUNT_TABLE_DATA.slice(0, pagination.pageSize)
+      pagination.total = ACCOUNT_TABLE_DATA.length
     } finally {
       loading.value = false
     }

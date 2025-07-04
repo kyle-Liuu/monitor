@@ -6,7 +6,7 @@ export class UserService {
      */
     static getUserInfo() {
         return api.get<Api.User.UserInfo>({
-            url: '/user/info'
+            url: '/api/users/info'
         })
     }
 
@@ -14,9 +14,13 @@ export class UserService {
      * 获取用户列表
      * @param params 查询参数
      */
-    static getUserList(params: Api.Common.PaginationParams) {
+    static getUserList(params: Api.Common.PaginationParams & {
+        name?: string;
+        phone?: string;
+        status?: string;
+    }) {
         return api.get<Api.User.UserListResult>({
-            url: '/user/list',
+            url: '/api/users/list',
             params
         })
     }
@@ -27,7 +31,7 @@ export class UserService {
      */
     static createUser(userData: Api.User.CreateUserParams) {
         return api.post<Api.User.UserInfo>({
-            url: '/user',
+            url: '/api/users',
             data: userData
         })
     }
@@ -39,7 +43,7 @@ export class UserService {
      */
     static updateUser(userId: number, userData: Api.User.UpdateUserParams) {
         return api.put<Api.User.UserInfo>({
-            url: `/user/${userId}`,
+            url: `/api/users/${userId}`,
             data: userData
         })
     }
@@ -50,7 +54,7 @@ export class UserService {
      */
     static deleteUser(userId: number) {
         return api.del<Api.Common.MessageResult>({
-            url: `/user/${userId}`
+            url: `/api/users/${userId}`
         })
     }
 
@@ -60,7 +64,7 @@ export class UserService {
      */
     static getUserById(userId: number) {
         return api.get<Api.User.UserInfo>({
-            url: `/user/${userId}`
+            url: `/api/users/${userId}`
         })
     }
 } 

@@ -45,13 +45,13 @@ python-magic==0.4.27
 loguru==0.7.0
 
 # ML相关 (算法依赖)
-numpy==1.24.3
-pillow==10.0.0
-opencv-python==4.8.0.74
+# numpy==1.24.3
+# pillow==10.0.0
+# opencv-python==4.8.0.74
 
-# 数据处理
-pandas==2.0.3
-matplotlib==3.7.2
+# # 数据处理
+# pandas==2.0.3
+# matplotlib==3.7.2
 
 # 系统监控
 psutil==5.9.5
@@ -73,7 +73,7 @@ isort==5.12.0
 flake8==6.0.0
 
 # 图像处理
-pillow>=9.5.0
+# pillow>=9.5.0
 
 # YOLO相关
 # 注意：如需使用YOLO进行目标检测，需要安装以下包

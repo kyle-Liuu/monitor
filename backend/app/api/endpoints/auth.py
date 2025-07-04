@@ -12,7 +12,6 @@ from app.api import deps
 from app.core.config import settings
 from app.core.security import authenticate_user, create_access_token, get_password_hash, redis_client
 from app.utils.deps import get_db
-from app.models.user import User
 
 router = APIRouter()
 
@@ -35,10 +34,28 @@ def login_access_token(
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
     )
+    
+    # 转换用户对象为字典，避免响应验证错误
+    user_dict = {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "full_name": user.full_name or "",
+        "phone": user.phone or "",
+        "gender": user.gender or 1,
+        "avatar": user.avatar or "",
+        "status": user.status or "1",
+        "is_active": user.is_active,
+        "is_superuser": user.is_superuser,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+        "roles": [{"role_code": role.role_code, "role_name": role.role_name} for role in user.roles]
+    }
+    
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "user": user
+        "user": user_dict
     }
 
 
@@ -52,7 +69,7 @@ def register_user(
     创建新用户
     """
     # 检查用户名是否已存在
-    user = db.query(User).filter(User.username == user_in.username).first()
+    user = db.query(models.User).filter(models.User.username == user_in.username).first()
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -60,7 +77,7 @@ def register_user(
         )
     
     # 检查邮箱是否已存在
-    user = db.query(User).filter(User.email == user_in.email).first()
+    user = db.query(models.User).filter(models.User.email == user_in.email).first()
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -68,7 +85,7 @@ def register_user(
         )
     
     # 创建新用户
-    user = User(
+    user = models.User(
         username=user_in.username,
         email=user_in.email,
         hashed_password=get_password_hash(user_in.password),
@@ -81,4 +98,4 @@ def register_user(
     db.add(user)
     db.commit()
     db.refresh(user)
-    return user 
+    return user

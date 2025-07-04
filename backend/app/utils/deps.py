@@ -31,6 +31,47 @@ def get_db() -> Generator:
         db.close()
 
 
+async def get_current_user_from_token(token: str) -> Optional[User]:
+    """
+    从令牌获取当前用户（供WebSocket使用的异步版本）
+    
+    Args:
+        token: JWT令牌
+        
+    Returns:
+        当前认证用户对象，如果认证失败则返回None
+        
+    Raises:
+        Exception: 认证过程中发生的异常
+    """
+    try:
+        # 解码JWT
+        payload = jwt.decode(
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+        )
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+        
+        # 验证令牌数据
+        token_data = TokenPayload(user_id=int(user_id))
+        
+        # 从数据库获取用户
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.id == token_data.user_id).first()
+            if user is None or not user.is_active:
+                return None
+            return user
+        finally:
+            db.close()
+            
+    except (JWTError, ValidationError) as e:
+        raise Exception(f"Token validation error: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Authentication error: {str(e)}")
+
+
 def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
 ) -> User:
@@ -90,6 +131,28 @@ def get_current_active_user(
     if not current_user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="用户未激活"
+        )
+    return current_user
+
+
+def get_current_active_superuser(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """
+    获取当前活跃的超级管理员用户
+    
+    Args:
+        current_user: 当前活跃用户
+        
+    Returns:
+        当前超级管理员用户对象
+        
+    Raises:
+        HTTPException: 用户不是超级管理员时抛出
+    """
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="权限不足，需要超级管理员权限"
         )
     return current_user
 

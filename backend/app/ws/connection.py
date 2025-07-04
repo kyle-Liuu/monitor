@@ -147,8 +147,25 @@ class ConnectionManager:
         # 消息队列
         self.message_queue: asyncio.Queue = asyncio.Queue()
         
-        # 启动消息处理循环
-        self.task = asyncio.create_task(self._process_messages())
+        # 任务引用
+        self.task = None
+    
+    async def start(self):
+        """启动消息处理循环"""
+        if self.task is None:
+            self.task = asyncio.create_task(self._process_messages())
+            logger.info("WebSocket连接管理器已启动")
+    
+    async def stop(self):
+        """停止消息处理循环"""
+        if self.task:
+            self.task.cancel()
+            try:
+                await self.task
+            except asyncio.CancelledError:
+                pass
+            self.task = None
+            logger.info("WebSocket连接管理器已停止")
     
     async def connect(self, websocket: WebSocket, group: str, user_id: Optional[int] = None) -> None:
         """

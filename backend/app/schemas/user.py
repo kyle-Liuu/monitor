@@ -44,6 +44,38 @@ class UserUpdate(BaseModel):
         return v
 
 
+class RoleBase(BaseModel):
+    """角色基础模型"""
+    role_code: str
+    role_name: str
+    description: Optional[str] = None
+
+
+class RoleCreate(RoleBase):
+    """创建角色模型"""
+    pass
+
+
+class RoleUpdate(BaseModel):
+    """更新角色模型"""
+    role_name: Optional[str] = None
+    description: Optional[str] = None
+
+
+class RoleInDB(RoleBase):
+    """数据库角色模型"""
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class Role(RoleInDB):
+    """角色响应模型"""
+    pass
+
+
 class UserInDB(UserBase):
     """数据库中的用户模型"""
     id: int
@@ -94,7 +126,7 @@ class Token(BaseModel):
     """JWT Token模型"""
     access_token: str
     token_type: str
-    user: User
+    user: dict
 
 
 class TokenPayload(BaseModel):
@@ -102,9 +134,11 @@ class TokenPayload(BaseModel):
     user_id: int
 
 
-class LoginResponse(Token):
+class LoginResponse(BaseModel):
     """登录响应模型"""
-    user: User
+    access_token: str
+    token_type: str
+    user: dict
 
 
 class PaginatedUserList(BaseModel):
@@ -120,41 +154,9 @@ class Message(BaseModel):
     message: str
 
 
-class RoleBase(BaseModel):
-    """角色基础模型"""
-    role_code: str
-    role_name: str
-    description: Optional[str] = None
-
-
-class RoleCreate(RoleBase):
-    """创建角色模型"""
-    pass
-
-
-class RoleUpdate(BaseModel):
-    """更新角色模型"""
-    role_name: Optional[str] = None
-    description: Optional[str] = None
-
-
-class RoleInDB(RoleBase):
-    """数据库角色模型"""
-    id: int
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
-class Role(RoleInDB):
-    """角色响应模型"""
-    pass
-
-
 class PaginatedRoleList(BaseModel):
     """分页角色列表响应模型"""
     records: List[Role]
     current: int
     size: int
-    total: int 
+    total: int

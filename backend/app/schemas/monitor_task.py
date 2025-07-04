@@ -66,6 +66,12 @@ class MonitorTask(MonitorTaskInDBBase):
     pass
 
 
+# 添加MonitorTaskInDB类，以兼容现有代码
+class MonitorTaskInDB(MonitorTaskInDBBase):
+    """数据库中的监控任务模型"""
+    pass
+
+
 # 监控任务状态响应
 class MonitorTaskStatus(BaseModel):
     """监控任务状态模型"""

@@ -29,6 +29,7 @@ class VideoStreamBase(BaseModel):
 
 class VideoStreamCreate(VideoStreamBase):
     organization_id: Optional[int] = None
+    status: Optional[str] = "offline"  # 添加状态字段，默认为offline
 
 
 class VideoStreamUpdate(BaseModel):
@@ -63,6 +64,11 @@ class VideoStreamInDBBase(VideoStreamBase):
 
 # 用于返回给API的模型
 class VideoStream(VideoStreamInDBBase):
+    pass
+
+
+# 添加VideoStreamInDB类，以兼容现有代码
+class VideoStreamInDB(VideoStreamInDBBase):
     pass
 
 

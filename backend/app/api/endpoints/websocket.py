@@ -4,8 +4,8 @@ import json
 import logging
 import uuid
 
+from app import models
 from app.api.deps import get_current_user_from_token
-from app.models.user import User
 from app.ws.connection import manager
 from app.ws.manager import event_manager
 

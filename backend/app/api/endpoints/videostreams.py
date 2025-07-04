@@ -2,10 +2,9 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app import models, schemas
 from app.api.deps import get_db, get_current_user
-from app.schemas.videostream import VideoStream, VideoStreamCreate, VideoStreamUpdate, VideoStreamInDB
 from app.services.videostream_service import VideoStreamService
-from app.models.user import User
 
 router = APIRouter()
 
@@ -17,7 +16,7 @@ async def get_videostreams(
     organization_id: Optional[int] = None,
     type: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     获取视频流列表
@@ -47,11 +46,11 @@ async def get_videostreams(
         "total": total_streams
     }
 
-@router.get("/{videostream_id}", response_model=VideoStreamInDB)
+@router.get("/{videostream_id}", response_model=schemas.VideoStream)
 async def get_videostream(
     videostream_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     获取视频流详情
@@ -61,23 +60,23 @@ async def get_videostream(
         raise HTTPException(status_code=404, detail="视频流不存在")
     return videostream
 
-@router.post("/", response_model=VideoStreamInDB)
+@router.post("/", response_model=schemas.VideoStream)
 async def create_videostream(
-    videostream: VideoStreamCreate,
+    videostream: schemas.VideoStreamCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     创建视频流
     """
     return await VideoStreamService.create_videostream(db, videostream)
 
-@router.put("/{videostream_id}", response_model=VideoStreamInDB)
+@router.put("/{videostream_id}", response_model=schemas.VideoStream)
 async def update_videostream(
     videostream_id: int,
-    videostream: VideoStreamUpdate,
+    videostream: schemas.VideoStreamUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     更新视频流
@@ -91,7 +90,7 @@ async def update_videostream(
 async def delete_videostream(
     videostream_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     删除视频流
@@ -105,20 +104,20 @@ async def delete_videostream(
 async def check_videostream_status(
     videostream_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     检查视频流状态
     """
     return await VideoStreamService.check_videostream_status(db, videostream_id)
 
-@router.get("/organization/{organization_id}", response_model=List[VideoStreamInDB])
+@router.get("/organization/{organization_id}", response_model=List[schemas.VideoStream])
 async def get_videostreams_by_organization(
     organization_id: int,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     获取组织下的所有视频流
@@ -131,9 +130,9 @@ async def get_videostreams_by_virtual_organization(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
     """
     获取虚拟组织下的所有视频流
     """
-    return await VideoStreamService.get_videostreams_by_virtual_organization(db, virtual_org_id, skip, limit) 
+    return await VideoStreamService.get_videostreams_by_virtual_organization(db, virtual_org_id, skip, limit)

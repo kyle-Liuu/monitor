@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Dict
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -8,7 +8,8 @@ from app.core.config import settings
 from app.models.user import User
 
 # 密码上下文，用于密码哈希和验证
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# 从bcrypt改为sha256_crypt，避免bcrypt版本问题
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 # Redis客户端，用于缓存用户信息和token
 redis_client = None
@@ -87,6 +88,25 @@ def create_access_token(
     return encoded_jwt
 
 
+def get_token_payload(token: str) -> Optional[Dict[str, Any]]:
+    """
+    从JWT令牌中提取有效载荷
+    
+    Args:
+        token: JWT令牌字符串
+        
+    Returns:
+        解码后的有效载荷字典，如果解码失败则返回None
+    """
+    try:
+        payload = jwt.decode(
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+        )
+        return payload
+    except JWTError:
+        return None
+
+
 def decode_token(token: str) -> dict:
     """
     解码JWT令牌
@@ -99,7 +119,7 @@ def decode_token(token: str) -> dict:
     """
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
         return payload
     except JWTError:
