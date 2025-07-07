@@ -7,7 +7,7 @@ import api from '@/utils/http'
  */
 export function getUserList(params: Api.Common.PaginationParams) {
     return api.get({
-        url: '/api/users',
+        url: '/api/users/list',
         params
     })
 }
@@ -107,7 +107,7 @@ export function uploadAvatar(file: File, userId: string): Promise<Api.Upload.Ava
     formData.append('userId', userId)
 
     return api.post({
-        url: '/api/upload/avatar',
+        url: '/api/uploads/avatar',
         data: formData,
         headers: {
             'Content-Type': 'multipart/form-data'
@@ -180,6 +180,14 @@ export class UserService {
     static async getUserList(params: any): Promise<Api.User.UserListResult> {
         const res = await getUserList(params)
         return res as unknown as Api.User.UserListResult
+    }
+
+    /**
+     * 创建用户
+     */
+    static async createUser(data: Api.User.CreateUserParams): Promise<Api.User.UserInfo> {
+        const res = await createUser(data)
+        return res as unknown as Api.User.UserInfo
     }
 
     /**

@@ -30,7 +30,7 @@ api_router.include_router(warnings.router, prefix="/warnings", tags=["warnings"]
 api_router.include_router(monitor.router, prefix="/monitor", tags=["monitor"])
 
 # 文件上传路由
-api_router.include_router(uploads.router, prefix="/upload", tags=["upload"])
+api_router.include_router(uploads.router, prefix="/uploads", tags=["upload"])
 
 # WebSocket路由 - 这些路由不会在Swagger UI中显示，因为它们是WebSocket端点
 api_router.include_router(websocket.router, tags=["websocket"])

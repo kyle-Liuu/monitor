@@ -2,6 +2,9 @@
  * 数据格式化相关工具函数
  */
 
+import { local } from '@/utils/storage'
+import { AVATAR_VERSION_KEY } from '@/utils/storage/storage-key-manager'
+
 // 时间戳转时间
 export function timestampToTime(timestamp: number = Date.now(), isMs: boolean = true): string {
   const date = new Date(isMs ? timestamp : timestamp * 1000)
@@ -59,4 +62,30 @@ export function formatImageUrl(url: string): string {
 
   // 其他情况，直接返回原始URL
   return url;
+}
+
+/**
+ * 格式化头像URL，添加版本号用于缓存控制
+ * 只有当头像更新时才会使用新的版本号
+ * @param url 头像URL
+ * @returns 格式化后带版本号的URL
+ */
+export function formatAvatarUrl(url?: string): string {
+  if (!url) return '/assets/avatar/default.webp'
+
+  // 获取当前头像版本号（如果不存在，使用当前时间戳作为初始值）
+  const avatarVersion = local.get(AVATAR_VERSION_KEY) || Date.now().toString()
+
+  // 格式化基础URL
+  const baseUrl = formatImageUrl(url)
+
+  // 添加版本号参数
+  return baseUrl.includes('?') ? `${baseUrl}&_v=${avatarVersion}` : `${baseUrl}?_v=${avatarVersion}`
+}
+
+/**
+ * 更新头像版本号，强制刷新所有使用formatAvatarUrl的组件
+ */
+export function updateAvatarVersion(): void {
+  local.set(AVATAR_VERSION_KEY, Date.now().toString())
 }

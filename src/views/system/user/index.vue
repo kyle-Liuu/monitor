@@ -51,8 +51,9 @@
             </ElFormItem>
             <ElFormItem label="性别" prop="gender">
               <ElSelect v-model="formData.gender">
-                <ElOption label="男" value="男" />
-                <ElOption label="女" value="女" />
+                <ElOption label="男" :value="1" />
+                <ElOption label="女" :value="2" />
+                <ElOption label="保密" :value="0" />
               </ElSelect>
             </ElFormItem>
             <ElFormItem label="角色" prop="role">
@@ -90,6 +91,7 @@
   import { UserService } from '@/api/userApi'
   import { SearchChangeParams, SearchFormItem } from '@/types'
   import { useUserStore } from '@/store/modules/user'
+  import { formatAvatarUrl } from '@/utils/dataprocess/format'
   const { width } = useWindowSize()
 
   defineOptions({ name: 'User' }) // 定义组件名称，用于 KeepAlive 缓存控制
@@ -238,8 +240,10 @@
 
   // 获取标签类型
   // 1: 在线 2: 离线 3: 异常 4: 注销
-  const getTagType = (status: string) => {
-    switch (status) {
+  const getTagType = (status: string | number) => {
+    // 将状态转换为字符串
+    const statusStr = String(status)
+    switch (statusStr) {
       case '1':
         return 'success'
       case '2':
@@ -254,16 +258,20 @@
   }
 
   // 构建标签文本
-  const buildTagText = (status: string) => {
+  const buildTagText = (status: string | number) => {
+    // 将状态转换为字符串
+    const statusStr = String(status)
     let text = ''
-    if (status === '1') {
+    if (statusStr === '1') {
       text = '在线'
-    } else if (status === '2') {
+    } else if (statusStr === '2') {
       text = '离线'
-    } else if (status === '3') {
+    } else if (statusStr === '3') {
       text = '异常'
-    } else if (status === '4') {
+    } else if (statusStr === '4') {
       text = '注销'
+    } else {
+      text = '未知'
     }
     return text
   }
@@ -281,14 +289,14 @@
     if (type === 'edit' && row) {
       formData.username = row.username
       formData.phone = row.userPhone
-      formData.gender = row.gender === 1 ? '男' : '女'
+      formData.gender = row.userGender // 直接使用数字代码: 1=男, 2=女, 0=保密
 
       // 将用户角色代码数组直接赋值给formData.role
       formData.role = Array.isArray(row.userRoles) ? row.userRoles : []
     } else {
       formData.username = ''
       formData.phone = ''
-      formData.gender = '男'
+      formData.gender = 1 // 默认为"男"
       formData.role = []
     }
   }
@@ -315,7 +323,7 @@
       minWidth: width.value < 500 ? 220 : '',
       formatter: (row: any) => {
         return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
-          h('img', { class: 'avatar', src: row.avatar }),
+          h('img', { class: 'avatar', src: formatAvatarUrl(row.avatar) }),
           h('div', {}, [
             h('p', { class: 'user-name' }, row.username),
             h('p', { class: 'email' }, row.userEmail)
@@ -327,14 +335,31 @@
       prop: 'userGender',
       label: '性别',
       sortable: true,
-      formatter: (row) => (row.userGender === 1 ? '男' : '女')
+      formatter: (row) => (row.userGender === 1 ? '男' : row.userGender === 2 ? '女' : '保密')
     },
     { prop: 'userPhone', label: '手机号' },
     {
       prop: 'status',
       label: '状态',
       formatter: (row) => {
-        return h(ElTag, { type: getTagType(row.status) }, () => buildTagText(row.status))
+        // 确保状态值存在
+        const status = row.status !== undefined ? row.status : '2'
+        return h(ElTag, { type: getTagType(status) }, () => buildTagText(status))
+      }
+    },
+    {
+      prop: 'userRoles',
+      label: '角色',
+      formatter: (row) => {
+        // 处理userRoles可能是不同格式的情况
+        const roles = row.userRoles || []
+        if (!roles.length) return '-'
+        
+        return h('div', {}, roles.map((role: string | any) => {
+          // 处理role可能是对象的情况
+          const roleText = typeof role === 'object' ? (role.role_code || role.roleName || '-') : role
+          return h(ElTag, { size: 'small', effect: 'light', style: 'margin-right: 5px' }, () => roleText)
+        }))
       }
     },
     {
@@ -370,7 +395,7 @@
   const formData = reactive({
     username: '',
     phone: '',
-    gender: '',
+    gender: 1, // 数字类型: 1=男, 2=女, 0=保密
     role: [] as string[]
   })
 
@@ -419,15 +444,23 @@
         }
       }
       
-      // 使用本地头像替换接口返回的头像
+      // 使用本地头像替换接口返回的头像，并确保字段名称一致
       tableData.value = records.map((item: any, index: number) => ({
         ...item,
+        // 保持原有字段
         username: item.username,
+        // 正确映射字段
         userEmail: item.email,
         userPhone: item.phone,
         userGender: item.gender,
         createTime: item.created_at,
-        avatar: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar
+        // 确保状态字段存在
+        status: item.status || '2',
+        // 映射角色信息 - 确保用户角色数组存在
+        userRoles: Array.isArray(item.userRoles) ? item.userRoles : 
+                   (Array.isArray(item.roles) ? item.roles.map((r: any) => r.role_code || r) : []),
+        // 使用后端返回的头像或本地头像
+        avatar: item.avatar || ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar
       }))
 
       // 更新分页信息
@@ -481,10 +514,45 @@
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate((valid) => {
+    await formRef.value.validate(async (valid) => {
       if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        dialogVisible.value = false
+        try {
+          // 构建请求数据
+          const requestData: any = {
+            username: formData.username,
+            phone: formData.phone,
+            gender: Number(formData.gender),
+            roles: formData.role // 直接使用role数组作为roles
+          }
+
+          if (dialogType.value === 'add') {
+            // 创建用户
+            await UserService.createUser({
+              ...requestData,
+              password: '12345678', // 默认密码
+              email: `${formData.username}@example.com` // 默认邮箱
+            })
+            ElMessage.success('用户创建成功')
+          } else {
+            // 更新用户
+            const currentUser = tableData.value.find(item => item.username === formData.username)
+            if (currentUser?.user_id) {
+              await UserService.updateUser(currentUser.user_id, requestData)
+              ElMessage.success('用户更新成功')
+            } else {
+              throw new Error('找不到用户ID')
+            }
+          }
+          
+          // 刷新用户列表
+          getUserList()
+          
+          // 关闭对话框
+          dialogVisible.value = false
+        } catch (error: any) {
+          console.error('提交表单失败:', error)
+          ElMessage.error(`操作失败: ${error.message || '未知错误'}`)
+        }
       }
     })
   }

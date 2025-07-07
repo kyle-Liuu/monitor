@@ -122,6 +122,7 @@ declare namespace Api {
 
     /** 更新用户参数 */
     interface UpdateUserParams {
+      username?: string
       email?: string
       full_name?: string
       phone?: string
@@ -131,7 +132,7 @@ declare namespace Api {
       tags?: string[]
       is_active?: boolean
       is_superuser?: boolean
-      role_ids?: number[]
+      roles?: string[]
     }
 
     /** 修改密码参数 */

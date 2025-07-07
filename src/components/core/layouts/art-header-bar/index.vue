@@ -195,7 +195,7 @@
   import mittBus from '@/utils/sys/mittBus'
   import { themeAnimation } from '@/utils/theme/animation'
   import { useCommon } from '@/composables/useCommon'
-  import { formatImageUrl } from '@/utils/dataprocess/format'
+  import { formatImageUrl, formatAvatarUrl } from '@/utils/dataprocess/format'
 
   defineOptions({ name: 'ArtHeaderBar' })
 
@@ -230,14 +230,9 @@
   const notice = ref(null)
   const userMenuPopover = ref()
   
-  // 添加头像时间戳，用于缓存破坏
-  const avatarTimestamp = ref(Date.now())
-
-  // 获取格式化后的头像URL，添加时间戳破坏缓存
+  // 获取格式化后的头像URL，使用版本号控制缓存
   const formattedAvatarUrl = computed(() => {
-    if (!userInfo.value?.avatar) return formatImageUrl('');
-    const url = formatImageUrl(userInfo.value.avatar);
-    return url.includes('?') ? `${url}&_t=${avatarTimestamp.value}` : `${url}?_t=${avatarTimestamp.value}`;
+    return formatAvatarUrl(userInfo.value?.avatar);
   });
 
   // 菜单类型判断
@@ -251,21 +246,13 @@
   onMounted(() => {
     initLanguage()
     document.addEventListener('click', bodyCloseNotice)
-    
-    // 监听头像更新事件
-    mittBus.on('avatar-updated', refreshAvatar)
   })
 
   onUnmounted(() => {
     document.removeEventListener('click', bodyCloseNotice)
     // 移除事件监听
-    mittBus.off('avatar-updated', refreshAvatar)
+    mittBus.off('avatar-updated')
   })
-  
-  // 刷新头像
-  const refreshAvatar = () => {
-    avatarTimestamp.value = Date.now()
-  }
 
   /**
    * 切换全屏状态

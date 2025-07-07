@@ -25,7 +25,7 @@
           </div>
 
         
-          <div class="lables" v-if="previewData.tags && previewData.tags.length > 0">
+          <div class="lables">
             <h3>标签</h3>
             <div>
               <el-tag
@@ -241,7 +241,7 @@
   import { HttpError } from '@/utils/http/error'
   import { Plus, Edit, User } from '@element-plus/icons-vue'
   import { UserService } from '@/api/userApi'
-  import { formatImageUrl } from '@/utils/dataprocess/format'
+  import { formatImageUrl, formatAvatarUrl, updateAvatarVersion } from '@/utils/dataprocess/format'
   import mittBus from '@/utils/sys/mittBus'
 
   defineOptions({ name: 'UserCenter' })
@@ -383,7 +383,7 @@
     form.gender = info.gender !== undefined ? Number(info.gender) : 0
     form.description = info.description || ''
     // 初始化标签，如果用户信息中有标签则使用，否则使用默认标签
-    form.tags = Array.isArray((info as any).tags) ? (info as any).tags : ['用户']
+    form.tags = Array.isArray((info as any).tags) ? (info as any).tags : ['编辑添加标签']
     // 格式化日期时间
     form.created_at = info.created_at ? formatDateTime(info.created_at) : '未知'
     form.updated_at = info.updated_at ? formatDateTime(info.updated_at) : '未知'
@@ -415,11 +415,9 @@
     }
   }
 
-  // 获取格式化后的头像URL，添加时间戳破坏缓存
+  // 获取格式化后的头像URL，添加版本号控制缓存
   const formattedAvatarUrl = computed(() => {
-    if (!avatarUrl.value) return formatImageUrl('');
-    const url = formatImageUrl(avatarUrl.value);
-    return url.includes('?') ? `${url}&_t=${avatarTimestamp.value}` : `${url}?_t=${avatarTimestamp.value}`;
+    return formatAvatarUrl(avatarUrl.value);
   });
 
   onMounted(() => {
@@ -625,8 +623,8 @@
       // 更新用户信息中的头像
       userStore.updateUserAvatar(avatarPath)
       
-      // 更新时间戳，强制刷新头像
-      avatarTimestamp.value = Date.now()
+      // 更新头像版本号，强制所有使用formattedAvatarUrl的组件刷新
+      updateAvatarVersion()
       
       // 发出头像更新事件，通知其他组件刷新
       mittBus.emit('avatar-updated')

@@ -64,3 +64,9 @@ export class StorageKeyManager {
     return currentKey
   }
 }
+
+// 系统相关
+export const USER_INFO_KEY = 'user-info' // 用户信息
+export const USER_TOKEN_KEY = 'user-token' // 用户token
+export const USER_REFRESH_TOKEN_KEY = 'user-refresh-token' // 用户刷新token
+export const AVATAR_VERSION_KEY = 'avatar-version' // 头像版本号，用于缓存控制

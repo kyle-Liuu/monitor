@@ -363,3 +363,978 @@
 2025-07-07 13:32:11,590 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
 2025-07-07 13:32:11,591 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
 2025-07-07 13:32:11,591 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 13:59:53,965 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 13:59:53,966 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 13:59:54,081 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 13:59:54,406 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 13:59:54,408 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 13:59:54,412 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 13:59:54,446 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 13:59:54,446 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 13:59:54,446 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 13:59:54,447 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 13:59:54,447 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 13:59:54,447 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 13:59:54,447 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 13:59:54,449 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 13:59:54,449 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:15:42,282 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:15:42,283 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:15:42,283 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:15:42,283 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:15:42,283 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:16:21,979 - __main__ - INFO - ÕıÔÚÆô¶¯ºó¶Ë·şÎñ£¬µØÖ·: http://127.0.0.1:8000
+2025-07-07 14:16:21,980 - __main__ - INFO - APIÎÄµµµØÖ·: http://127.0.0.1:8000/docs
+2025-07-07 14:16:25,276 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:16:25,277 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:16:25,396 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:16:25,806 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:16:25,808 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:16:25,812 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:16:25,851 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ³¬¼¶¹ÜÀíÔ±
+2025-07-07 14:16:25,857 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ¹ÜÀíÔ±
+2025-07-07 14:16:25,862 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÆÕÍ¨ÓÃ»§
+2025-07-07 14:16:25,868 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ²ÆÎñ¹ÜÀíÔ±
+2025-07-07 14:16:25,874 - app.db.init_db - INFO - ´´½¨½ÇÉ«: Êı¾İ·ÖÎöÊ¦
+2025-07-07 14:16:25,880 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ¿Í·ş×¨Ô±
+2025-07-07 14:16:25,886 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÓªÏú¾­Àí
+2025-07-07 14:16:25,893 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ·Ã¿ÍÓÃ»§
+2025-07-07 14:16:25,900 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÏµÍ³Î¬»¤Ô±
+2025-07-07 14:16:25,905 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÏîÄ¿¾­Àí
+2025-07-07 14:16:26,309 - app.db.init_db - INFO - ´´½¨³¬¼¶¹ÜÀíÔ±ÓÃ»§: Super
+2025-07-07 14:16:26,320 - app.db.init_db - INFO - ÎªÓÃ»§Super·ÖÅä½ÇÉ«: ³¬¼¶¹ÜÀíÔ±
+2025-07-07 14:16:26,734 - app.db.init_db - INFO - ´´½¨¹ÜÀíÔ±ÓÃ»§: Admin
+2025-07-07 14:16:26,741 - app.db.init_db - INFO - ÎªÓÃ»§Admin·ÖÅä½ÇÉ«: ¹ÜÀíÔ±
+2025-07-07 14:16:27,162 - app.db.init_db - INFO - ´´½¨ÆÕÍ¨ÓÃ»§: User
+2025-07-07 14:16:27,169 - app.db.init_db - INFO - ÎªÓÃ»§User·ÖÅä½ÇÉ«: ÆÕÍ¨ÓÃ»§
+2025-07-07 14:16:27,170 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:16:27,170 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:16:27,170 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:16:27,170 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:16:27,171 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:16:27,171 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:16:27,171 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:16:27,173 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:16:27,173 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:18:05,100 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:18:05,100 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:18:05,101 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:18:05,101 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:18:05,101 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:18:10,613 - __main__ - INFO - ÕıÔÚÆô¶¯ºó¶Ë·şÎñ£¬µØÖ·: http://127.0.0.1:8000
+2025-07-07 14:18:10,614 - __main__ - INFO - APIÎÄµµµØÖ·: http://127.0.0.1:8000/docs
+2025-07-07 14:18:13,884 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:18:13,884 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:18:14,005 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:18:14,310 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:18:14,312 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:18:14,315 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:18:14,350 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:18:14,351 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:18:14,351 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:18:14,351 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:18:14,351 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:18:14,352 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:18:14,352 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:18:14,353 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:18:14,354 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:19:15,710 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:19:15,711 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:19:15,711 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:19:15,711 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:19:15,711 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:19:29,198 - __main__ - INFO - ÕıÔÚÆô¶¯ºó¶Ë·şÎñ£¬µØÖ·: http://127.0.0.1:8000
+2025-07-07 14:19:29,199 - __main__ - INFO - APIÎÄµµµØÖ·: http://127.0.0.1:8000/docs
+2025-07-07 14:19:32,550 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:19:32,551 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:19:32,671 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:19:32,985 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:19:32,987 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:19:32,990 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:19:33,024 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:19:33,024 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:19:33,024 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:19:33,025 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:19:33,025 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:19:33,025 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:19:33,026 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:19:33,027 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:19:33,027 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:20:07,117 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:20:07,117 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:20:07,118 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:20:07,118 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:20:07,118 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:25:38,871 - __main__ - ERROR - Æô¶¯·şÎñÊ§°Ü: <class 'OSError'> returned a result with an exception set
+2025-07-07 14:32:08,157 - __main__ - INFO - ÕıÔÚÆô¶¯ºó¶Ë·şÎñ£¬µØÖ·: http://127.0.0.1:8000
+2025-07-07 14:32:08,157 - __main__ - INFO - APIÎÄµµµØÖ·: http://127.0.0.1:8000/docs
+2025-07-07 14:32:11,523 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:32:11,524 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:32:11,649 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:32:12,049 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:32:12,050 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:32:12,054 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:32:12,093 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ³¬¼¶¹ÜÀíÔ±
+2025-07-07 14:32:12,098 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ¹ÜÀíÔ±
+2025-07-07 14:32:12,103 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÆÕÍ¨ÓÃ»§
+2025-07-07 14:32:12,109 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ²ÆÎñ¹ÜÀíÔ±
+2025-07-07 14:32:12,114 - app.db.init_db - INFO - ´´½¨½ÇÉ«: Êı¾İ·ÖÎöÊ¦
+2025-07-07 14:32:12,119 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ¿Í·ş×¨Ô±
+2025-07-07 14:32:12,126 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÓªÏú¾­Àí
+2025-07-07 14:32:12,132 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ·Ã¿ÍÓÃ»§
+2025-07-07 14:32:12,139 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÏµÍ³Î¬»¤Ô±
+2025-07-07 14:32:12,146 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÏîÄ¿¾­Àí
+2025-07-07 14:32:12,601 - app.db.init_db - INFO - ´´½¨³¬¼¶¹ÜÀíÔ±ÓÃ»§: Super
+2025-07-07 14:32:12,614 - app.db.init_db - INFO - ÎªÓÃ»§Super·ÖÅä½ÇÉ«: ³¬¼¶¹ÜÀíÔ±
+2025-07-07 14:32:13,008 - app.db.init_db - INFO - ´´½¨¹ÜÀíÔ±ÓÃ»§: Admin
+2025-07-07 14:32:13,015 - app.db.init_db - INFO - ÎªÓÃ»§Admin·ÖÅä½ÇÉ«: ¹ÜÀíÔ±
+2025-07-07 14:32:13,422 - app.db.init_db - INFO - ´´½¨ÆÕÍ¨ÓÃ»§: User
+2025-07-07 14:32:13,429 - app.db.init_db - INFO - ÎªÓÃ»§User·ÖÅä½ÇÉ«: ÆÕÍ¨ÓÃ»§
+2025-07-07 14:32:13,429 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:32:13,430 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:32:13,430 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:32:13,430 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:32:13,430 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:32:13,430 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:32:13,431 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:32:13,432 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:32:13,432 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:40:21,496 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:40:21,498 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:40:21,500 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:40:21,500 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:40:21,501 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:40:25,947 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:40:25,948 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:40:26,062 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:40:26,377 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:40:26,378 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:40:26,382 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:40:26,416 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:40:26,417 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:40:26,417 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:40:26,417 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:40:26,417 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:40:26,417 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:40:26,418 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:40:26,419 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:40:26,419 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:40:57,711 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:40:57,712 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:40:57,712 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:40:57,712 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:40:57,712 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:41:02,076 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:41:02,077 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:41:02,211 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:41:02,559 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:41:02,561 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:41:02,564 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:41:02,604 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:41:02,605 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:41:02,605 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:41:02,605 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:41:02,605 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:41:02,606 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:41:02,606 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:41:02,608 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:41:02,608 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:41:24,482 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:41:24,482 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:41:24,483 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:41:24,483 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:41:24,483 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:41:28,645 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:41:28,646 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:41:28,765 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:41:29,093 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:41:29,095 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:41:29,098 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:41:29,140 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:41:29,140 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:41:29,141 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:41:29,141 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:41:29,141 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:41:29,141 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:41:29,142 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:41:29,143 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:41:29,144 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:43:34,681 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:43:34,681 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:43:34,682 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:43:34,682 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:43:34,682 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:43:38,957 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:43:38,957 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:43:39,074 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:43:39,379 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:43:39,381 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:43:39,384 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:43:39,418 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:43:39,418 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:43:39,418 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:43:39,418 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:43:39,419 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:43:39,419 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:43:39,419 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:43:39,421 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:43:39,421 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:44:05,936 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:44:05,936 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:44:05,937 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:44:05,937 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:44:05,937 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:44:10,265 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:44:10,266 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:44:10,478 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:44:10,896 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:44:10,898 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:44:10,901 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:44:10,940 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:44:10,941 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:44:10,941 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:44:10,941 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:44:10,942 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:44:10,942 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:44:10,942 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:44:10,944 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:44:10,944 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:48:15,827 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:48:15,828 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:48:15,828 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:48:15,829 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:48:15,829 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:48:19,859 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:48:19,860 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:48:19,987 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:48:20,308 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:48:20,310 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:48:20,314 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:48:20,349 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:48:20,349 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:48:20,350 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:48:20,350 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:48:20,350 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:48:20,350 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:48:20,350 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:48:20,352 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:48:20,352 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:50:40,861 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:50:40,861 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:50:40,862 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:50:40,862 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:50:40,862 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:50:44,960 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:50:44,961 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:50:45,085 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:50:45,400 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:50:45,402 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:50:45,405 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:50:45,442 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:50:45,442 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:50:45,443 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:50:45,443 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:50:45,443 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:50:45,443 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:50:45,443 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:50:45,445 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:50:45,445 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:51:10,730 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:51:10,731 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:51:10,731 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:51:10,732 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:51:10,732 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:51:14,826 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:51:14,827 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:51:14,947 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:51:15,258 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:51:15,260 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:51:15,263 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:51:15,298 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:51:15,299 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:51:15,299 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:51:15,299 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:51:15,299 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:51:15,300 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:51:15,300 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:51:15,302 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:51:15,302 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:57:35,762 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:57:35,763 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:57:35,763 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:57:35,763 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:57:35,763 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:57:39,689 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:57:39,689 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:57:39,813 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:57:40,128 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:57:40,130 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:57:40,133 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:57:40,170 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:57:40,170 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:57:40,171 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:57:40,171 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:57:40,171 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:57:40,171 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:57:40,171 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:57:40,173 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:57:40,173 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:58:25,744 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:58:25,745 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:58:25,745 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:58:25,745 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:58:25,746 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:58:32,732 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:58:32,733 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:58:32,868 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:58:33,226 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:58:33,228 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:58:33,232 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:58:33,276 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:58:33,277 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:58:33,277 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:58:33,277 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:58:33,278 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:58:33,278 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:58:33,278 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:58:33,280 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:58:33,280 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:58:55,834 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:58:55,835 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:58:55,835 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:58:55,835 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:58:55,835 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:58:59,727 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:58:59,728 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:58:59,854 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:59:00,176 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:59:00,177 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:59:00,181 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:59:00,227 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:59:00,228 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:59:00,228 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:59:00,228 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:59:00,228 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:59:00,229 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:59:00,229 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:59:00,231 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:59:00,231 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 14:59:22,217 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 14:59:22,217 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:59:22,218 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 14:59:22,218 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 14:59:22,218 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 14:59:26,373 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 14:59:26,374 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 14:59:26,517 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 14:59:26,857 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 14:59:26,860 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 14:59:26,863 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 14:59:26,903 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 14:59:26,903 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 14:59:26,903 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 14:59:26,904 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:59:26,904 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 14:59:26,904 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 14:59:26,904 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 14:59:26,906 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 14:59:26,906 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 15:02:57,051 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 15:02:57,052 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:02:57,052 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:02:57,052 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 15:02:57,052 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 15:03:00,945 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 15:03:00,946 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 15:03:01,073 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 15:03:01,389 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 15:03:01,391 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 15:03:01,394 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 15:03:01,433 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 15:03:01,434 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 15:03:01,434 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 15:03:01,434 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:03:01,434 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:03:01,434 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 15:03:01,435 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 15:03:01,436 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 15:03:01,436 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 15:03:33,716 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 15:03:33,716 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:03:33,717 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:03:33,717 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 15:03:33,717 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 15:03:37,716 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 15:03:37,717 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 15:03:37,840 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 15:03:38,152 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 15:03:38,154 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 15:03:38,157 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 15:03:38,192 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 15:03:38,192 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 15:03:38,192 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 15:03:38,193 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:03:38,193 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:03:38,193 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 15:03:38,193 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 15:03:38,195 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 15:03:38,195 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 15:11:50,459 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 15:11:50,460 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:11:50,460 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:11:50,460 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 15:11:50,460 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 15:11:54,391 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 15:11:54,392 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 15:11:54,524 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 15:11:54,838 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 15:11:54,840 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 15:11:54,843 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 15:11:54,879 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 15:11:54,880 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 15:11:54,880 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 15:11:54,880 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:11:54,880 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:11:54,880 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 15:11:54,881 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 15:11:54,882 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 15:11:54,882 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 15:12:13,599 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 15:12:13,599 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:12:13,600 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:12:13,600 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 15:12:13,600 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 15:12:17,472 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 15:12:17,473 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 15:12:17,599 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 15:12:17,921 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 15:12:17,923 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 15:12:17,927 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 15:12:17,963 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 15:12:17,963 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 15:12:17,963 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 15:12:17,964 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:12:17,964 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:12:17,964 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 15:12:17,964 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 15:12:17,966 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 15:12:17,966 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 15:12:33,698 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 15:12:33,699 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:12:33,699 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:12:33,699 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 15:12:33,699 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 15:12:37,544 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 15:12:37,545 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 15:12:37,670 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 15:12:37,979 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 15:12:37,981 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 15:12:37,985 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 15:12:38,019 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 15:12:38,019 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 15:12:38,020 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 15:12:38,020 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:12:38,020 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 15:12:38,020 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 15:12:38,021 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 15:12:38,022 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 15:12:38,023 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 15:17:02,741 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 15:17:02,741 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:17:02,742 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 15:17:02,742 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 15:17:02,742 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 15:30:48,907 - reset_db - INFO - ¿ªÊ¼ÖØÖÃÊı¾İ¿â...
+2025-07-07 15:30:48,907 - reset_db - INFO - É¾³ıÏÖÓĞÊı¾İ¿âÎÄ¼ş: D:\Desktop\share\artdesign\monitor\backend\sql_app.db
+2025-07-07 15:30:48,908 - reset_db - INFO - ¾ÉÊı¾İ¿âÒÑÉ¾³ı
+2025-07-07 15:30:48,908 - reset_db - INFO - È·±£ÉÏ´«Ä¿Â¼½á¹¹´æÔÚ...
+2025-07-07 15:30:48,913 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\avatars
+2025-07-07 15:30:48,913 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\models
+2025-07-07 15:30:48,913 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\warnings
+2025-07-07 15:30:48,914 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\faces
+2025-07-07 15:30:48,914 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\test_images
+2025-07-07 15:30:48,915 - reset_db - INFO - ¿ªÊ¼³õÊ¼»¯ĞÂÊı¾İ¿â...
+2025-07-07 15:30:49,728 - app.db.init_db - INFO - ´´½¨³õÊ¼Êı¾İ
+2025-07-07 15:30:49,732 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 15:30:49,766 - reset_db - ERROR - Êı¾İ¿â³õÊ¼»¯Ê§°Ü: (sqlite3.IntegrityError) NOT NULL constraint failed: roles.role_id
+[SQL: INSERT INTO roles (role_id, role_code, role_name, description) VALUES (?, ?, ?, ?) RETURNING id, created_at]
+[parameters: (None, 'R_SUPER', '³¬¼¶¹ÜÀíÔ±', 'ÓµÓĞÏµÍ³È«²¿È¨ÏŞ')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-07-07 15:30:49,767 - __main__ - ERROR - ÖØÖÃÊı¾İ¿âÊ§°Ü: (sqlite3.IntegrityError) NOT NULL constraint failed: roles.role_id
+[SQL: INSERT INTO roles (role_id, role_code, role_name, description) VALUES (?, ?, ?, ?) RETURNING id, created_at]
+[parameters: (None, 'R_SUPER', '³¬¼¶¹ÜÀíÔ±', 'ÓµÓĞÏµÍ³È«²¿È¨ÏŞ')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-07-07 15:30:49,767 - __main__ - ERROR - ÓÉÓÚÊı¾İ¿âÖØÖÃÊ§°Ü£¬·şÎñÆô¶¯ÖÕÖ¹
+2025-07-07 15:34:26,043 - __main__ - INFO - æ­£åœ¨å¯åŠ¨åç«¯æœåŠ¡ï¼Œåœ°å€: http://127.0.0.1:8000
+2025-07-07 15:34:26,044 - __main__ - INFO - APIæ–‡æ¡£åœ°å€: http://127.0.0.1:8000/docs
+2025-07-07 15:34:29,547 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:34:29,548 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:34:29,669 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:34:30,108 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:34:30,110 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:34:30,113 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:34:30,152 - app.core.events - ERROR - æ•°æ®åº“åˆå§‹åŒ–å¤±è´¥: (sqlite3.IntegrityError) NOT NULL constraint failed: roles.role_id
+[SQL: INSERT INTO roles (role_id, role_code, role_name, description) VALUES (?, ?, ?, ?) RETURNING id, created_at]
+[parameters: (None, 'R_SUPER', 'è¶…çº§ç®¡ç†å‘˜', 'æ‹¥æœ‰ç³»ç»Ÿå…¨éƒ¨æƒé™')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-07-07 15:35:47,585 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:35:47,586 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:35:47,704 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:35:48,028 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:35:48,030 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:35:48,034 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:35:48,071 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è¶…çº§ç®¡ç†å‘˜ (ID: roleS4iS2NN)
+2025-07-07 15:35:48,077 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: ç®¡ç†å‘˜ (ID: rolewMfXnxc)
+2025-07-07 15:35:48,083 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: æ™®é€šç”¨æˆ· (ID: rolexj4HNyd)
+2025-07-07 15:35:48,089 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è´¢åŠ¡ç®¡ç†å‘˜ (ID: role9IaBAL2)
+2025-07-07 15:35:48,096 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: æ•°æ®åˆ†æå¸ˆ (ID: rolePzHVZPG)
+2025-07-07 15:35:48,103 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: å®¢æœä¸“å‘˜ (ID: rolefjnU4ph)
+2025-07-07 15:35:48,110 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è¥é”€ç»ç† (ID: role2kEpzt6)
+2025-07-07 15:35:48,117 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è®¿å®¢ç”¨æˆ· (ID: roleKU0O2BY)
+2025-07-07 15:35:48,125 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: ç³»ç»Ÿç»´æŠ¤å‘˜ (ID: roleRFueW8M)
+2025-07-07 15:35:48,134 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: é¡¹ç›®ç»ç† (ID: rolenj9c4Ku)
+2025-07-07 15:35:48,684 - app.db.init_db - INFO - åˆ›å»ºè¶…çº§ç®¡ç†å‘˜ç”¨æˆ·: Super
+2025-07-07 15:35:48,685 - app.core.events - ERROR - æ•°æ®åº“åˆå§‹åŒ–å¤±è´¥: 'User' object has no attribute 'roles'
+2025-07-07 15:36:04,394 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:36:04,395 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:36:04,513 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:36:04,831 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:36:04,832 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:36:04,836 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:36:05,249 - app.db.init_db - INFO - åˆ›å»ºç®¡ç†å‘˜ç”¨æˆ·: Admin
+2025-07-07 15:36:05,250 - app.core.events - ERROR - æ•°æ®åº“åˆå§‹åŒ–å¤±è´¥: 'User' object has no attribute 'roles'
+2025-07-07 15:38:50,151 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:38:50,152 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:38:50,271 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:38:50,582 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:38:50,584 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:38:50,588 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:38:51,001 - app.db.init_db - INFO - åˆ›å»ºæ™®é€šç”¨æˆ·: User
+2025-07-07 15:38:51,011 - app.db.init_db - INFO - ä¸ºç”¨æˆ·Useråˆ†é…è§’è‰²: æ™®é€šç”¨æˆ·
+2025-07-07 15:38:51,011 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:38:51,011 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:38:51,012 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:38:51,012 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:38:51,012 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:38:51,012 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:38:51,012 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:38:51,015 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:38:51,015 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:39:19,381 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:39:19,381 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:39:19,382 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:39:19,382 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:39:19,382 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:39:23,439 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:39:23,440 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:39:23,559 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:39:23,872 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:39:23,874 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:39:23,877 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:39:23,915 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:39:23,915 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:39:23,916 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:39:23,916 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:39:23,916 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:39:23,916 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:39:23,916 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:39:23,918 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:39:23,918 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:39:45,973 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:39:45,973 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:39:45,974 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:39:45,974 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:39:45,974 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:40:30,470 - __main__ - ERROR - å¯åŠ¨æœåŠ¡å¤±è´¥: <class 'OSError'> returned a result with an exception set
+2025-07-07 15:41:22,781 - __main__ - INFO - æ­£åœ¨å¯åŠ¨åç«¯æœåŠ¡ï¼Œåœ°å€: http://127.0.0.1:8000
+2025-07-07 15:41:22,781 - __main__ - INFO - APIæ–‡æ¡£åœ°å€: http://127.0.0.1:8000/docs
+2025-07-07 15:41:26,140 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:41:26,141 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:41:26,266 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:41:26,687 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:41:26,689 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:41:26,692 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:41:26,731 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è¶…çº§ç®¡ç†å‘˜ (ID: roleBceisGU)
+2025-07-07 15:41:26,737 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: ç®¡ç†å‘˜ (ID: role1BYVxAe)
+2025-07-07 15:41:26,744 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: æ™®é€šç”¨æˆ· (ID: role9KepOt7)
+2025-07-07 15:41:26,750 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è´¢åŠ¡ç®¡ç†å‘˜ (ID: roleCCkuFO1)
+2025-07-07 15:41:26,756 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: æ•°æ®åˆ†æå¸ˆ (ID: role5IwFxVI)
+2025-07-07 15:41:26,764 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: å®¢æœä¸“å‘˜ (ID: role7THRE5r)
+2025-07-07 15:41:26,772 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è¥é”€ç»ç† (ID: roleHav6C4U)
+2025-07-07 15:41:26,779 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è®¿å®¢ç”¨æˆ· (ID: rolerlQq46f)
+2025-07-07 15:41:26,786 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: ç³»ç»Ÿç»´æŠ¤å‘˜ (ID: roleB5F6wNt)
+2025-07-07 15:41:26,793 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: é¡¹ç›®ç»ç† (ID: roleoTEtY2E)
+2025-07-07 15:41:27,328 - app.db.init_db - INFO - åˆ›å»ºè¶…çº§ç®¡ç†å‘˜ç”¨æˆ·: Super
+2025-07-07 15:41:27,343 - app.db.init_db - INFO - ä¸ºç”¨æˆ·Superåˆ†é…è§’è‰²: è¶…çº§ç®¡ç†å‘˜
+2025-07-07 15:41:27,765 - app.db.init_db - INFO - åˆ›å»ºç®¡ç†å‘˜ç”¨æˆ·: Admin
+2025-07-07 15:41:27,773 - app.db.init_db - INFO - ä¸ºç”¨æˆ·Adminåˆ†é…è§’è‰²: ç®¡ç†å‘˜
+2025-07-07 15:41:28,215 - app.db.init_db - INFO - åˆ›å»ºæ™®é€šç”¨æˆ·: User
+2025-07-07 15:41:28,222 - app.db.init_db - INFO - ä¸ºç”¨æˆ·Useråˆ†é…è§’è‰²: æ™®é€šç”¨æˆ·
+2025-07-07 15:41:28,223 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:41:28,223 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:41:28,223 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:41:28,224 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:41:28,224 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:41:28,224 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:41:28,224 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:41:28,227 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:41:28,227 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:44:42,402 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:44:42,403 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:44:42,403 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:44:42,403 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:44:42,403 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:44:47,044 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:44:47,045 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:44:47,171 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:44:47,490 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:44:47,492 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:44:47,495 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:44:47,536 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:44:47,537 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:44:47,537 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:44:47,537 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:44:47,538 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:44:47,538 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:44:47,538 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:44:47,540 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:44:47,540 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:46:22,883 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:46:22,884 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:46:22,884 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:46:22,884 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:46:22,884 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:46:27,166 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:46:27,166 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:46:27,295 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:46:27,613 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:46:27,614 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:46:27,618 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:46:27,654 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:46:27,654 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:46:27,655 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:46:27,655 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:46:27,655 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:46:27,655 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:46:27,655 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:46:27,657 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:46:27,657 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:46:40,468 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:46:40,469 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:46:40,469 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:46:40,469 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:46:40,470 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:46:44,427 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:46:44,428 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:46:44,551 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:46:44,865 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:46:44,867 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:46:44,870 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:46:44,909 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:46:44,909 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:46:44,909 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:46:44,909 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:46:44,910 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:46:44,910 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:46:44,910 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:46:44,912 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:46:44,912 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:47:34,588 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:47:34,588 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:47:34,589 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:47:34,589 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:47:34,589 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:47:38,993 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:47:38,994 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:47:39,126 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:47:39,452 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:47:39,453 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:47:39,456 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:47:39,492 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:47:39,493 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:47:39,493 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:47:39,493 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:47:39,493 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:47:39,494 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:47:39,494 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:47:39,495 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:47:39,496 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:47:54,960 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:47:54,960 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:47:54,961 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:47:54,961 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:47:54,961 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:47:59,222 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:47:59,223 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:47:59,350 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:47:59,657 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:47:59,659 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:47:59,662 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:47:59,699 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:47:59,700 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:47:59,700 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:47:59,700 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:47:59,700 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:47:59,700 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:47:59,701 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:47:59,702 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:47:59,703 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:49:03,561 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:49:03,562 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:49:03,562 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:49:03,563 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:49:03,563 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:49:07,595 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:49:07,596 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:49:07,722 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:49:08,043 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:49:08,045 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:49:08,048 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:49:08,084 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:49:08,084 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:49:08,084 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:49:08,084 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:49:08,085 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:49:08,085 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:49:08,085 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:49:08,087 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:49:08,087 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:50:01,063 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:50:01,063 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:50:01,064 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:50:01,064 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:50:01,064 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:50:13,845 - reset_db - INFO - å¼€å§‹é‡ç½®æ•°æ®åº“...
+2025-07-07 15:50:13,845 - reset_db - INFO - åˆ é™¤ç°æœ‰æ•°æ®åº“æ–‡ä»¶: D:\Desktop\share\artdesign\monitor\backend\sql_app.db
+2025-07-07 15:50:13,846 - reset_db - INFO - æ—§æ•°æ®åº“å·²åˆ é™¤
+2025-07-07 15:50:13,846 - reset_db - INFO - ç¡®ä¿ä¸Šä¼ ç›®å½•ç»“æ„å­˜åœ¨...
+2025-07-07 15:50:13,847 - reset_db - INFO - å·²æ¸…ç©ºç›®å½•: uploads\avatars
+2025-07-07 15:50:13,848 - reset_db - INFO - å·²æ¸…ç©ºç›®å½•: uploads\models
+2025-07-07 15:50:13,848 - reset_db - INFO - å·²æ¸…ç©ºç›®å½•: uploads\warnings
+2025-07-07 15:50:13,849 - reset_db - INFO - å·²æ¸…ç©ºç›®å½•: uploads\faces
+2025-07-07 15:50:13,849 - reset_db - INFO - å·²æ¸…ç©ºç›®å½•: uploads\test_images
+2025-07-07 15:50:13,850 - reset_db - INFO - å¼€å§‹åˆå§‹åŒ–æ–°æ•°æ®åº“...
+2025-07-07 15:50:14,552 - app.db.init_db - INFO - åˆ›å»ºåˆå§‹æ•°æ®
+2025-07-07 15:50:14,557 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:50:14,615 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è¶…çº§ç®¡ç†å‘˜ (ID: rolesrNEUz9)
+2025-07-07 15:50:14,621 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: ç®¡ç†å‘˜ (ID: rolejuXdWrM)
+2025-07-07 15:50:14,627 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: æ™®é€šç”¨æˆ· (ID: rolevmQ4q6T)
+2025-07-07 15:50:14,635 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è´¢åŠ¡ç®¡ç†å‘˜ (ID: roleKjlEo4K)
+2025-07-07 15:50:14,642 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: æ•°æ®åˆ†æå¸ˆ (ID: roleomjlb8S)
+2025-07-07 15:50:14,649 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: å®¢æœä¸“å‘˜ (ID: rolerojw4hG)
+2025-07-07 15:50:14,657 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è¥é”€ç»ç† (ID: roleMAN20eJ)
+2025-07-07 15:50:14,664 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: è®¿å®¢ç”¨æˆ· (ID: roleRSzAX2G)
+2025-07-07 15:50:14,671 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: ç³»ç»Ÿç»´æŠ¤å‘˜ (ID: role82VeJ69)
+2025-07-07 15:50:14,678 - app.db.init_db - INFO - åˆ›å»ºè§’è‰²: é¡¹ç›®ç»ç† (ID: role4TeW8Z9)
+2025-07-07 15:50:15,186 - app.db.init_db - INFO - åˆ›å»ºè¶…çº§ç®¡ç†å‘˜ç”¨æˆ·: Super
+2025-07-07 15:50:15,199 - app.db.init_db - INFO - ä¸ºç”¨æˆ·Superåˆ†é…è§’è‰²: è¶…çº§ç®¡ç†å‘˜
+2025-07-07 15:50:15,582 - app.db.init_db - INFO - åˆ›å»ºç®¡ç†å‘˜ç”¨æˆ·: Admin
+2025-07-07 15:50:15,590 - app.db.init_db - INFO - ä¸ºç”¨æˆ·Adminåˆ†é…è§’è‰²: ç®¡ç†å‘˜
+2025-07-07 15:50:15,967 - app.db.init_db - INFO - åˆ›å»ºæ™®é€šç”¨æˆ·: User
+2025-07-07 15:50:15,975 - app.db.init_db - INFO - ä¸ºç”¨æˆ·Useråˆ†é…è§’è‰²: æ™®é€šç”¨æˆ·
+2025-07-07 15:50:15,976 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:50:15,976 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:50:15,976 - reset_db - INFO - åˆ›å»ºåˆå§‹ç”¨æˆ·çš„å¤´åƒç›®å½•...
+2025-07-07 15:50:15,978 - reset_db - INFO - ä¸ºç”¨æˆ· Super åˆ›å»ºå¤´åƒç›®å½•: uploads\avatars\userZXtdurA
+2025-07-07 15:50:15,979 - reset_db - INFO - ä¸ºç”¨æˆ· Admin åˆ›å»ºå¤´åƒç›®å½•: uploads\avatars\userpn6avfR
+2025-07-07 15:50:15,980 - reset_db - INFO - ä¸ºç”¨æˆ· User åˆ›å»ºå¤´åƒç›®å½•: uploads\avatars\userjq0NJFC
+2025-07-07 15:50:15,980 - reset_db - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:50:15,980 - reset_db - INFO - æ•°æ®åº“é‡ç½®å®Œæˆï¼Œå¯ä»¥å¯åŠ¨åº”ç”¨ç¨‹åºäº†
+2025-07-07 15:50:15,980 - __main__ - INFO - æ•°æ®åº“é‡ç½®å®Œæˆ
+2025-07-07 15:50:15,981 - __main__ - INFO - æ­£åœ¨å¯åŠ¨åç«¯æœåŠ¡ï¼Œåœ°å€: http://127.0.0.1:8000
+2025-07-07 15:50:15,981 - __main__ - INFO - APIæ–‡æ¡£åœ°å€: http://127.0.0.1:8000/docs
+2025-07-07 15:50:19,397 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:50:19,398 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:50:19,514 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:50:19,817 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:50:19,819 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:50:19,822 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:50:19,861 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:50:19,861 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:50:19,861 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:50:19,862 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:50:19,862 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:50:19,862 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:50:19,862 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:50:19,864 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:50:19,864 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:52:48,840 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:52:48,840 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:52:48,841 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:52:48,841 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:52:48,841 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:52:53,064 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:52:53,064 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:52:53,189 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:52:53,506 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:52:53,508 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:52:53,511 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:52:53,549 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:52:53,549 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:52:53,549 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:52:53,549 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:52:53,550 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:52:53,550 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:52:53,550 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:52:53,551 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:52:53,552 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:53:19,182 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:53:19,182 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:53:19,182 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:53:19,182 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:53:19,183 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:53:45,341 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:53:45,342 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:53:45,487 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:53:45,832 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:53:45,834 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:53:45,837 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:53:45,878 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:53:45,878 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:53:45,880 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:53:45,880 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:53:45,880 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:53:45,880 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:53:45,881 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:53:45,882 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:53:45,883 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:53:55,083 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:53:55,084 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:53:55,084 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:53:55,085 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:53:55,085 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:53:59,455 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:53:59,455 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:53:59,579 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:53:59,902 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:53:59,904 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:53:59,907 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:53:59,952 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:53:59,952 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:53:59,952 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:53:59,953 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:53:59,953 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:53:59,953 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:53:59,953 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:53:59,955 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:53:59,955 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 15:58:49,639 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 15:58:49,639 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:58:49,640 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 15:58:49,640 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 15:58:49,640 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 15:58:54,023 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 15:58:54,023 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 15:58:54,176 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 15:58:54,519 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 15:58:54,520 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 15:58:54,523 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 15:58:54,563 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 15:58:54,564 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 15:58:54,564 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 15:58:54,564 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:58:54,564 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 15:58:54,564 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 15:58:54,565 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 15:58:54,566 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 15:58:54,566 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 16:02:00,654 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 16:02:00,655 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 16:02:00,655 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 16:02:00,656 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 16:02:00,656 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 16:02:06,090 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: monitor_status
+2025-07-07 16:02:06,091 - app.ws.manager - INFO - æ³¨å†Œäº‹ä»¶å¤„ç†å™¨: warning_new
+2025-07-07 16:02:06,229 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± åˆå§‹åŒ–å®Œæˆï¼Œæœ€å¤§å·¥ä½œçº¿ç¨‹æ•°: 80
+2025-07-07 16:02:06,547 - app.core.events - INFO - å¯åŠ¨åº”ç”¨...
+2025-07-07 16:02:06,549 - app.core.events - INFO - å·²åˆ›å»ºæ‰€éœ€çš„ç›®å½•
+2025-07-07 16:02:06,552 - app.db.init_db - INFO - æ•°æ®åº“è¡¨åˆ›å»ºå®Œæˆ
+2025-07-07 16:02:06,590 - app.db.init_db - INFO - åˆå§‹æ•°æ®åˆ›å»ºå®Œæˆ
+2025-07-07 16:02:06,591 - app.core.events - INFO - æ•°æ®åº“åˆå§‹åŒ–å®Œæˆ
+2025-07-07 16:02:06,591 - app.core.events - INFO - Redisæœªå¯ç”¨
+2025-07-07 16:02:06,591 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 16:02:06,591 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²å¯åŠ¨
+2025-07-07 16:02:06,592 - app.core.events - WARNING - Redisè¿æ¥æ± åˆ›å»ºå¤±è´¥ï¼Œå°†ä½¿ç”¨å†…å­˜ç¼“å­˜
+2025-07-07 16:02:06,592 - app.core.events - INFO - åˆ›å»ºä¸Šä¼ ç›®å½•...
+2025-07-07 16:02:06,593 - app.core.events - INFO - ä¸Šä¼ ç›®å½•åˆ›å»ºå®Œæˆ
+2025-07-07 16:02:06,594 - app.core.events - INFO - åº”ç”¨å¯åŠ¨å®Œæˆ
+2025-07-07 16:11:50,415 - app.core.events - INFO - å…³é—­åº”ç”¨...
+2025-07-07 16:11:50,415 - app.ws.connection - INFO - WebSocketè¿æ¥ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 16:11:50,416 - app.ws.manager - INFO - WebSocketäº‹ä»¶ç®¡ç†å™¨å·²åœæ­¢
+2025-07-07 16:11:50,416 - app.utils.thread_pool - INFO - çº¿ç¨‹æ± å·²å…³é—­
+2025-07-07 16:11:50,416 - app.core.events - INFO - åº”ç”¨å·²å…³é—­
+2025-07-07 16:11:57,157 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 16:11:57,158 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 16:11:57,328 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 16:11:57,748 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 16:11:57,750 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 16:11:57,753 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 16:11:57,791 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 16:11:57,791 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 16:11:57,792 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 16:11:57,792 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 16:11:57,792 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 16:11:57,792 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 16:11:57,793 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 16:11:57,794 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 16:11:57,794 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É
+2025-07-07 16:11:58,893 - app.core.events - INFO - ¹Ø±ÕÓ¦ÓÃ...
+2025-07-07 16:11:58,894 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 16:11:58,894 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÍ£Ö¹
+2025-07-07 16:11:58,894 - app.utils.thread_pool - INFO - Ïß³Ì³ØÒÑ¹Ø±Õ
+2025-07-07 16:11:58,894 - app.core.events - INFO - Ó¦ÓÃÒÑ¹Ø±Õ
+2025-07-07 16:12:17,543 - __main__ - ERROR - å¯åŠ¨æœåŠ¡å¤±è´¥: <class 'OSError'> returned a result with an exception set
+2025-07-07 16:35:29,544 - reset_db - INFO - ¿ªÊ¼ÖØÖÃÊı¾İ¿â...
+2025-07-07 16:35:29,545 - reset_db - INFO - É¾³ıÏÖÓĞÊı¾İ¿âÎÄ¼ş: D:\Desktop\share\artdesign\monitor\backend\sql_app.db
+2025-07-07 16:35:29,545 - reset_db - INFO - ¾ÉÊı¾İ¿âÒÑÉ¾³ı
+2025-07-07 16:35:29,545 - reset_db - INFO - È·±£ÉÏ´«Ä¿Â¼½á¹¹´æÔÚ...
+2025-07-07 16:35:29,549 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\avatars
+2025-07-07 16:35:29,549 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\models
+2025-07-07 16:35:29,549 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\warnings
+2025-07-07 16:35:29,550 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\faces
+2025-07-07 16:35:29,550 - reset_db - INFO - ÒÑÇå¿ÕÄ¿Â¼: uploads\test_images
+2025-07-07 16:35:29,551 - reset_db - INFO - ¿ªÊ¼³õÊ¼»¯ĞÂÊı¾İ¿â...
+2025-07-07 16:35:30,350 - app.db.init_db - INFO - ´´½¨³õÊ¼Êı¾İ
+2025-07-07 16:35:30,354 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 16:35:30,389 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ³¬¼¶¹ÜÀíÔ±
+2025-07-07 16:35:30,395 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ¹ÜÀíÔ±
+2025-07-07 16:35:30,402 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÆÕÍ¨ÓÃ»§
+2025-07-07 16:35:30,409 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ²ÆÎñ¹ÜÀíÔ±
+2025-07-07 16:35:30,414 - app.db.init_db - INFO - ´´½¨½ÇÉ«: Êı¾İ·ÖÎöÊ¦
+2025-07-07 16:35:30,420 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ¿Í·ş×¨Ô±
+2025-07-07 16:35:30,427 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÓªÏú¾­Àí
+2025-07-07 16:35:30,434 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ·Ã¿ÍÓÃ»§
+2025-07-07 16:35:30,441 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÏµÍ³Î¬»¤Ô±
+2025-07-07 16:35:30,447 - app.db.init_db - INFO - ´´½¨½ÇÉ«: ÏîÄ¿¾­Àí
+2025-07-07 16:35:30,985 - app.db.init_db - INFO - ´´½¨³¬¼¶¹ÜÀíÔ±ÓÃ»§: Super
+2025-07-07 16:35:30,997 - app.db.init_db - INFO - ÎªÓÃ»§Super·ÖÅä½ÇÉ«: ³¬¼¶¹ÜÀíÔ±
+2025-07-07 16:35:31,400 - app.db.init_db - INFO - ´´½¨¹ÜÀíÔ±ÓÃ»§: Admin
+2025-07-07 16:35:31,408 - app.db.init_db - INFO - ÎªÓÃ»§Admin·ÖÅä½ÇÉ«: ¹ÜÀíÔ±
+2025-07-07 16:35:31,797 - app.db.init_db - INFO - ´´½¨ÆÕÍ¨ÓÃ»§: User
+2025-07-07 16:35:31,804 - app.db.init_db - INFO - ÎªÓÃ»§User·ÖÅä½ÇÉ«: ÆÕÍ¨ÓÃ»§
+2025-07-07 16:35:31,805 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 16:35:31,805 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 16:35:31,805 - reset_db - INFO - ´´½¨³õÊ¼ÓÃ»§µÄÍ·ÏñÄ¿Â¼...
+2025-07-07 16:35:31,807 - reset_db - INFO - ÎªÓÃ»§ Super ´´½¨Í·ÏñÄ¿Â¼: uploads\avatars\userg6vjJFB
+2025-07-07 16:35:31,808 - reset_db - INFO - ÎªÓÃ»§ Admin ´´½¨Í·ÏñÄ¿Â¼: uploads\avatars\userBG7EHGU
+2025-07-07 16:35:31,809 - reset_db - INFO - ÎªÓÃ»§ User ´´½¨Í·ÏñÄ¿Â¼: uploads\avatars\user9TDmJ1W
+2025-07-07 16:35:31,810 - reset_db - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 16:35:31,810 - reset_db - INFO - Êı¾İ¿âÖØÖÃÍê³É£¬¿ÉÒÔÆô¶¯Ó¦ÓÃ³ÌĞòÁË
+2025-07-07 16:35:31,810 - __main__ - INFO - Êı¾İ¿âÖØÖÃÍê³É
+2025-07-07 16:35:31,811 - __main__ - INFO - ÕıÔÚÆô¶¯ºó¶Ë·şÎñ£¬µØÖ·: http://127.0.0.1:8000
+2025-07-07 16:35:31,811 - __main__ - INFO - APIÎÄµµµØÖ·: http://127.0.0.1:8000/docs
+2025-07-07 16:35:35,695 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: monitor_status
+2025-07-07 16:35:35,696 - app.ws.manager - INFO - ×¢²áÊÂ¼ş´¦ÀíÆ÷: warning_new
+2025-07-07 16:35:35,837 - app.utils.thread_pool - INFO - Ïß³Ì³Ø³õÊ¼»¯Íê³É£¬×î´ó¹¤×÷Ïß³ÌÊı: 80
+2025-07-07 16:35:36,250 - app.core.events - INFO - Æô¶¯Ó¦ÓÃ...
+2025-07-07 16:35:36,252 - app.core.events - INFO - ÒÑ´´½¨ËùĞèµÄÄ¿Â¼
+2025-07-07 16:35:36,259 - app.db.init_db - INFO - Êı¾İ¿â±í´´½¨Íê³É
+2025-07-07 16:35:36,336 - app.db.init_db - INFO - ³õÊ¼Êı¾İ´´½¨Íê³É
+2025-07-07 16:35:36,337 - app.core.events - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-07-07 16:35:36,337 - app.core.events - INFO - RedisÎ´ÆôÓÃ
+2025-07-07 16:35:36,337 - app.ws.connection - INFO - WebSocketÁ¬½Ó¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 16:35:36,338 - app.ws.manager - INFO - WebSocketÊÂ¼ş¹ÜÀíÆ÷ÒÑÆô¶¯
+2025-07-07 16:35:36,338 - app.core.events - WARNING - RedisÁ¬½Ó³Ø´´½¨Ê§°Ü£¬½«Ê¹ÓÃÄÚ´æ»º´æ
+2025-07-07 16:35:36,338 - app.core.events - INFO - ´´½¨ÉÏ´«Ä¿Â¼...
+2025-07-07 16:35:36,340 - app.core.events - INFO - ÉÏ´«Ä¿Â¼´´½¨Íê³É
+2025-07-07 16:35:36,340 - app.core.events - INFO - Ó¦ÓÃÆô¶¯Íê³É

@@ -32,6 +32,7 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     """更新用户的请求模型"""
+    username: Optional[str] = None
     email: Optional[EmailStr] = None
     full_name: Optional[str] = None
     phone: Optional[str] = None
@@ -42,6 +43,7 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     description: Optional[str] = None
     tags: Optional[List[str]] = None
+    roles: Optional[List[str]] = None
 
     @validator("password")
     def password_min_length(cls, v):
