@@ -26,3 +26,37 @@ export function randomNum(min: number, max?: number): number {
 export function removeHtmlTags(str: string = ''): string {
   return str.replace(/<[^>]*>/g, '')
 }
+
+/**
+ * 格式化图片URL
+ * @param url 图片URL
+ * @returns 完整的图片URL
+ */
+export function formatImageUrl(url: string): string {
+  if (!url) return '';
+
+  // 如果是完整URL（以http或https开头），直接返回
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
+  // 如果是以/uploads或/avatars开头的相对路径
+  if (url.startsWith('/uploads') || url.startsWith('/avatars')) {
+    // 在开发环境中，使用相对路径
+    // 在生产环境中，可以根据需要添加域名
+    const { VITE_API_URL } = import.meta.env;
+
+    // 如果配置了API_URL并且不是相对路径，则拼接完整URL
+    if (VITE_API_URL && !VITE_API_URL.startsWith('/')) {
+      // 移除API_URL末尾的斜杠（如果有）
+      const baseUrl = VITE_API_URL.endsWith('/')
+        ? VITE_API_URL.slice(0, -1)
+        : VITE_API_URL;
+
+      return `${baseUrl}${url}`;
+    }
+  }
+
+  // 其他情况，直接返回原始URL
+  return url;
+}

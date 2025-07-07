@@ -16,6 +16,7 @@ class VirtualOrganization(Base):
     __tablename__ = "virtual_organizations"
 
     id = Column(Integer, primary_key=True, index=True)
+    vorg_id = Column(String(11), unique=True, nullable=False, index=True, comment="虚拟组织唯一标识，格式为vorg+7位任意字符或数字")
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=func.now())

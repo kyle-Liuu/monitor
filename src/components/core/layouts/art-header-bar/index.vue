@@ -135,15 +135,15 @@
             popper-style="border: 1px solid var(--art-border-dashed-color); border-radius: calc(var(--custom-radius) / 2 + 4px); padding: 5px 16px; 5px 16px;"
           >
             <template #reference>
-              <img class="cover" src="@imgs/user/avatar.webp" alt="avatar" />
+              <img class="cover" :src="formattedAvatarUrl" alt="avatar" />
             </template>
             <template #default>
               <div class="user-menu-box">
                 <div class="user-head">
-                  <img class="cover" src="@imgs/user/avatar.webp" style="float: left" />
+                  <img class="cover" :src="formattedAvatarUrl" style="float: left" />
                   <div class="user-wrap">
                     <span class="name">{{ userInfo.username }}</span>
-                    <span class="email">art.design@gmail.com</span>
+                    <span class="email">{{ userInfo.email }}</span>
                   </div>
                 </div>
                 <ul class="user-menu">
@@ -192,9 +192,10 @@
   import AppConfig from '@/config'
   import { languageOptions } from '@/locales'
   import { WEB_LINKS } from '@/utils/constants'
-  import { mittBus } from '@/utils/sys'
+  import mittBus from '@/utils/sys/mittBus'
   import { themeAnimation } from '@/utils/theme/animation'
   import { useCommon } from '@/composables/useCommon'
+  import { formatImageUrl } from '@/utils/dataprocess/format'
 
   defineOptions({ name: 'ArtHeaderBar' })
 
@@ -228,6 +229,16 @@
   const showNotice = ref(false)
   const notice = ref(null)
   const userMenuPopover = ref()
+  
+  // 添加头像时间戳，用于缓存破坏
+  const avatarTimestamp = ref(Date.now())
+
+  // 获取格式化后的头像URL，添加时间戳破坏缓存
+  const formattedAvatarUrl = computed(() => {
+    if (!userInfo.value?.avatar) return formatImageUrl('');
+    const url = formatImageUrl(userInfo.value.avatar);
+    return url.includes('?') ? `${url}&_t=${avatarTimestamp.value}` : `${url}?_t=${avatarTimestamp.value}`;
+  });
 
   // 菜单类型判断
   const isLeftMenu = computed(() => menuType.value === MenuTypeEnum.LEFT)
@@ -240,11 +251,21 @@
   onMounted(() => {
     initLanguage()
     document.addEventListener('click', bodyCloseNotice)
+    
+    // 监听头像更新事件
+    mittBus.on('avatar-updated', refreshAvatar)
   })
 
   onUnmounted(() => {
     document.removeEventListener('click', bodyCloseNotice)
+    // 移除事件监听
+    mittBus.off('avatar-updated', refreshAvatar)
   })
+  
+  // 刷新头像
+  const refreshAvatar = () => {
+    avatarTimestamp.value = Date.now()
+  }
 
   /**
    * 切换全屏状态

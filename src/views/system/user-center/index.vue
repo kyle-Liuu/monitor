@@ -4,44 +4,39 @@
       <div class="left-wrap">
         <div class="user-wrap box-style">
           <img class="bg" src="@imgs/user/bg.webp" />
-          <img class="avatar" src='@imgs/user/avatar.webp' />
+          <div class="avatar-container">
+            <img class="avatar" :src="formattedAvatarUrl" />
+            <div class="avatar-edit-btn" @click="showAvatarUpload">
+              <el-icon><Edit /></el-icon>
+            </div>
+          </div>
           <h2 class="name">{{ userInfo.username }}</h2>
-          <p class="des">{{ userInfo.description || '尚未设置个人介绍' }}</p>
+          <p class="des">{{ previewData.description || userInfo.description || '尚未设置个人介绍' }}</p>
 
           <div class="outer-info">
             <div>
               <i class="iconfont-sys">&#xe72e;</i>
               <span>{{ userInfo.email || '未设置邮箱' }}</span>
             </div>
-            <!-- 注释掉职位信息
             <div>
-              <i class="iconfont-sys">&#xe608;</i>
-              <span>{{ form.position || '未设置职位' }}</span>
+              <i class="iconfont-sys">&#xe60f;</i>
+              <span>{{ userInfo.phone || '未设置手机号' }}</span>
             </div>
-            -->
-            <!-- 注释掉地址信息
-            <div>
-              <i class="iconfont-sys">&#xe736;</i>
-              <span>{{ form.address || '未设置地址' }}</span>
-            </div>
-            -->
-            <!-- 注释掉部门信息
-            <div>
-              <i class="iconfont-sys">&#xe811;</i>
-              <span>{{ form.department || '未设置部门' }}</span>
-            </div>
-            -->
           </div>
 
-          <div class="lables">
-            <h3>角色</h3>
+        
+          <div class="lables" v-if="previewData.tags && previewData.tags.length > 0">
+            <h3>标签</h3>
             <div>
-              <div v-for="role in userInfo.roles" :key="role.role_code">
-                {{ role.role_name }}
-              </div>
-              <div v-if="!userInfo.roles || userInfo.roles.length === 0">
-                暂无角色
-              </div>
+              <el-tag
+                v-for="(tag, index) in previewData.tags"
+                :key="index"
+                class="tag"
+                effect="light"
+                size="small"
+              >
+                {{ tag }}
+              </el-tag>
             </div>
           </div>
         </div>
@@ -71,7 +66,22 @@
               <ElFormItem label="姓名" prop="full_name">
                 <el-input v-model="form.full_name" :disabled="!isEdit" />
               </ElFormItem>
-              <ElFormItem label="性别" prop="gender" class="right-input">
+              <ElFormItem label="昵称" prop="username" class="right-input">
+                <ElInput v-model="form.username" :disabled="!isEdit" />
+              </ElFormItem>
+            </ElRow>
+
+            <ElRow>
+              <ElFormItem label="手机" prop="phone">
+                <ElInput v-model="form.phone" :disabled="!isEdit" />
+              </ElFormItem>
+              <ElFormItem label="邮箱" prop="email" class="right-input">
+                <ElInput v-model="form.email" :disabled="!isEdit" />
+              </ElFormItem>
+            </ElRow>
+
+            <ElRow>
+              <ElFormItem label="性别" prop="gender">
                 <ElSelect v-model="form.gender" placeholder="请选择" :disabled="!isEdit">
                   <ElOption
                     v-for="item in genderOptions"
@@ -81,39 +91,15 @@
                   />
                 </ElSelect>
               </ElFormItem>
-            </ElRow>
-
-            <ElRow>
-              <ElFormItem label="昵称" prop="username">
-                <ElInput v-model="form.username" :disabled="!isEdit" />
-              </ElFormItem>
-              <ElFormItem label="邮箱" prop="email" class="right-input">
-                <ElInput v-model="form.email" :disabled="!isEdit" />
-              </ElFormItem>
-            </ElRow>
-
-            <ElRow>
-              <ElFormItem label="手机" prop="phone">
-                <ElInput v-model="form.phone" :disabled="!isEdit" />
-              </ElFormItem>
-              <ElFormItem label="上传头像" prop="avatar" class="right-input">
-                <el-upload
-                  class="avatar-uploader"
-                  action="/api/users/avatar"
-                  :headers="uploadHeaders"
-                  :show-file-list="false"
-                  :on-success="handleAvatarSuccess"
-                  :before-upload="beforeAvatarUpload"
+              <ElFormItem label="标签" prop="tags" class="right-input">
+                <el-input-tag 
+                  v-model="form.tags" 
                   :disabled="!isEdit"
-                >
-                  <img v-if="avatarUrl" :src="avatarUrl" class="avatar-preview" />
-                  <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-                  <template #tip>
-                    <div class="el-upload__tip">
-                      jpg/png文件，大小不超过500KB
-                    </div>
-                  </template>
-                </el-upload>
+                  :max-tag-count="5"
+                  draggable
+                  placeholder="请输入标签"
+                  @update:modelValue="handleTagsChange"
+                />
               </ElFormItem>
             </ElRow>
 
@@ -126,12 +112,19 @@
               </ElFormItem>
             </ElRow>
 
-            <!-- 恢复个人介绍 -->
+            <!-- 个人介绍 -->
             <ElFormItem label="个人介绍" prop="description" :style="{ height: '130px' }">
-              <ElInput type="textarea" :rows="4" v-model="form.description" :disabled="!isEdit" />
+              <ElInput 
+                type="textarea" 
+                :rows="4" 
+                v-model="form.description" 
+                :disabled="!isEdit"
+                @input="handleDescriptionChange"
+              />
             </ElFormItem>
 
             <div class="el-form-item-right">
+              <ElButton v-if="isEdit" @click="cancelEdit" style="margin-right: 10px">取消</ElButton>
               <ElButton type="primary" style="width: 90px" v-ripple @click="edit">
                 {{ isEdit ? '保存' : '编辑' }}
               </ElButton>
@@ -178,6 +171,7 @@
             </ElFormItem>
 
             <div class="el-form-item-right">
+              <ElButton v-if="isEditPwd" @click="cancelEditPwd" style="margin-right: 10px">取消</ElButton>
               <ElButton type="primary" style="width: 90px" v-ripple @click="editPwd">
                 {{ isEditPwd ? '保存' : '编辑' }}
               </ElButton>
@@ -186,16 +180,69 @@
         </div>
       </div>
     </div>
+    
+    <!-- 头像上传对话框 -->
+    <el-dialog
+      v-model="avatarDialogVisible"
+      title="上传头像"
+      width="400px"
+      :close-on-click-modal="false"
+      @close="handleAvatarDialogClose"
+    >
+      <div class="avatar-upload-dialog">
+        <div class="avatar-uploader">
+          <!-- 头像预览 -->
+          <template v-if="tempAvatarUrl">
+            <img class="avatar-preview" :src="tempAvatarUrl" />
+          </template>
+          <template v-else>
+            <div class="avatar-preview-placeholder">
+              <el-icon><User /></el-icon>
+            </div>
+          </template>
+          
+          <!-- 上传按钮 -->
+          <el-upload
+            class="avatar-upload"
+            action=""
+            :auto-upload="false"
+            :show-file-list="false"
+            :on-change="handleAvatarChange"
+          >
+            <el-button type="primary" :icon="Plus" size="small" style="margin-top: 10px">
+              选择图片
+            </el-button>
+            <template #tip>
+              <div class="el-upload__tip">
+                请上传JPG/PNG格式，小于500KB的图片
+              </div>
+            </template>
+          </el-upload>
+        </div>
+        
+        <div class="dialog-footer">
+          <el-button @click="avatarDialogVisible = false">取消</el-button>
+          <el-button
+            type="primary"
+            @click="handleAvatarUpload"
+            :loading="isAvatarUploading"
+          >
+            上传
+          </el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
   import { useUserStore } from '@/store/modules/user'
   import { ElForm, FormInstance, FormRules, ElMessage, ElMessageBox } from 'element-plus'
-  import { UserService } from '@/api/userApi'
   import { HttpError } from '@/utils/http/error'
-  import { Plus } from '@element-plus/icons-vue'
-  import type { UploadProps } from 'element-plus'
+  import { Plus, Edit, User } from '@element-plus/icons-vue'
+  import { UserService } from '@/api/userApi'
+  import { formatImageUrl } from '@/utils/dataprocess/format'
+  import mittBus from '@/utils/sys/mittBus'
 
   defineOptions({ name: 'UserCenter' })
 
@@ -211,33 +258,45 @@
 
   // 头像上传相关
   const avatarUrl = ref('')
-  const uploadHeaders = computed(() => {
-    return {
-      Authorization: `Bearer ${userStore.getToken}`
-    }
+  const avatarDialogVisible = ref(false)
+  const tempAvatarUrl = ref('')
+  const tempAvatarFile = ref<File | null>(null)
+  const isAvatarUploading = ref(false)
+  
+  // 添加缓存破坏时间戳
+  const avatarTimestamp = ref(Date.now())
+
+  // 预览数据（用于实时显示）
+  const previewData = reactive({
+    description: '',
+    tags: [] as string[]
   })
 
+  // 原始表单数据（用于取消操作）
+  const originalForm = reactive<any>({})
+
   // 用户信息表单
-  const form = reactive({
+  const form = reactive<any>({
     username: '',
     full_name: '',
     email: '',
     phone: '',
-    // address: '',
     gender: 0,
-    // position: '',
-    // department: '',
     description: '',
     created_at: '',
-    updated_at: ''
+    updated_at: '',
+    tags: [] as string[]
   })
 
   // 密码表单
-  const pwdForm = reactive({
+  const pwdForm = reactive<any>({
     oldPassword: '',
     newPassword: '',
     confirmPassword: ''
   })
+  
+  // 原始密码表单（用于取消操作）
+  const originalPwdForm = reactive<any>({})
 
   // 性别选项
   const genderOptions = [
@@ -267,6 +326,15 @@
     ],
     gender: [
       { required: true, message: '请选择性别', trigger: 'change' }
+    ],
+    tags: [
+      { validator: (rule, value, callback) => {
+        if (value && value.length > 5) {
+          callback(new Error('最多只能添加5个标签'))
+        } else {
+          callback()
+        }
+      }, trigger: 'change' }
     ],
     description: [
       { required: false, message: '请输入个人介绍', trigger: 'blur' },
@@ -314,12 +382,20 @@
     form.phone = info.phone || ''
     form.gender = info.gender !== undefined ? Number(info.gender) : 0
     form.description = info.description || ''
+    // 初始化标签，如果用户信息中有标签则使用，否则使用默认标签
+    form.tags = Array.isArray((info as any).tags) ? (info as any).tags : ['用户']
     // 格式化日期时间
     form.created_at = info.created_at ? formatDateTime(info.created_at) : '未知'
     form.updated_at = info.updated_at ? formatDateTime(info.updated_at) : '未知'
     // 设置头像
     avatarUrl.value = info.avatar || ''
-    // 其他字段保持默认值
+    
+    // 初始化预览数据
+    previewData.description = form.description
+    previewData.tags = [...form.tags]
+    
+    // 保存初始表单数据（用于取消操作）
+    Object.assign(originalForm, form)
   }
 
   // 格式化日期时间
@@ -339,9 +415,39 @@
     }
   }
 
+  // 获取格式化后的头像URL，添加时间戳破坏缓存
+  const formattedAvatarUrl = computed(() => {
+    if (!avatarUrl.value) return formatImageUrl('');
+    const url = formatImageUrl(avatarUrl.value);
+    return url.includes('?') ? `${url}&_t=${avatarTimestamp.value}` : `${url}?_t=${avatarTimestamp.value}`;
+  });
+
   onMounted(() => {
     initUserInfo()
   })
+
+  // 处理描述变更，实时更新预览
+  const handleDescriptionChange = () => {
+    previewData.description = form.description
+  }
+  
+  // 处理标签变更，实时更新预览
+  const handleTagsChange = () => {
+    previewData.tags = [...form.tags]
+  }
+
+  // 取消编辑用户信息
+  const cancelEdit = () => {
+    // 恢复表单到原始数据
+    Object.assign(form, originalForm)
+    
+    // 同步更新预览数据
+    previewData.description = form.description
+    previewData.tags = [...form.tags]
+    
+    isEdit.value = false
+    ElMessage.info('已取消编辑')
+  }
 
   // 编辑/保存用户信息
   const edit = async () => {
@@ -352,22 +458,32 @@
       try {
         await ruleFormRef.value.validate()
         
-        const updateData: Record<string, any> = {
+        const updateData = {
           full_name: form.full_name,
           email: form.email,
           phone: form.phone,
           gender: Number(form.gender),
-          description: form.description
+          description: form.description,
+          tags: form.tags // 添加标签字段
         }
         
-        await UserService.updateUser(userInfo.value.id!, updateData)
-        
-        // 更新本地存储的用户信息
-        const updatedUserInfo = await UserService.getUserInfo()
-        userStore.setUserInfo(updatedUserInfo)
-        
-        ElMessage.success('个人信息更新成功')
-        isEdit.value = false
+        if (userInfo.value && userInfo.value.user_id) {
+          // 使用API更新用户信息
+          const response = await UserService.updateUser(userInfo.value.user_id, updateData)
+          
+          // 更新本地存储的用户信息
+          if (response) {
+            userStore.setUserInfo(response as unknown as Api.User.UserInfo)
+            ElMessage.success('个人信息更新成功')
+            
+            // 更新原始表单数据
+            Object.assign(originalForm, form)
+          }
+          
+          isEdit.value = false
+        } else {
+          ElMessage.error('获取用户ID失败')
+        }
       } catch (error) {
         if (error instanceof HttpError) {
           ElMessage.error(`更新失败: ${error.message || '服务器错误'}`)
@@ -378,8 +494,21 @@
       }
     } else {
       // 进入编辑模式
+      // 保存原始表单数据
+      Object.assign(originalForm, form)
       isEdit.value = true
     }
+  }
+
+  // 取消编辑密码
+  const cancelEditPwd = () => {
+    // 恢复表单到原始数据
+    pwdForm.oldPassword = ''
+    pwdForm.newPassword = ''
+    pwdForm.confirmPassword = ''
+    
+    isEditPwd.value = false
+    ElMessage.info('已取消编辑')
   }
 
   // 编辑/保存密码
@@ -391,19 +520,25 @@
       try {
         await pwdFormRef.value.validate()
         
-        const updateData = {
-          password: pwdForm.newPassword
+        const passwordData = {
+          current_password: pwdForm.oldPassword,
+          new_password: pwdForm.newPassword
         }
         
-        await UserService.updateUser(userInfo.value.id!, updateData)
-        
-        ElMessage.success('密码修改成功')
-        isEditPwd.value = false
-        
-        // 清空表单
-        pwdForm.oldPassword = ''
-        pwdForm.newPassword = ''
-        pwdForm.confirmPassword = ''
+        if (userInfo.value && userInfo.value.user_id) {
+          // 使用API修改密码
+          await UserService.changePassword(userInfo.value.user_id, passwordData)
+          
+          ElMessage.success('密码修改成功')
+          isEditPwd.value = false
+          
+          // 清空表单
+          pwdForm.oldPassword = ''
+          pwdForm.newPassword = ''
+          pwdForm.confirmPassword = ''
+        } else {
+          ElMessage.error('获取用户ID失败')
+        }
       } catch (error) {
         if (error instanceof HttpError) {
           ElMessage.error(`密码修改失败: ${error.message || '服务器错误'}`)
@@ -418,34 +553,94 @@
     }
   }
 
-  // 头像上传成功处理
-  const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
-    if (response && response.data) {
-      avatarUrl.value = response.data.avatar_url
-      // 更新用户信息中的头像
-      userStore.updateUserAvatar(avatarUrl.value)
-      ElMessage.success('头像上传成功')
-    } else {
-      ElMessage.error('头像上传失败')
-    }
+  // 显示头像上传对话框
+  const showAvatarUpload = () => {
+    tempAvatarUrl.value = formattedAvatarUrl.value
+    tempAvatarFile.value = null // 确保每次打开对话框时清空文件选择
+    avatarDialogVisible.value = true
   }
 
-  // 头像上传前的验证
-  const beforeAvatarUpload: UploadProps['beforeUpload'] = (file) => {
-    // 检查文件类型
-    const isJPG = file.type === 'image/jpeg'
-    const isPNG = file.type === 'image/png'
-    const isLt500K = file.size / 1024 < 500
+  // 处理头像上传对话框关闭
+  const handleAvatarDialogClose = () => {
+    tempAvatarUrl.value = ''
+    tempAvatarFile.value = null
+    avatarDialogVisible.value = false
+  }
 
-    if (!isJPG && !isPNG) {
-      ElMessage.error('头像只能是 JPG 或 PNG 格式!')
-      return false
+  // 处理头像变更
+  const handleAvatarChange = (file: any) => {
+    const rawFile = file.raw
+    if (!rawFile) {
+      ElMessage.error('无法获取文件信息')
+      return
     }
+    
+    // 检查文件大小（限制为500KB）
+    const isLt500K = rawFile.size / 1024 < 500
     if (!isLt500K) {
-      ElMessage.error('头像大小不能超过 500KB!')
-      return false
+      ElMessage.error('头像文件不能超过500KB')
+      return
     }
-    return true
+
+    // 检查文件类型
+    if (!rawFile.type.startsWith('image/')) {
+      ElMessage.error('请上传图片文件')
+      return
+    }
+
+    // 保存文件和预览URL
+    tempAvatarFile.value = rawFile
+    tempAvatarUrl.value = URL.createObjectURL(rawFile)
+  }
+
+  // 处理头像上传
+  const handleAvatarUpload = async () => {
+    // 检查是否选择了新头像文件
+    if (!tempAvatarFile.value) {
+      ElMessage.warning('请先选择头像文件')
+      return
+    }
+
+    if (!userInfo.value || !userInfo.value.user_id) {
+      ElMessage.error('获取用户ID失败')
+      return
+    }
+
+    try {
+      isAvatarUploading.value = true
+      
+      // 上传头像文件，使用用户ID作为文件名
+      const avatarPath = await UserService.uploadAvatar(tempAvatarFile.value, userInfo.value.user_id)
+      
+      if (!avatarPath) {
+        throw new Error('头像上传失败')
+      }
+      
+      // 更新用户头像信息
+      await UserService.updateAvatar(userInfo.value.user_id, avatarPath)
+      
+      // 更新本地头像URL
+      avatarUrl.value = avatarPath
+      
+      // 更新用户信息中的头像
+      userStore.updateUserAvatar(avatarPath)
+      
+      // 更新时间戳，强制刷新头像
+      avatarTimestamp.value = Date.now()
+      
+      // 发出头像更新事件，通知其他组件刷新
+      mittBus.emit('avatar-updated')
+      
+      ElMessage.success('头像上传成功')
+      
+      // 关闭对话框
+      avatarDialogVisible.value = false
+    } catch (error) {
+      ElMessage.error('头像上传失败')
+      console.error('[UserCenter] 上传头像错误:', error)
+    } finally {
+      isAvatarUploading.value = false
+    }
   }
 </script>
 
@@ -475,35 +670,119 @@
     .box-style {
       border: 1px solid var(--art-border-color);
     }
+    
+    // 头像容器和编辑按钮
+    .avatar-container {
+      position: relative;
+      display: inline-block;
+      margin-top: 120px;
+      
+      .avatar {
+        position: relative;
+        z-index: 10;
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border: 2px solid #fff;
+        border-radius: 50%;
+      }
+      
+      .avatar-edit-btn {
+        position: absolute;
+        right: -5px;
+        bottom: -5px;
+        z-index: 11;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        color: #fff;
+        cursor: pointer;
+        background: var(--el-color-primary);
+        border-radius: 50%;
+        opacity: 0;
+        transition: all 0.3s;
+        
+        &:hover {
+          transform: scale(1.1);
+        }
+        
+        .el-icon {
+          font-size: 12px;
+        }
+      }
+      
+      &:hover .avatar-edit-btn {
+        opacity: 1;
+      }
+    }
 
-    // 头像上传样式
-    .avatar-uploader {
+    // 头像预览样式
+    .avatar-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .avatar-preview-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 100px;
+      font-size: 40px;
+      color: var(--el-text-color-placeholder);
+      background: var(--el-fill-color-light);
+      border-radius: 50%;
+    }
+    
+    // 头像上传对话框
+    .avatar-upload-dialog {
       display: flex;
       flex-direction: column;
       align-items: center;
       
-      .avatar-preview {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
+      .avatar-uploader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+        
+        .avatar-preview {
+          width: 120px;
+          height: 120px;
+        }
+        
+        .avatar-uploader-icon {
+          font-size: 28px;
+          color: #8c939d;
+          width: 120px;
+          height: 120px;
+          line-height: 120px;
+          text-align: center;
+          border: 1px dashed var(--el-border-color);
+          border-radius: 50%;
+        }
+        
+        .el-upload__tip {
+          color: var(--el-text-color-secondary);
+          font-size: 12px;
+          margin-top: 8px;
+          text-align: center;
+        }
       }
       
-      .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
-        width: 100px;
-        height: 100px;
-        line-height: 100px;
-        text-align: center;
-        border: 1px dashed var(--art-border-color);
-        border-radius: 50%;
-      }
-      
-      .el-upload__tip {
-        color: var(--art-text-gray-600);
-        font-size: 12px;
-        margin-top: 8px;
+      .dialog-footer {
+        margin-top: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        
+        .el-button + .el-button {
+          margin-left: 12px;
+        }
       }
     }
 
@@ -533,17 +812,6 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-          }
-
-          .avatar {
-            position: relative;
-            z-index: 10;
-            width: 80px;
-            height: 80px;
-            margin-top: 120px;
-            object-fit: cover;
-            border: 2px solid #fff;
-            border-radius: 50%;
           }
 
           .name {
@@ -587,7 +855,11 @@
               justify-content: center;
               margin-top: 15px;
 
-              > div {
+              .role-tag, .tag {
+                margin: 0 5px 10px;
+              }
+              
+              > div:not(.role-tag):not(.tag) {
                 padding: 3px 6px;
                 margin: 0 10px 10px 0;
                 font-size: 12px;
@@ -655,7 +927,7 @@
               justify-content: end;
 
               .el-button {
-                width: 110px !important;
+                width: 90px !important;
               }
             }
           }

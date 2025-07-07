@@ -116,3 +116,94 @@ QQ群: <a href="https://qm.qq.com/cgi-bin/qm/qr?k=Gg6yzZLFaNgmRhK0T5Qcjf7-XcAFWW
 如果我的项目对你有所帮助，欢迎捐赠！你的支持将用于购买ChatGPT、Cursor等工具，提升开发效率，让项目变得更好。感谢你的鼓励与支持！
 
 ![Donation QR Code](https://www.qiniu.lingchen.kim/%E7%BB%84%202%402x%202.png)
+
+## 最近更新
+
+### 用户系统改进（2024-06）
+
+1. **用户唯一标识**：添加了user_id字段，格式为"user"+7位随机字符或数字，作为用户的唯一标识
+2. **头像上传功能**：新增用户头像上传API，支持按用户ID上传和管理头像
+3. **前端头像组件**：添加了可复用的头像上传Vue组件
+4. **服务器启动优化**：合并了main.py和start_server.py为统一的server.py，简化启动流程
+
+## 主要功能
+
+- 用户认证与权限管理
+- 视频流接入与管理
+- AI算法配置与调用
+- 实时告警与事件处理
+- WebSocket实时数据推送
+- 系统监控与日志管理
+
+## 技术栈
+
+### 前端
+
+- Vue.js 3
+- TypeScript
+- Element Plus
+- Pinia
+- Vue Router
+- Axios
+
+### 后端
+
+- FastAPI
+- SQLite
+- YOLO系列算法
+- WebSocket
+- JWT认证
+
+## 快速开始
+
+### 后端启动
+
+```bash
+# 进入后端目录
+cd backend
+
+# Windows系统
+start.bat
+
+# Linux/Mac系统
+chmod +x start.sh
+./start.sh
+
+# 或者直接启动
+python server.py
+
+# 重置数据库并启动
+python server.py --reset-db
+```
+
+### 前端启动
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+```
+
+## 文档
+
+- [启动指南](docs/startup_guide.md)
+- [用户头像上传功能](docs/user_avatar_upload.md)
+- [后端设计文档](docs/backend_design.md)
+- [后端实现文档](docs/backend_implementation.md)
+
+## 默认账户
+
+| 账户类型 | 用户名 | 密码 |
+|---------|-------|------|
+| 超级管理员 | Super | 123456 |
+| 管理员 | Admin | 123456 |
+| 普通用户 | User | 123456 |
+
+## 许可证
+
+[MIT](LICENSE)

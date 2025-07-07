@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.endpoints import auth, users, roles, organizations, virtual_organizations, videostreams, algorithms, warnings, websocket, monitor
+from app.api.endpoints import uploads  # 添加上传模块
 
 # 创建API路由器
 api_router = APIRouter()
@@ -27,6 +28,9 @@ api_router.include_router(warnings.router, prefix="/warnings", tags=["warnings"]
 
 # 监控任务路由
 api_router.include_router(monitor.router, prefix="/monitor", tags=["monitor"])
+
+# 文件上传路由
+api_router.include_router(uploads.router, prefix="/upload", tags=["upload"])
 
 # WebSocket路由 - 这些路由不会在Swagger UI中显示，因为它们是WebSocket端点
 api_router.include_router(websocket.router, tags=["websocket"])

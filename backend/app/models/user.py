@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Table, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -36,6 +36,7 @@ class User(Base):
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(11), unique=True, nullable=False, index=True, comment="用户唯一标识，格式为user+7位任意字符或数字")
     username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True, nullable=False, index=True)
     hashed_password = Column(String(100), nullable=False)
@@ -43,6 +44,8 @@ class User(Base):
     phone = Column(String(20))
     gender = Column(Integer, default=1)  # 1:男 2:女
     avatar = Column(String(255))
+    tags = Column(JSON, default=list)  # 用户标签，存储为JSON数组
+    description = Column(String(500))  # 添加个人介绍字段
     status = Column(Integer, default=1)  # 1:在线 2:离线 3:异常 4:注销
     last_login = Column(DateTime(timezone=True))
     is_active = Column(Boolean, default=True)

@@ -364,5 +364,12 @@
     "zebra": "斑马纹",
     "border": "边框",
     "headerBackground": "表头背景"
+  },
+  "components": {
+    "avatarUpload": {
+      "clickToUpload": "点击上传头像",
+      "upload": "上传",
+      "uploading": "上传中..."
+    }
   }
 }

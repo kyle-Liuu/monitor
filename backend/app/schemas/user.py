@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 
 class UserBase(BaseModel):
     """用户基础信息模型"""
+    user_id: Optional[str] = None
     username: str
     email: EmailStr
     full_name: Optional[str] = None
@@ -12,12 +13,14 @@ class UserBase(BaseModel):
     gender: Optional[int] = 1
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
+    description: Optional[str] = None
+    tags: Optional[List[str]] = []
 
 
 class UserCreate(UserBase):
     """创建用户的请求模型"""
     password: str
-    avatar: Optional[str] = None
+    avatar: Optional[str] = "/uploads/avatars/default/default.jpeg"
     roles: Optional[List[str]] = None
 
     @validator("password")
@@ -33,17 +36,23 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     phone: Optional[str] = None
     gender: Optional[int] = None
-    avatar: Optional[str] = None
     status: Optional[int] = None
     is_active: Optional[bool] = None
     is_superuser: Optional[bool] = None
     password: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[str]] = None
 
     @validator("password")
     def password_min_length(cls, v):
         if v is not None and len(v) < 8:
             raise ValueError("密码长度不能少于8位")
         return v
+
+
+class UserAvatarUpdate(BaseModel):
+    """更新用户头像的请求模型"""
+    avatar: str
 
 
 class RoleBase(BaseModel):
@@ -81,6 +90,7 @@ class Role(RoleInDB):
 class UserInDB(UserBase):
     """数据库中的用户模型"""
     id: int
+    user_id: str
     avatar: Optional[str] = None
     status: Optional[int] = 1
     last_login: Optional[datetime] = None
@@ -95,7 +105,7 @@ class UserInDB(UserBase):
 
 class User(BaseModel):
     """API响应中的用户模型"""
-    id: int
+    user_id: str
     username: str
     email: EmailStr
     full_name: Optional[str] = None
@@ -105,6 +115,8 @@ class User(BaseModel):
     status: Optional[int] = 1
     is_active: bool
     is_superuser: bool
+    description: Optional[str] = None
+    tags: Optional[List[str]] = []
     created_at: datetime
     updated_at: datetime
     roles: List[Role] = []
@@ -176,3 +188,15 @@ class PaginatedRoleList(BaseModel):
     current: int
     size: int
     total: int
+
+
+class PasswordChange(BaseModel):
+    """修改密码请求模型"""
+    current_password: str
+    new_password: str
+
+    @validator("new_password")
+    def password_min_length(cls, v):
+        if len(v) < 8:
+            raise ValueError("密码长度不能少于8位")
+        return v

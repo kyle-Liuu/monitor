@@ -4,13 +4,30 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from datetime import datetime
 import json
+import string
+import random
 
 from app import models, schemas
 from app.api import deps
-from app.core.security import get_password_hash, redis_client
+from app.core.security import get_password_hash, verify_password, redis_client
 from app.models.user import User
 
 router = APIRouter()
+
+
+def generate_unique_user_id(db: Session, length: int = 7) -> str:
+    """
+    生成唯一的用户ID，格式为user+7位任意字符或数字
+    """
+    while True:
+        chars = string.ascii_letters + string.digits
+        random_str = ''.join(random.choice(chars) for _ in range(length))
+        user_id = f"user{random_str}"
+        
+        # 检查生成的ID是否已存在
+        existing_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+        if not existing_user:
+            return user_id
 
 
 @router.get("/info", response_model=schemas.UserInfo)
@@ -114,8 +131,21 @@ def create_user(
             detail="邮箱已存在",
         )
     
+    # 生成唯一的用户ID
+    user_id = user_in.user_id or generate_unique_user_id(db)
+    
+    # 如果提供了用户ID，检查是否唯一
+    if user_in.user_id:
+        existing_user = db.query(models.User).filter(models.User.user_id == user_in.user_id).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"用户ID {user_in.user_id} 已存在",
+            )
+    
     # 创建新用户
     db_user = models.User(
+        user_id=user_id,
         username=user_in.username,
         email=user_in.email,
         hashed_password=get_password_hash(user_in.password),
@@ -154,15 +184,23 @@ def create_user(
 
 @router.get("/{user_id}", response_model=schemas.User)
 def get_user(
-    user_id: int,
+    user_id: str,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     获取指定用户的详细信息
     """
+    # 通过user_id查找用户
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="用户不存在"
+        )
+    
     # 普通用户只能查看自己的信息，管理员可以查看所有用户信息
-    if not current_user.is_superuser and current_user.id != user_id:
+    if not current_user.is_superuser and current_user.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="权限不足"
@@ -174,14 +212,6 @@ def get_user(
         cached_user = redis_client.get(f"user:{user_id}")
         if cached_user:
             return json.loads(cached_user)
-    
-    # 从数据库获取用户
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="用户不存在"
-        )
     
     # 获取用户角色
     user.userRoles = [role.role_code for role in user.roles]
@@ -197,7 +227,7 @@ def get_user(
 def update_user(
     *,
     db: Session = Depends(deps.get_db),
-    user_id: int,
+    user_id: str,
     user_in: schemas.UserUpdate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -205,14 +235,14 @@ def update_user(
     更新用户信息
     """
     # 普通用户只能更新自己的信息，管理员可以更新所有用户信息
-    if not current_user.is_superuser and current_user.id != user_id:
+    if not current_user.is_superuser and current_user.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="权限不足"
         )
     
     # 获取用户
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -226,7 +256,7 @@ def update_user(
                 models.User.username == user_in.username,
                 models.User.email == user_in.email
             ),
-            models.User.id != user_id
+            models.User.user_id != user_id
         ).first()
         if exists_user:
             raise HTTPException(
@@ -283,7 +313,7 @@ def update_user(
 
 @router.delete("/{user_id}", response_model=schemas.Message)
 def delete_user(
-    user_id: int,
+    user_id: str,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_admin_user),
 ) -> Any:
@@ -291,14 +321,14 @@ def delete_user(
     删除用户（逻辑删除，需要管理员权限）
     """
     # 不能删除自己
-    if current_user.id == user_id:
+    if current_user.user_id == user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="不能删除自己"
         )
     
     # 获取用户
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -370,7 +400,7 @@ def update_user_me(
 
 @router.get("/{user_id}", response_model=schemas.User)
 def read_user_by_id(
-    user_id: int,
+    user_id: str,
     current_user: User = Depends(deps.get_current_active_user),
     db: Session = Depends(deps.get_db),
 ) -> Any:
@@ -378,13 +408,13 @@ def read_user_by_id(
     根据用户ID获取用户信息
     """
     # 只有超级管理员可以获取其他用户的信息
-    if user_id != current_user.id and not current_user.is_superuser:
+    if user_id != current_user.user_id and not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无权访问其他用户信息",
         )
     
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -397,13 +427,13 @@ def read_user_by_id(
 def permanently_delete_user(
     *,
     db: Session = Depends(deps.get_db),
-    user_id: int,
+    user_id: str,
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
     永久删除用户，仅限管理员访问
     """
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -411,7 +441,7 @@ def permanently_delete_user(
         )
     
     # 不能删除自己
-    if user.id == current_user.id:
+    if user.user_id == current_user.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="不能删除当前登录用户",
@@ -421,3 +451,88 @@ def permanently_delete_user(
     db.delete(user)
     db.commit()
     return user
+
+
+@router.put("/{user_id}/avatar", response_model=schemas.User)
+def update_user_avatar(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str,
+    avatar_in: schemas.UserAvatarUpdate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    更新用户头像
+    """
+    # 普通用户只能更新自己的头像，管理员可以更新所有用户的头像
+    if not current_user.is_superuser and current_user.user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="权限不足"
+        )
+    
+    # 获取用户
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="用户不存在"
+        )
+    
+    # 更新头像路径
+    user.avatar = avatar_in.avatar
+    db.commit()
+    db.refresh(user)
+    
+    # 清除用户缓存
+    if redis_client:
+        redis_client.delete(f"user:{user_id}")
+    
+    return user
+
+
+@router.put("/{user_id}/password", response_model=schemas.Message)
+def change_password(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str,
+    password_in: schemas.PasswordChange,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    修改用户密码
+    """
+    # 先尝试通过user_id查找
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="用户不存在",
+        )
+    
+    # 普通用户只能修改自己的密码，管理员可以修改所有用户的密码
+    if not current_user.is_superuser and current_user.user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="权限不足"
+        )
+    
+    # 如果不是管理员，需要验证当前密码
+    if not current_user.is_superuser:
+        if not verify_password(password_in.current_password, db_user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="当前密码不正确"
+            )
+    
+    # 更新密码
+    hashed_password = get_password_hash(password_in.new_password)
+    db_user.hashed_password = hashed_password
+    db.commit()
+    
+    # 清除用户缓存
+    if redis_client:
+        redis_client.delete(f"user:{user_id}")
+    
+    return {"message": "密码修改成功"}

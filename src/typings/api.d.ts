@@ -11,7 +11,7 @@ declare namespace Api {
       // 状态码
       code: number
       // 消息
-      msg: string
+      message: string
       // 数据
       data: T
     }
@@ -38,6 +38,21 @@ declare namespace Api {
     /** 消息结果 */
     interface MessageResult {
       message: string
+    }
+  }
+
+  /** 上传类型 */
+  namespace Upload {
+    /** 头像上传响应 */
+    interface AvatarUploadResponse {
+      /** 头像路径 */
+      avatarPath: string
+    }
+
+    /** 文件上传参数 */
+    interface FileUploadParams {
+      /** 文件对象 */
+      file: File
     }
   }
 
@@ -76,25 +91,21 @@ declare namespace Api {
   namespace User {
     /** 用户信息 */
     interface UserInfo {
-      id: number
-      username: string
+      user_id: string
+      username?: string
       email?: string
       full_name?: string
       phone?: string
       avatar?: string
       gender?: number
-      description?: string
       status?: number
-      is_active: boolean
-      is_superuser: boolean
-      roles: Array<{
-        id: number
-        role_code: string
-        role_name: string
-        description?: string
-      }>
-      created_at: string
+      is_active?: boolean
+      is_superuser?: boolean
+      roles?: Role[]
+      created_at?: string
       updated_at?: string
+      description?: string
+      tags?: string[]
     }
 
     /** 创建用户参数 */
@@ -114,13 +125,19 @@ declare namespace Api {
       email?: string
       full_name?: string
       phone?: string
-      password?: string
       avatar?: string
       gender?: number
       description?: string
+      tags?: string[]
       is_active?: boolean
       is_superuser?: boolean
       role_ids?: number[]
+    }
+
+    /** 修改密码参数 */
+    interface ChangePasswordParams {
+      current_password: string
+      new_password: string
     }
 
     /** 原项目用户列表数据 */
@@ -133,6 +150,38 @@ declare namespace Api {
 
     /** 用户列表结果 */
     type UserListResult = Common.PaginationResult<UserInfo>
+
+    /** 用户角色 */
+    interface Role {
+      id: number
+      role_code: string
+      role_name: string
+      description?: string
+    }
+
+    /** 登录请求 */
+    interface LoginRequest {
+      username: string
+      password: string
+    }
+
+    /** 登录响应 */
+    interface LoginResponse {
+      token: string
+      refreshToken: string
+      user_info: UserInfo
+    }
+
+    /** 刷新令牌请求 */
+    interface RefreshTokenRequest {
+      refresh_token: string
+    }
+
+    /** 刷新令牌响应 */
+    interface RefreshTokenResponse {
+      token: string
+      refreshToken: string
+    }
   }
 
   /** 角色类型 */

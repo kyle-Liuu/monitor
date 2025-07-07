@@ -8,6 +8,7 @@ class Organization(Base):
     __tablename__ = "organizations"
 
     id = Column(Integer, primary_key=True, index=True)
+    org_id = Column(String(10), unique=True, nullable=False, index=True, comment="组织唯一标识，格式为org+7位任意字符或数字")
     name = Column(String(100), nullable=False)
     parent_id = Column(Integer, ForeignKey("organizations.id"), nullable=True)
     description = Column(Text, nullable=True)

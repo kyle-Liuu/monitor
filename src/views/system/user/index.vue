@@ -389,14 +389,11 @@
     try {
       const { currentPage, pageSize } = pagination
       
-      // 使用UserService获取用户列表
+      // 使用API获取用户列表
       const result = await UserService.getUserList({
         current: currentPage,
-        size: pageSize,
-        name: formFilters.name || undefined,
-        phone: formFilters.phone || undefined,
-        status: formFilters.status !== '' ? formFilters.status : undefined
-      })
+        size: pageSize
+      }) as any
       
       console.log('后端返回的用户数据:', result)
       

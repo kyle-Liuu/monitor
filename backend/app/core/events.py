@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Callable
 import json
+from pathlib import Path
 
 import redis
 from fastapi import FastAPI
@@ -13,6 +14,14 @@ from app.db.session import SessionLocal
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# 定义上传目录路径
+UPLOADS_DIR = Path("uploads")
+AVATARS_DIR = UPLOADS_DIR / "avatars"
+FACES_DIR = UPLOADS_DIR / "faces"
+MODELS_DIR = UPLOADS_DIR / "models"
+TEST_IMAGES_DIR = UPLOADS_DIR / "test_images"
+WARNINGS_DIR = UPLOADS_DIR / "warnings"
 
 # 创建必要的目录
 def create_directories():
@@ -91,6 +100,28 @@ async def startup_event() -> None:
     except Exception as e:
         logger.error(f"启动WebSocket事件管理器失败: {str(e)}")
     
+    # 创建Redis连接池
+    redis_instance = create_redis_pool()
+    if redis_instance:
+        logger.info("Redis连接池创建成功")
+    else:
+        logger.warning("Redis连接池创建失败，将使用内存缓存")
+    
+    # 创建必要的上传目录
+    logger.info("创建上传目录...")
+    
+    # 创建主上传目录
+    UPLOADS_DIR.mkdir(exist_ok=True)
+    
+    # 创建子目录
+    AVATARS_DIR.mkdir(exist_ok=True)
+    FACES_DIR.mkdir(exist_ok=True)
+    MODELS_DIR.mkdir(exist_ok=True)
+    TEST_IMAGES_DIR.mkdir(exist_ok=True)
+    WARNINGS_DIR.mkdir(exist_ok=True)
+    
+    logger.info("上传目录创建完成")
+    
     logger.info("应用启动完成")
 
 async def shutdown_event() -> None:
@@ -120,6 +151,13 @@ async def shutdown_event() -> None:
     
     # 关闭Redis连接
     await close_redis_connection()
+    
+    # 关闭Redis连接池
+    global redis_instance
+    if redis_instance:
+        logger.info("关闭Redis连接池")
+        await redis_instance.close()
+        logger.info("Redis连接池已关闭")
     
     logger.info("应用已关闭")
 

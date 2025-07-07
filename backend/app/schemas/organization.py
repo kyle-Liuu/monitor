@@ -22,6 +22,7 @@ class OrganizationUpdate(OrganizationBase):
 
 class OrganizationInDBBase(OrganizationBase):
     id: int
+    org_id: str
     parent_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime

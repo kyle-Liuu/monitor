@@ -362,5 +362,12 @@
     "zebra": "Zebra",
     "border": "Border",
     "headerBackground": "Header BG"
+  },
+  "components": {
+    "avatarUpload": {
+      "clickToUpload": "Click to upload avatar",
+      "upload": "Upload",
+      "uploading": "Uploading..."
+    }
   }
 }

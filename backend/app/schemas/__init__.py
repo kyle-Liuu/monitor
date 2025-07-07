@@ -4,7 +4,8 @@ from app.schemas.user import (
     LoginForm, Token, TokenPayload, LoginResponse,
     PaginatedUserList, Message,
     Role, RoleCreate, RoleUpdate, PaginatedRoleList,
-    RefreshTokenRequest, RefreshTokenResponse
+    RefreshTokenRequest, RefreshTokenResponse,
+    UserAvatarUpdate, PasswordChange
 )
 
 # 在此添加其他模型的导出... 
@@ -34,7 +35,7 @@ __all__ = [
     "LoginForm", "Token", "TokenPayload", "LoginResponse",
     "PaginatedUserList", "Message",
     "Role", "RoleCreate", "RoleUpdate", "PaginatedRoleList",
-    "RefreshTokenRequest", "RefreshTokenResponse",
+    "RefreshTokenRequest", "RefreshTokenResponse", "UserAvatarUpdate", "PasswordChange",
     # 组织模式
     "Organization", "OrganizationCreate", "OrganizationUpdate", "OrganizationWithChildren",
     # 虚拟组织模式

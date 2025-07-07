@@ -22,7 +22,15 @@ const axiosInstance = axios.create({
   baseURL: VITE_API_URL, // API地址
   // baseURL: 'http://localhost:8000',
   withCredentials: VITE_WITH_CREDENTIALS === 'true', // 是否携带cookie，默认关闭
-  transformRequest: [(data) => JSON.stringify(data)], // 请求数据转换为 JSON 字符串
+  transformRequest: [(data, headers) => {
+    // 如果是FormData类型（文件上传），不进行转换
+    if (data instanceof FormData ||
+      (headers && headers['Content-Type'] === 'multipart/form-data')) {
+      return data
+    }
+    // 其他数据转换为JSON字符串
+    return JSON.stringify(data)
+  }],
   validateStatus: (status) => status >= 200 && status < 300, // 只接受 2xx 的状态码
   headers: {
     get: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
@@ -48,10 +56,18 @@ axiosInstance.interceptors.request.use(
   (request: InternalAxiosRequestConfig) => {
     const { accessToken } = useUserStore()
 
-    // 设置 token 和 请求头
+    // 检查是否是文件上传请求
+    const isMultipartRequest = request.headers['Content-Type'] === 'multipart/form-data' ||
+      (request.headers.get && request.headers.get('Content-Type') === 'multipart/form-data')
+
+    // 设置 token
     if (accessToken) {
       request.headers.set('Authorization', `Bearer ${accessToken}`)
-      request.headers.set('Content-Type', 'application/json')
+
+      // 只有非文件上传请求才设置默认Content-Type
+      if (!isMultipartRequest) {
+        request.headers.set('Content-Type', 'application/json')
+      }
     }
 
     return request
@@ -142,6 +158,11 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
 
   try {
     const res = await axiosInstance.request<Api.Http.BaseResponse<T>>(config)
+
+    // 添加调试日志
+    if (config.url?.includes('/upload/avatar')) {
+      console.log('上传头像原始响应:', res)
+    }
 
     // 检查响应数据结构
     if (res.data && typeof res.data === 'object') {

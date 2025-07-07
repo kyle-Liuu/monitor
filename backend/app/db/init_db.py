@@ -1,4 +1,6 @@
 import logging
+import string
+import random
 from sqlalchemy.orm import Session
 
 from app import models, schemas
@@ -12,6 +14,14 @@ from app.models.user import User, Role, UserRole
 base.Base.metadata.create_all(bind=engine)
 
 logger = logging.getLogger(__name__)
+
+def generate_user_id(prefix: str, length: int = 7) -> str:
+    """
+    生成用户ID，格式为user+7位任意字符或数字
+    """
+    chars = string.ascii_letters + string.digits
+    random_str = ''.join(random.choice(chars) for _ in range(length))
+    return f"user{random_str}"
 
 # 创建初始角色
 def create_initial_roles(db: Session) -> None:
@@ -38,10 +48,21 @@ def create_initial_roles(db: Session) -> None:
 
 # 创建初始超级用户
 def create_initial_superuser(db: Session) -> None:
+    # 为已有用户添加user_id
+    for existing_user in db.query(User).all():
+        if not existing_user.user_id:
+            existing_user.user_id = generate_user_id("user")
+            db.commit()
+            logger.info(f"为已有用户 {existing_user.username} 添加user_id: {existing_user.user_id}")
+    
     admin_user = db.query(User).filter(User.username == "Super").first()
     if not admin_user:
         user = User(
+            user_id=generate_user_id("user"),
             username="Super",
+            phone="13800138000",
+            gender=1,
+            avatar="/uploads/avatars/default/default.jpeg",
             email="admin@example.com",
             hashed_password=get_password_hash("123456"),
             full_name="超级管理员",
@@ -63,7 +84,11 @@ def create_initial_superuser(db: Session) -> None:
     admin_user = db.query(User).filter(User.username == "Admin").first()
     if not admin_user:
         user = User(
+            user_id=generate_user_id("user"),
             username="Admin",
+            phone="13800138000",
+            gender=1,
+            avatar="/uploads/avatars/default/default.jpeg",
             email="admin2@example.com",
             hashed_password=get_password_hash("123456"),
             full_name="管理员",
@@ -85,7 +110,11 @@ def create_initial_superuser(db: Session) -> None:
     user_account = db.query(User).filter(User.username == "User").first()
     if not user_account:
         user = User(
+            user_id=generate_user_id("user"),
             username="User",
+            phone="13800138000",
+            gender=1,
+            avatar="/uploads/avatars/default/default.jpeg",
             email="user@example.com",
             hashed_password=get_password_hash("123456"),
             full_name="普通用户",

@@ -8,8 +8,10 @@ class Warning(Base):
     __tablename__ = "warnings"
 
     id = Column(Integer, primary_key=True, index=True)
+    warn_id = Column(String(11), unique=True, nullable=False, index=True, comment="警告唯一标识，格式为warn+7位任意字符或数字")
     type = Column(String(50), nullable=False)  # 如：入侵检测、人脸识别、异常行为等
-    level = Column(String(20), nullable=False)  # 如：info, warning, critical
+    level = Column(Integer, nullable=False, default=1)  # 1:普通 2:重要 3:紧急
+    status = Column(Integer, default=0)  # 0:未处理 1:已处理 2:误报 3:忽略
     videostream_id = Column(Integer, ForeignKey("videostreams.id"), nullable=True)
     algorithm_id = Column(Integer, ForeignKey("algorithms.id"), nullable=True)
     detection_time = Column(DateTime, default=func.now())
@@ -19,6 +21,8 @@ class Warning(Base):
     processed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     processed_at = Column(DateTime, nullable=True)
     notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     # 关系
     videostream = relationship("VideoStream", back_populates="warnings")

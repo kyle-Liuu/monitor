@@ -240,13 +240,13 @@
 
       // 存储token和用户信息
       userStore.setToken(token, refreshToken)
-      const userInfo = await UserService.getUserInfo()
+      const userInfo = await getCurrentUserInfo()
       
       // 调试信息
       // console.log('登录成功，用户信息:', userInfo)
       // console.log('用户角色:', userInfo.roles)
       
-      userStore.setUserInfo(userInfo)
+      userStore.setUserInfo(userInfo as unknown as Api.User.UserInfo)
       userStore.setLoginStatus(true)
 
       // 登录成功处理
@@ -297,7 +297,7 @@
   // 切换主题
   import { useTheme } from '@/composables/useTheme'
   import { AuthService } from '@/api/authApi'
-  import { UserService } from '@/api/userApi'
+  import { getCurrentUserInfo } from '@/api/userApi'
 
   const toggleTheme = () => {
     let { LIGHT, DARK } = SystemThemeEnum

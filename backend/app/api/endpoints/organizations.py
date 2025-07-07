@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.utils.deps import get_db, get_current_active_user
+from app.utils.id_generator import generate_org_id
 
 router = APIRouter()
 
@@ -53,7 +54,14 @@ def create_organization(
                 detail="Parent organization not found",
             )
     
-    db_org = models.Organization(**organization.dict())
+    # 生成唯一的组织ID
+    org_id = generate_org_id(db)
+    
+    # 创建组织
+    db_org = models.Organization(
+        org_id=org_id,
+        **organization.dict()
+    )
     db.add(db_org)
     db.commit()
     db.refresh(db_org)
@@ -62,14 +70,24 @@ def create_organization(
 
 @router.get("/{org_id}", response_model=schemas.Organization)
 def get_organization(
-    org_id: int,
+    org_id: str,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
 ):
     """
-    根据ID获取组织信息
+    根据唯一标识获取组织信息
     """
-    org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
+    # 先尝试通过org_id查找
+    org = db.query(models.Organization).filter(models.Organization.org_id == org_id).first()
+    
+    # 如果没找到，尝试将org_id转换为整数ID
+    if not org:
+        try:
+            id_num = int(org_id)
+            org = db.query(models.Organization).filter(models.Organization.id == id_num).first()
+        except ValueError:
+            pass
+    
     if not org:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -80,7 +98,7 @@ def get_organization(
 
 @router.put("/{org_id}", response_model=schemas.Organization)
 def update_organization(
-    org_id: int,
+    org_id: str,
     organization: schemas.OrganizationUpdate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
@@ -88,7 +106,17 @@ def update_organization(
     """
     更新组织信息
     """
-    db_org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
+    # 先尝试通过org_id查找
+    db_org = db.query(models.Organization).filter(models.Organization.org_id == org_id).first()
+    
+    # 如果没找到，尝试将org_id转换为整数ID
+    if not db_org:
+        try:
+            id_num = int(org_id)
+            db_org = db.query(models.Organization).filter(models.Organization.id == id_num).first()
+        except ValueError:
+            pass
+    
     if not db_org:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -97,7 +125,7 @@ def update_organization(
     
     # 检查更新的父组织是否存在，并避免循环引用
     if organization.parent_id and organization.parent_id != db_org.parent_id:
-        if organization.parent_id == org_id:
+        if organization.parent_id == db_org.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Organization cannot be its own parent",
@@ -122,15 +150,32 @@ def update_organization(
 
 @router.delete("/{org_id}", status_code=status.HTTP_200_OK, response_model=Dict[str, str])
 def delete_organization(
-    org_id: int,
+    org_id: str,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
 ):
     """
     删除组织
     """
+    # 先尝试通过org_id查找
+    db_org = db.query(models.Organization).filter(models.Organization.org_id == org_id).first()
+    
+    # 如果没找到，尝试将org_id转换为整数ID
+    if not db_org:
+        try:
+            id_num = int(org_id)
+            db_org = db.query(models.Organization).filter(models.Organization.id == id_num).first()
+        except ValueError:
+            pass
+    
+    if not db_org:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Organization not found",
+        )
+    
     # 检查是否有子组织
-    has_children = db.query(models.Organization).filter(models.Organization.parent_id == org_id).first()
+    has_children = db.query(models.Organization).filter(models.Organization.parent_id == db_org.id).first()
     if has_children:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -138,18 +183,11 @@ def delete_organization(
         )
     
     # 检查是否有关联的视频流
-    has_videostreams = db.query(models.VideoStream).filter(models.VideoStream.organization_id == org_id).first()
+    has_videostreams = db.query(models.VideoStream).filter(models.VideoStream.organization_id == db_org.id).first()
     if has_videostreams:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot delete organization with associated video streams. Remove associations first.",
-        )
-    
-    db_org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
-    if not db_org:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Organization not found",
         )
     
     db.delete(db_org)

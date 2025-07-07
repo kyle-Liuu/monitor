@@ -70,3 +70,46 @@
   - 提高视频流处理效率
   - 减少CPU资源占用
   - 增强系统稳定性 
+
+## 用户头像上传功能实现 - 2023-07-01
+
+### 修改内容
+
+1. 后端实现：
+   - 在`uploads.py`中添加头像上传接口
+   - 文件以用户ID为目录进行组织存储
+   - 头像文件按时间戳重命名存储
+   - 添加权限控制，普通用户只能上传自己的头像
+
+2. 前端实现：
+   - 创建`AvatarUpload`可复用组件
+   - 在用户中心页面集成头像上传功能
+   - 头像右下角添加编辑按钮，点击弹出上传对话框
+   - 修改`userApi.ts`添加头像上传和更新用户信息的相关函数
+   - 分离头像上传和用户信息修改功能
+
+3. 其他改进：
+   - 合并`main.py`和`start_server.py`为`server.py`
+   - 创建Windows和Linux启动脚本
+   - 添加用户头像上传功能文档
+
+### 技术要点
+
+- 使用`FormData`处理文件上传
+- 使用`el-upload`组件实现文件选择和预览
+- 使用`el-dialog`实现上传对话框
+- 实现用户ID目录结构存储头像文件
+- 实现权限控制和文件类型检查
+
+### 遗留问题
+
+- 暂无
+
+### 相关文件
+
+- `backend/app/api/endpoints/uploads.py`：头像上传接口实现
+- `backend/server.py`：统一的后端启动脚本
+- `src/api/userApi.ts`：用户API相关函数
+- `src/components/custom/avatar-upload/`：头像上传组件
+- `src/views/system/user-center/index.vue`：用户中心页面
+- `docs/user_avatar_upload.md`：功能说明文档 

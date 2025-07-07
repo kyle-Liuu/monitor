@@ -31,6 +31,7 @@ app = FastAPI(
         {"name": "warnings", "description": "告警管理"},
         {"name": "monitor", "description": "监控任务管理"},
         {"name": "websocket", "description": "WebSocket连接"},
+        {"name": "upload", "description": "文件上传管理"},
     ]
 )
 
