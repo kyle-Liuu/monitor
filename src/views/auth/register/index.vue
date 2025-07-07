@@ -39,6 +39,20 @@
               />
             </ElFormItem>
 
+            <ElFormItem prop="email">
+              <ElInput
+                v-model.trim="formData.email"
+                :placeholder="$t('register.placeholder[3]')"
+              />
+            </ElFormItem>
+
+            <ElFormItem prop="full_name">
+              <ElInput
+                v-model.trim="formData.full_name"
+                :placeholder="$t('register.placeholder[4]')"
+              />
+            </ElFormItem>
+
             <ElFormItem prop="agreement">
               <ElCheckbox v-model="formData.agreement">
                 {{ $t('register.agreeText') }}
@@ -81,6 +95,8 @@
   import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { useI18n } from 'vue-i18n'
+  import { AuthService } from '@/api/authApi'
+  import { HttpError } from '@/utils/http/error'
 
   defineOptions({ name: 'Register' })
 
@@ -96,6 +112,8 @@
     username: '',
     password: '',
     confirmPassword: '',
+    email: '',
+    full_name: '',
     agreement: false
   })
 
@@ -130,6 +148,10 @@
       { min: 6, message: t('register.rule[3]'), trigger: 'blur' }
     ],
     confirmPassword: [{ required: true, validator: validatePass2, trigger: 'blur' }],
+    email: [
+      { required: false, message: '请输入邮箱地址', trigger: 'blur' },
+      { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+    ],
     agreement: [
       {
         validator: (rule: any, value: boolean, callback: any) => {
@@ -151,21 +173,35 @@
       await formRef.value.validate()
       loading.value = true
 
-      // 模拟注册请求
-      setTimeout(() => {
-        loading.value = false
-        ElMessage.success('注册成功')
-        toLogin()
-      }, 1000)
+      // 构建注册参数
+      const registerParams = {
+        username: formData.username,
+        password: formData.password,
+        email: formData.email || undefined,
+        full_name: formData.full_name || undefined
+      }
+
+      // 发送注册请求
+      await AuthService.register(registerParams)
+      
+      ElMessage.success('注册成功，即将跳转到登录页')
+      toLogin()
     } catch (error) {
-      console.log('验证失败', error)
+      loading.value = false
+      
+      if (error instanceof HttpError) {
+        ElMessage.error(`注册失败: ${error.message || '服务器错误'}`)
+      } else {
+        ElMessage.error(`注册失败: ${error instanceof Error ? error.message : '请稍后重试'}`)
+        console.error('[Register] 注册错误:', error)
+      }
     }
   }
 
   const toLogin = () => {
     setTimeout(() => {
       router.push(RoutesAlias.Login)
-    }, 1000)
+    }, 1500)
   }
 </script>
 

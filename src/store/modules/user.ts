@@ -39,6 +39,8 @@ export const useUserStore = defineStore(
     const getSettingState = computed(() => useSettingStore().$state)
     // 计算属性：获取工作台状态
     const getWorktabState = computed(() => useWorktabStore().$state)
+    // 计算属性：获取访问令牌
+    const getToken = computed(() => accessToken.value)
 
     /**
      * 设置用户信息
@@ -102,6 +104,16 @@ export const useUserStore = defineStore(
     }
 
     /**
+     * 更新用户头像
+     * @param avatarUrl 头像URL
+     */
+    const updateUserAvatar = (avatarUrl: string) => {
+      if (info.value) {
+        info.value.avatar = avatarUrl
+      }
+    }
+
+    /**
      * 退出登录
      * 清空所有用户相关状态并跳转到登录页
      */
@@ -140,6 +152,7 @@ export const useUserStore = defineStore(
       getUserInfo,
       getSettingState,
       getWorktabState,
+      getToken,
       setUserInfo,
       setLoginStatus,
       setLanguage,
@@ -147,6 +160,7 @@ export const useUserStore = defineStore(
       setLockStatus,
       setLockPassword,
       setToken,
+      updateUserAvatar,
       logOut
     }
   },

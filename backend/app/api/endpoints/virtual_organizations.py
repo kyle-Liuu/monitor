@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -8,7 +8,7 @@ from app.utils.deps import get_db, get_current_active_user
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.VirtualOrganizationWithStreams])
+@router.get("/", response_model=Dict[str, Any])
 def get_virtual_organizations(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
@@ -16,7 +16,13 @@ def get_virtual_organizations(
     """
     获取所有虚拟组织列表
     """
-    return db.query(models.VirtualOrganization).all()
+    virtual_orgs = db.query(models.VirtualOrganization).all()
+    
+    # 返回前端期望的格式
+    return {
+        "items": virtual_orgs,
+        "total": len(virtual_orgs)
+    }
 
 
 @router.post("/", response_model=schemas.VirtualOrganizationWithStreams, status_code=status.HTTP_201_CREATED)
@@ -110,7 +116,7 @@ def update_virtual_organization(
     return db_virtual_org
 
 
-@router.delete("/{virtual_org_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{virtual_org_id}", status_code=status.HTTP_200_OK, response_model=Dict[str, str])
 def delete_virtual_organization(
     virtual_org_id: int,
     db: Session = Depends(get_db),
@@ -136,7 +142,7 @@ def delete_virtual_organization(
     return {"message": "Virtual organization successfully deleted"}
 
 
-@router.post("/{virtual_org_id}/streams", response_model=dict)
+@router.post("/{virtual_org_id}/streams", response_model=Dict[str, str])
 def add_streams_to_virtual_org(
     virtual_org_id: int,
     streams_update: schemas.StreamsUpdate,
@@ -183,7 +189,7 @@ def add_streams_to_virtual_org(
     }
 
 
-@router.delete("/{virtual_org_id}/streams/{stream_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{virtual_org_id}/streams/{stream_id}", status_code=status.HTTP_200_OK, response_model=Dict[str, str])
 def remove_stream_from_virtual_org(
     virtual_org_id: int,
     stream_id: int,

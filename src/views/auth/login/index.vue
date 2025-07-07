@@ -140,7 +140,7 @@
   export interface Account {
     key: AccountKey
     label: string
-    userName: string
+    username: string
     password: string
     roles: string[]
   }
@@ -149,21 +149,21 @@
     {
       key: 'super',
       label: t('login.roles.super'),
-      userName: 'Super',
+      username: 'Super',
       password: '123456',
       roles: ['R_SUPER']
     },
     {
       key: 'admin',
       label: t('login.roles.admin'),
-      userName: 'Admin',
+      username: 'Admin',
       password: '123456',
       roles: ['R_ADMIN']
     },
     {
       key: 'user',
       label: t('login.roles.user'),
-      userName: 'User',
+      username: 'User',
       password: '123456',
       roles: ['R_USER']
     }
@@ -204,7 +204,7 @@
   const setupAccount = (key: AccountKey) => {
     const selectedAccount = accounts.value.find((account: Account) => account.key === key)
     formData.account = key
-    formData.username = selectedAccount?.userName ?? ''
+    formData.username = selectedAccount?.username ?? ''
     formData.password = selectedAccount?.password ?? ''
   }
 
@@ -228,19 +228,24 @@
       // 登录请求
       const { username, password } = formData
 
-      const { token, refreshToken } = await UserService.login({
-        userName: username,
+      const { token, refreshToken } = await AuthService.login({ 
+        username, 
         password
       })
 
       // 验证token
       if (!token) {
-        throw new Error('Login failed - no token received')
+        throw new Error('登录失败 - 未收到令牌')
       }
 
       // 存储token和用户信息
       userStore.setToken(token, refreshToken)
       const userInfo = await UserService.getUserInfo()
+      
+      // 调试信息
+      // console.log('登录成功，用户信息:', userInfo)
+      // console.log('用户角色:', userInfo.roles)
+      
       userStore.setUserInfo(userInfo)
       userStore.setLoginStatus(true)
 
@@ -250,11 +255,11 @@
     } catch (error) {
       // 处理 HttpError
       if (error instanceof HttpError) {
-        // console.log(error.code)
+        ElMessage.error(`登录失败: ${error.message || '服务器错误'}`)
       } else {
         // 处理非 HttpError
-        ElMessage.error('登录失败，请稍后重试')
-        console.error('[Login] Unexpected error:', error)
+        ElMessage.error(`登录失败: ${error instanceof Error ? error.message : '请稍后重试'}`)
+        console.error('[Login] 登录错误:', error)
       }
     } finally {
       loading.value = false
@@ -291,7 +296,8 @@
 
   // 切换主题
   import { useTheme } from '@/composables/useTheme'
-  import { UserService } from '@/api/usersApi'
+  import { AuthService } from '@/api/authApi'
+  import { UserService } from '@/api/userApi'
 
   const toggleTheme = () => {
     let { LIGHT, DARK } = SystemThemeEnum

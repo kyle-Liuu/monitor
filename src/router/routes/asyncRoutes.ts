@@ -23,7 +23,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.dashboard.title',
       icon: '&#xe721;',
-      roles: ['R_SUPER', 'R_ADMIN'] // 角色权限，前端控制模式（只有拥有这些角色的用户才能访问）
+      // roles: ['R_SUPER', 'R_ADMIN'] // 角色权限，前端控制模式（只有拥有这些角色的用户才能访问）
     },
     children: [
       {
@@ -307,8 +307,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     component: RoutesAlias.Home,
     meta: {
       title: 'menus.system.title',
-      icon: '&#xe7b9;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      icon: '&#xe7b9;'
     },
     children: [
       {
@@ -461,8 +460,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     component: RoutesAlias.Home,
     meta: {
       title: 'menus.article.title',
-      icon: '&#xe7ae;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      icon: '&#xe7ae;'
     },
     children: [
       {
@@ -618,8 +616,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.help.title',
       icon: '&#xe719;',
-      keepAlive: false,
-      roles: ['R_SUPER', 'R_ADMIN']
+      keepAlive: false
     },
     children: [
       {

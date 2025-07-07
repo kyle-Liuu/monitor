@@ -6,6 +6,7 @@ from app.models.videostream import VideoStream
 from app.models.algorithm import Algorithm
 from app.models.warning import Warning
 from app.models.monitor_task import MonitorTask
+from app.models.refresh_token import RefreshToken
 
 # 在此添加其他模型的导出... 
 
@@ -20,5 +21,6 @@ __all__ = [
     "Algorithm", 
     "Warning", 
     "MonitorTask",
-    "virtual_org_streams"
+    "virtual_org_streams",
+    "RefreshToken"
 ] 

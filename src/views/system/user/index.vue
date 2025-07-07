@@ -317,7 +317,7 @@
         return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
           h('img', { class: 'avatar', src: row.avatar }),
           h('div', {}, [
-            h('p', { class: 'user-name' }, row.userName),
+            h('p', { class: 'user-name' }, row.username),
             h('p', { class: 'email' }, row.userEmail)
           ])
         ])
@@ -374,15 +374,11 @@
     role: [] as string[]
   })
 
-  // 设置JWT令牌
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTE2OTgzMjYsInN1YiI6IjEifQ.B94_q74ffDhbgOM30V05mhrLy4KorTSkEpGvCwGk6sQ"
+  // 使用用户store
   const userStore = useUserStore()
 
-  // 在组件挂载时设置令牌
+  // 在组件挂载时获取数据
   onMounted(() => {
-    // 设置令牌到store中
-    userStore.setToken(`Bearer ${token}`)
-    
     getUserList()
     getRoleList()
   })
@@ -429,7 +425,7 @@
       // 使用本地头像替换接口返回的头像
       tableData.value = records.map((item: any, index: number) => ({
         ...item,
-        userName: item.username,
+        username: item.username,
         userEmail: item.email,
         userPhone: item.phone,
         userGender: item.gender,

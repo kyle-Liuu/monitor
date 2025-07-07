@@ -5,20 +5,7 @@ export class OrganizationService {
      * 获取组织列表
      */
     static getOrganizationList() {
-        return api.get<{
-            total: number;
-            items: Array<{
-                id: number;
-                name: string;
-                parent_id: number | null;
-                description: string;
-                address: string;
-                contact: string;
-                contact_phone: string;
-                created_at: string;
-                children?: Array<any>;
-            }>;
-        }>({
+        return api.get<Api.Organization.OrganizationListResult>({
             url: '/organizations'
         })
     }
@@ -27,15 +14,8 @@ export class OrganizationService {
      * 创建组织
      * @param orgData 组织数据
      */
-    static createOrganization(orgData: {
-        name: string;
-        parent_id?: number;
-        description?: string;
-        address?: string;
-        contact?: string;
-        contact_phone?: string;
-    }) {
-        return api.post<any>({
+    static createOrganization(orgData: Api.Organization.CreateOrganizationParams) {
+        return api.post<Api.Organization.OrganizationInfo>({
             url: '/organizations',
             data: orgData
         })
@@ -46,14 +26,8 @@ export class OrganizationService {
      * @param orgId 组织ID
      * @param orgData 组织数据
      */
-    static updateOrganization(orgId: number, orgData: {
-        name?: string;
-        description?: string;
-        address?: string;
-        contact?: string;
-        contact_phone?: string;
-    }) {
-        return api.put<any>({
+    static updateOrganization(orgId: number, orgData: Api.Organization.UpdateOrganizationParams) {
+        return api.put<Api.Organization.OrganizationInfo>({
             url: `/organizations/${orgId}`,
             data: orgData
         })
@@ -64,7 +38,7 @@ export class OrganizationService {
      * @param orgId 组织ID
      */
     static deleteOrganization(orgId: number) {
-        return api.del<{ message: string }>({
+        return api.del<Api.Common.MessageResult>({
             url: `/organizations/${orgId}`
         })
     }

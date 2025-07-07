@@ -1,6 +1,6 @@
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 from datetime import datetime
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 import json
 
 
@@ -20,14 +20,15 @@ class UserInfo(BaseModel):
 
 
 class WarningBase(BaseModel):
-    type: str  # 如：入侵检测、人脸识别、异常行为等
-    level: str  # 如：info, warning, critical
-    videostream_id: Optional[int] = None
+    warning_type: str = Field(..., alias="type")  # 如：入侵检测、人脸识别、异常行为等
+    warning_level: int = Field(..., alias="level")  # 前端期望数字类型的level
+    stream_id: Optional[int] = Field(None, alias="videostream_id")
     algorithm_id: Optional[int] = None
-    image_path: Optional[str] = None
-    warning_metadata: Optional[Dict[str, Any]] = None
+    image_url: Optional[str] = Field(None, alias="image_path")
+    details: Optional[Dict[str, Any]] = Field(None, alias="warning_metadata")
+    description: Optional[str] = ""  # 前端期望的描述字段
 
-    @validator('warning_metadata', pre=True)
+    @validator('details', pre=True)
     def parse_metadata(cls, v):
         if isinstance(v, str):
             try:
@@ -42,25 +43,42 @@ class WarningCreate(WarningBase):
 
 
 class WarningUpdate(BaseModel):
-    is_processed: Optional[bool] = None
+    status: Optional[int] = None  # 0: 未处理, 1: 已处理, 2: 误报
     notes: Optional[str] = None
 
 
 class WarningInDBBase(WarningBase):
     id: int
-    detection_time: datetime
-    is_processed: bool
+    warning_time: datetime = Field(..., alias="detection_time")
+    status: int = Field(..., alias="is_processed")  # 0: 未处理, 1: 已处理
     processed_by: Optional[int] = None
     processed_at: Optional[datetime] = None
     notes: Optional[str] = None
+    created_at: datetime = Field(..., alias="detection_time")  # 前端期望的created_at字段
+    stream_name: Optional[str] = ""  # 前端期望的stream_name字段
 
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
 
 
 # 用于返回给API的模型
 class Warning(WarningInDBBase):
-    pass
+    @classmethod
+    def from_orm(cls, obj):
+        # 将布尔值is_processed转换为整数status
+        obj.__dict__["status"] = 1 if obj.is_processed else 0
+        
+        # 如果有关联的视频流，添加stream_name
+        if hasattr(obj, "videostream") and obj.videostream:
+            obj.__dict__["stream_name"] = obj.videostream.name
+        
+        # 将level字符串转换为整数warning_level
+        if isinstance(obj.level, str):
+            level_map = {"info": 0, "warning": 1, "critical": 2}
+            obj.__dict__["warning_level"] = level_map.get(obj.level.lower(), 1)
+        
+        return super().from_orm(obj)
 
 
 # 包含关联信息的告警模型
@@ -73,7 +91,7 @@ class WarningWithDetails(Warning):
 # 批量处理告警请求
 class BatchProcessWarning(BaseModel):
     warning_ids: List[int]
-    is_processed: bool
+    status: int = Field(..., alias="is_processed")
     notes: Optional[str] = None
 
 
@@ -96,4 +114,4 @@ class WarningStats(BaseModel):
     unprocessed: int
     by_level: Dict[str, int]
     by_type: Dict[str, int]
-    by_date: List[WarningDateStat] 
+    by_time: List[WarningDateStat] = Field(..., alias="by_date") 

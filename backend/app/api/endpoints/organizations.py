@@ -1,5 +1,5 @@
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from app import models, schemas
@@ -8,7 +8,7 @@ from app.utils.deps import get_db, get_current_active_user
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.OrganizationWithChildren])
+@router.get("/", response_model=Dict[str, Any])
 def get_organizations(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
@@ -26,7 +26,13 @@ def get_organizations(
         org_dict.children = [build_org_tree(child) for child in children]
         return org_dict
     
-    return [build_org_tree(org) for org in root_orgs]
+    items = [build_org_tree(org) for org in root_orgs]
+    
+    # 返回前端期望的格式
+    return {
+        "items": items,
+        "total": len(items)
+    }
 
 
 @router.post("/", response_model=schemas.Organization, status_code=status.HTTP_201_CREATED)
@@ -114,7 +120,7 @@ def update_organization(
     return db_org
 
 
-@router.delete("/{org_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{org_id}", status_code=status.HTTP_200_OK, response_model=Dict[str, str])
 def delete_organization(
     org_id: int,
     db: Session = Depends(get_db),

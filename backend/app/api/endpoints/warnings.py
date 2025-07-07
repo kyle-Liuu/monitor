@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 import json
 from fastapi import APIRouter, Depends, HTTPException, status, Query
@@ -11,7 +11,7 @@ from app.utils.deps import get_db, get_current_active_user
 router = APIRouter()
 
 
-@router.get("/", response_model=Dict)
+@router.get("/", response_model=Dict[str, Any])
 def get_warnings(
     type: Optional[str] = None,
     level: Optional[str] = None,
@@ -83,7 +83,7 @@ def get_warning_detail(
     return warning
 
 
-@router.put("/{warning_id}/process", response_model=Dict)
+@router.put("/{warning_id}/process", response_model=Dict[str, Any])
 def process_warning(
     warning_id: int,
     warning_update: schemas.WarningUpdate,
@@ -101,11 +101,13 @@ def process_warning(
         )
     
     # 更新处理状态
-    warning.is_processed = warning_update.is_processed
-    warning.notes = warning_update.notes
+    if warning_update.status is not None:
+        warning.is_processed = warning_update.status > 0  # 大于0表示已处理
+    if warning_update.notes is not None:
+        warning.notes = warning_update.notes
     
     # 如果标记为已处理，记录处理人和时间
-    if warning_update.is_processed:
+    if warning.is_processed:
         warning.processed_by = current_user.id
         warning.processed_at = datetime.now()
     else:
@@ -117,7 +119,7 @@ def process_warning(
     
     return {
         "id": warning.id,
-        "is_processed": warning.is_processed,
+        "status": 1 if warning.is_processed else 0,
         "processed_by": {
             "id": current_user.id,
             "username": current_user.username
@@ -127,7 +129,7 @@ def process_warning(
     }
 
 
-@router.put("/batch-process", response_model=schemas.BatchProcessResult)
+@router.post("/batch-process", response_model=schemas.BatchProcessResult)
 def batch_process_warnings(
     batch_process: schemas.BatchProcessWarning,
     db: Session = Depends(get_db),
@@ -147,11 +149,11 @@ def batch_process_warnings(
     
     # 更新所有找到的告警
     for warning in warnings:
-        warning.is_processed = batch_process.is_processed
+        warning.is_processed = batch_process.status > 0  # 大于0表示已处理
         warning.notes = batch_process.notes
         
         # 如果标记为已处理，记录处理人和时间
-        if batch_process.is_processed:
+        if warning.is_processed:
             warning.processed_by = current_user.id
             warning.processed_at = now
         else:
@@ -167,7 +169,7 @@ def batch_process_warnings(
     }
 
 
-@router.get("/statistics", response_model=schemas.WarningStats)
+@router.get("/stats", response_model=schemas.WarningStats)
 def get_warning_statistics(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
@@ -248,7 +250,6 @@ def get_warning_statistics(
         while current_date <= end_date:
             week_start = current_date
             week_end = current_date + timedelta(days=6)
-            
             if week_end > end_date:
                 week_end = end_date
                 
@@ -262,12 +263,10 @@ def get_warning_statistics(
                 "count": count
             })
             
-            current_date += timedelta(days=7)
+            current_date = week_end + timedelta(days=1)
             
     elif group_by == "month":
         # 按月统计
-        # 这是一个简化实现
-        months = {}
         date_query = db.query(
             func.strftime('%Y-%m', models.Warning.detection_time).label('month'),
             func.count(models.Warning.id)
@@ -276,8 +275,8 @@ def get_warning_statistics(
             models.Warning.detection_time <= end_date
         ).group_by('month').order_by('month').all()
         
-        for month, count in date_query:
-            date_stats.append({"date": month, "count": count})
+        for month_str, count in date_query:
+            date_stats.append({"date": month_str, "count": count})
     
     return {
         "total": total,
@@ -285,5 +284,5 @@ def get_warning_statistics(
         "unprocessed": unprocessed,
         "by_level": level_stats,
         "by_type": type_stats,
-        "by_date": date_stats
+        "by_time": date_stats
     } 

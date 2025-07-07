@@ -3,13 +3,23 @@ import api from '@/utils/http'
 export class AuthService {
     /**
      * 用户登录
-     * @param username 用户名
-     * @param password 密码
+     * @param params 登录参数
      */
-    static login(username: string, password: string) {
+    static login(params: Api.Auth.LoginParams) {
         return api.post<Api.Auth.LoginResponse>({
-            url: '/auth/login',
-            data: { username, password }
+            url: '/api/auth/login',
+            data: params
+        })
+    }
+
+    /**
+     * 刷新令牌
+     * @param refreshToken 刷新令牌
+     */
+    static refreshToken(refreshToken: string) {
+        return api.post<Api.Auth.RefreshTokenResponse>({
+            url: '/api/auth/refresh',
+            data: { refresh_token: refreshToken }
         })
     }
 
@@ -19,7 +29,7 @@ export class AuthService {
      */
     static register(userData: Api.Auth.RegisterParams) {
         return api.post<Api.User.UserInfo>({
-            url: '/auth/register',
+            url: '/api/auth/register',
             data: userData
         })
     }

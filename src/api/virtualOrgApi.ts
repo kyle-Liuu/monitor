@@ -5,20 +5,7 @@ export class VirtualOrganizationService {
      * 获取虚拟组织列表
      */
     static getVirtualOrgList() {
-        return api.get<{
-            total: number;
-            items: Array<{
-                id: number;
-                name: string;
-                description: string;
-                created_at: string;
-                updated_at: string;
-                videostreams: Array<{
-                    id: number;
-                    name: string;
-                }>;
-            }>;
-        }>({
+        return api.get<Api.VirtualOrganization.VirtualOrgListResult>({
             url: '/virtualorganizations'
         })
     }
@@ -27,12 +14,8 @@ export class VirtualOrganizationService {
      * 创建虚拟组织
      * @param orgData 虚拟组织数据
      */
-    static createVirtualOrg(orgData: {
-        name: string;
-        description?: string;
-        videostream_ids?: number[];
-    }) {
-        return api.post<any>({
+    static createVirtualOrg(orgData: Api.VirtualOrganization.CreateVirtualOrgParams) {
+        return api.post<Api.VirtualOrganization.VirtualOrgInfo>({
             url: '/virtualorganizations',
             data: orgData
         })
@@ -43,12 +26,8 @@ export class VirtualOrganizationService {
      * @param orgId 虚拟组织ID
      * @param orgData 虚拟组织数据
      */
-    static updateVirtualOrg(orgId: number, orgData: {
-        name?: string;
-        description?: string;
-        videostream_ids?: number[];
-    }) {
-        return api.put<any>({
+    static updateVirtualOrg(orgId: number, orgData: Api.VirtualOrganization.UpdateVirtualOrgParams) {
+        return api.put<Api.VirtualOrganization.VirtualOrgInfo>({
             url: `/virtualorganizations/${orgId}`,
             data: orgData
         })
@@ -59,7 +38,7 @@ export class VirtualOrganizationService {
      * @param orgId 虚拟组织ID
      */
     static deleteVirtualOrg(orgId: number) {
-        return api.del<{ message: string }>({
+        return api.del<Api.Common.MessageResult>({
             url: `/virtualorganizations/${orgId}`
         })
     }
@@ -70,7 +49,7 @@ export class VirtualOrganizationService {
      * @param streamIds 视频流ID数组
      */
     static addStreamsToVirtualOrg(orgId: number, streamIds: number[]) {
-        return api.post<{ message: string }>({
+        return api.post<Api.Common.MessageResult>({
             url: `/virtualorganizations/${orgId}/streams`,
             data: { videostream_ids: streamIds }
         })
@@ -82,7 +61,7 @@ export class VirtualOrganizationService {
      * @param streamId 视频流ID
      */
     static removeStreamFromVirtualOrg(orgId: number, streamId: number) {
-        return api.del<{ message: string }>({
+        return api.del<Api.Common.MessageResult>({
             url: `/virtualorganizations/${orgId}/streams/${streamId}`
         })
     }

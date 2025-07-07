@@ -43,7 +43,7 @@ class User(Base):
     phone = Column(String(20))
     gender = Column(Integer, default=1)  # 1:男 2:女
     avatar = Column(String(255))
-    status = Column(String(2), default="1")  # 1:在线 2:离线 3:异常 4:注销
+    status = Column(Integer, default=1)  # 1:在线 2:离线 3:异常 4:注销
     last_login = Column(DateTime(timezone=True))
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
@@ -52,6 +52,7 @@ class User(Base):
     
     # 关系
     roles = relationship("Role", secondary=UserRole, back_populates="users")
+    refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<User {self.username}>" 

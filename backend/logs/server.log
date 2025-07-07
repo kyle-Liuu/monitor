@@ -1,0 +1,19 @@
+2025-07-05 20:02:30,273 - start_server - INFO - 姝ｅ湪鍚姩鍚庣鏈嶅姟...
+2025-07-05 20:02:51,446 - start_server - INFO - 姝ｅ湪鍚姩鍚庣鏈嶅姟...
+2025-07-05 20:16:02,545 - start_server - INFO - 姝ｅ湪鍚姩鍚庣鏈嶅姟...
+2025-07-05 20:29:07,380 - __main__ - INFO - 启动AI监控管理系统API服务，环境: development
+2025-07-05 20:29:11,065 - app.core.events - INFO - 启动应用...
+2025-07-05 20:29:11,067 - app.core.events - INFO - 已创建所需的目录
+2025-07-05 20:29:11,071 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-05 20:29:11,484 - app.db.init_db - INFO - 创建超级管理员用户: Super
+2025-07-05 20:29:11,492 - app.db.init_db - INFO - 为用户Super分配角色: 超级管理员
+2025-07-05 20:29:11,890 - app.db.init_db - INFO - 创建管理员用户: Admin
+2025-07-05 20:29:11,896 - app.db.init_db - INFO - 为用户Admin分配角色: 管理员
+2025-07-05 20:29:12,301 - app.db.init_db - INFO - 创建普通用户: User
+2025-07-05 20:29:12,307 - app.db.init_db - INFO - 为用户User分配角色: 普通用户
+2025-07-05 20:29:12,307 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-05 20:29:12,308 - app.core.events - INFO - 数据库初始化完成
+2025-07-05 20:29:12,308 - app.core.events - INFO - Redis未启用
+2025-07-05 20:29:12,308 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-05 20:29:12,308 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-05 20:29:12,308 - app.core.events - INFO - 应用启动完成

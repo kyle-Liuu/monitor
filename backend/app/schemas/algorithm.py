@@ -1,6 +1,6 @@
 from typing import Optional, Dict, Any, List
 from datetime import datetime
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 import json
 
 
@@ -9,10 +9,10 @@ class AlgorithmBase(BaseModel):
     version: str
     type: str  # 如：目标检测、人脸识别等
     description: Optional[str] = None
-    config_json: Optional[Dict[str, Any]] = None
+    config: Optional[Dict[str, Any]] = Field(None, alias="config_json")
 
-    @validator('config_json', pre=True)
-    def parse_config_json(cls, v):
+    @validator('config', pre=True)
+    def parse_config(cls, v):
         if isinstance(v, str):
             try:
                 return json.loads(v)
@@ -23,7 +23,7 @@ class AlgorithmBase(BaseModel):
 
 class AlgorithmCreate(AlgorithmBase):
     model_path: Optional[str] = None
-    is_active: bool = True
+    status: int = Field(1, alias="is_active")  # 1表示激活，0表示未激活
 
 
 class AlgorithmUpdate(BaseModel):
@@ -31,11 +31,11 @@ class AlgorithmUpdate(BaseModel):
     version: Optional[str] = None
     description: Optional[str] = None
     type: Optional[str] = None
-    config_json: Optional[Dict[str, Any]] = None
-    is_active: Optional[bool] = None
+    config: Optional[Dict[str, Any]] = None
+    status: Optional[int] = None
 
-    @validator('config_json', pre=True)
-    def parse_config_json(cls, v):
+    @validator('config', pre=True)
+    def parse_config(cls, v):
         if isinstance(v, str):
             try:
                 return json.loads(v)
@@ -47,17 +47,22 @@ class AlgorithmUpdate(BaseModel):
 class AlgorithmInDBBase(AlgorithmBase):
     id: int
     model_path: Optional[str] = None
-    is_active: bool
+    status: int = Field(..., alias="is_active")  # 将布尔值转换为整数
     created_at: datetime
     updated_at: datetime
 
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
 
 
 # 用于返回给API的模型
 class Algorithm(AlgorithmInDBBase):
-    pass
+    @classmethod
+    def from_orm(cls, obj):
+        # 将is_active布尔值转换为status整数
+        obj.__dict__["status"] = 1 if obj.is_active else 0
+        return super().from_orm(obj)
 
 
 # 添加AlgorithmInDB类，以兼容现有代码

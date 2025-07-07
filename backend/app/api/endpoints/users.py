@@ -20,11 +20,8 @@ def get_user_info(
     """
     获取当前登录用户信息
     """
-    # 如果从Redis缓存中读取了用户，userRoles可能已经存在
-    if not hasattr(current_user, "userRoles") or not current_user.userRoles:
-        current_user.userRoles = [role.role_code for role in current_user.roles]
-    
-    return current_user
+    # 使用ORM模式直接从模型创建响应对象
+    return schemas.UserInfo.from_orm(current_user)
 
 
 @router.get("/list", response_model=schemas.PaginatedUserList)
@@ -34,7 +31,7 @@ def get_user_list(
     size: int = Query(20, ge=1, le=100, description="每页记录数"),
     name: Optional[str] = Query(None, description="用户名搜索"),
     phone: Optional[str] = Query(None, description="手机号搜索"),
-    status: Optional[str] = Query(None, description="用户状态"),
+    status: Optional[int] = Query(None, description="用户状态"),
     current_user: models.User = Depends(deps.get_current_admin_user),
 ) -> Any:
     """
@@ -63,7 +60,7 @@ def get_user_list(
         )
     if phone:
         query = query.filter(models.User.phone.contains(phone))
-    if status:
+    if status is not None:
         query = query.filter(models.User.status == status)
     
     # 计算总数
@@ -126,7 +123,7 @@ def create_user(
         phone=user_in.phone,
         gender=user_in.gender,
         avatar=user_in.avatar,
-        status="1",  # 在线
+        status=1,  # 在线
         is_active=user_in.is_active,
         is_superuser=user_in.is_superuser
     )
@@ -291,13 +288,13 @@ def delete_user(
     current_user: models.User = Depends(deps.get_current_admin_user),
 ) -> Any:
     """
-    注销用户（仅管理员权限）
+    删除用户（逻辑删除，需要管理员权限）
     """
-    # 不允许注销自己
+    # 不能删除自己
     if current_user.id == user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="不能注销自己的账号"
+            detail="不能删除自己"
         )
     
     # 获取用户
@@ -309,19 +306,20 @@ def delete_user(
         )
     
     # 逻辑删除（将状态设置为注销）
-    user.status = "4"  # 注销
+    user.status = 4  # 注销
     user.is_active = False
     user.updated_at = datetime.now()
+    db.add(user)
     db.commit()
     
-    # 清除缓存
+    # 清除用户缓存
     if redis_client:
         redis_client.delete(f"user:{user_id}")
         # 清除所有以user_list:开头的缓存
         for key in redis_client.scan_iter("user_list:*"):
             redis_client.delete(key)
     
-    return {"message": "用户已成功注销"}
+    return {"message": "用户已删除"}
 
 
 @router.get("/", response_model=List[schemas.User])

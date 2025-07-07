@@ -7,7 +7,7 @@ export class UserService {
     static getUserInfo() {
         return api.get<Api.User.UserInfo>({
             url: '/api/users/info'
-        })
+        });
     }
 
     /**

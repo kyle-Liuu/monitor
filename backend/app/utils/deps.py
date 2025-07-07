@@ -14,7 +14,7 @@ from app.schemas.user import TokenPayload
 from app.core.config import settings
 from app.core.security import decode_token, redis_client, verify_password
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/token")
 
 
 def get_db() -> Generator:
@@ -53,13 +53,14 @@ async def get_current_user_from_token(token: str) -> Optional[User]:
         if user_id is None:
             return None
         
-        # 验证令牌数据
-        token_data = TokenPayload(user_id=int(user_id))
-        
+        # 验证令牌是否为访问令牌
+        if payload.get("type", "access") != "access":
+            return None
+            
         # 从数据库获取用户
         db = SessionLocal()
         try:
-            user = db.query(User).filter(User.id == token_data.user_id).first()
+            user = db.query(User).filter(User.id == int(user_id)).first()
             if user is None or not user.is_active:
                 return None
             return user
@@ -101,15 +102,26 @@ def get_current_user(
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-        # 验证令牌数据
-        token_data = TokenPayload(user_id=int(user_id))
-    except (JWTError, ValidationError):
+            
+        # 验证令牌类型
+        if payload.get("type", "access") != "access":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="无效的令牌类型，需要访问令牌",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except JWTError:
         raise credentials_exception
     
     # 从数据库获取用户
-    user = db.query(User).filter(User.id == token_data.user_id).first()
+    user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
         raise credentials_exception
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="用户已禁用",
+        )
     return user
 
 

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Dict
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -11,18 +11,32 @@ from app.utils.deps import get_current_active_superuser, get_current_active_user
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Role])
+@router.get("/", response_model=Dict[str, Any])
 def read_roles(
     db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100,
+    current: int = Query(1, ge=1),
+    size: int = Query(100, ge=1),
     current_user: schemas.User = Depends(get_current_active_user),
 ) -> Any:
     """
     获取角色列表
     """
-    roles = db.query(Role).offset(skip).limit(limit).all()
-    return roles
+    # 计算跳过的记录数
+    skip = (current - 1) * size
+    
+    # 获取角色总数
+    total = db.query(Role).count()
+    
+    # 获取分页数据
+    roles = db.query(Role).offset(skip).limit(size).all()
+    
+    # 返回前端期望的格式
+    return {
+        "records": roles,
+        "current": current,
+        "size": size,
+        "total": total
+    }
 
 
 @router.post("/", response_model=schemas.Role)

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union, Dict
+from typing import Any, Optional, Union, Dict, TypeVar, cast
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -83,7 +83,31 @@ def create_access_token(
         expire = datetime.utcnow() + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-    to_encode = {"exp": expire, "sub": str(subject)}
+    to_encode = {"exp": expire, "sub": str(subject), "type": "access"}
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    return encoded_jwt
+
+
+def create_refresh_token(
+    subject: Union[str, Any], expires_delta: Optional[timedelta] = None
+) -> str:
+    """
+    创建刷新令牌
+    
+    Args:
+        subject: 通常是用户ID
+        expires_delta: 过期时间
+        
+    Returns:
+        刷新令牌字符串
+    """
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(
+            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+        )
+    to_encode = {"exp": expire, "sub": str(subject), "type": "refresh"}
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
@@ -102,12 +126,12 @@ def get_token_payload(token: str) -> Optional[Dict[str, Any]]:
         payload = jwt.decode(
             token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
-        return payload
+        return cast(Dict[str, Any], payload)
     except JWTError:
         return None
 
 
-def decode_token(token: str) -> dict:
+def decode_token(token: str) -> Optional[Dict[str, Any]]:
     """
     解码JWT令牌
     
@@ -121,6 +145,28 @@ def decode_token(token: str) -> dict:
         payload = jwt.decode(
             token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
-        return payload
+        return cast(Dict[str, Any], payload)
+    except JWTError:
+        return None
+
+
+def verify_refresh_token(token: str) -> Optional[Dict[str, Any]]:
+    """
+    验证刷新令牌
+    
+    Args:
+        token: 刷新令牌字符串
+        
+    Returns:
+        验证成功返回解码后的载荷，失败返回None
+    """
+    try:
+        payload = jwt.decode(
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+        )
+        # 检查令牌类型
+        if payload.get("type") != "refresh":
+            return None
+        return cast(Dict[str, Any], payload)
     except JWTError:
         return None 

@@ -20,15 +20,19 @@ class VideoStreamService:
         db: Session, 
         skip: int = 0, 
         limit: int = 100,
-        status: Optional[str] = None,
+        status: Optional[int] = None,
         organization_id: Optional[int] = None,
         type: Optional[str] = None
     ) -> List[VideoStream]:
         """获取视频流列表"""
         query = db.query(VideoStream)
         
-        if status:
-            query = query.filter(VideoStream.status == status)
+        if status is not None:
+            # 将数字状态转换为字符串状态
+            status_map = {0: "offline", 1: "online", 2: "error"}
+            str_status = status_map.get(status)
+            if str_status:
+                query = query.filter(VideoStream.status == str_status)
             
         if organization_id:
             query = query.filter(VideoStream.organization_id == organization_id)
@@ -41,15 +45,19 @@ class VideoStreamService:
     @staticmethod
     async def create_videostream(db: Session, videostream: VideoStreamCreate) -> VideoStream:
         """创建视频流"""
+        # 将数字状态转换为字符串状态
+        status_map = {0: "offline", 1: "online", 2: "error"}
+        str_status = status_map.get(videostream.status, "offline")
+        
         db_videostream = VideoStream(
             name=videostream.name,
             url=videostream.url,
             type=videostream.type,
-            status=videostream.status,
+            status=str_status,
             organization_id=videostream.organization_id,
             location=videostream.location,
             description=videostream.description,
-            config_json=json.dumps(videostream.config_json) if videostream.config_json else None
+            config_json=json.dumps(videostream.config) if videostream.config else None
         )
         db.add(db_videostream)
         db.commit()
@@ -69,9 +77,14 @@ class VideoStreamService:
             
         update_data = videostream_update.dict(exclude_unset=True)
         
-        # 特殊处理config_json字段，转换为JSON字符串
-        if "config_json" in update_data and update_data["config_json"] is not None:
-            update_data["config_json"] = json.dumps(update_data["config_json"])
+        # 特殊处理config字段，转换为JSON字符串
+        if "config" in update_data and update_data["config"] is not None:
+            update_data["config_json"] = json.dumps(update_data.pop("config"))
+        
+        # 特殊处理status字段，将数字转换为字符串
+        if "status" in update_data and update_data["status"] is not None:
+            status_map = {0: "offline", 1: "online", 2: "error"}
+            update_data["status"] = status_map.get(update_data["status"], "offline")
         
         for key, value in update_data.items():
             setattr(db_videostream, key, value)
@@ -108,14 +121,18 @@ class VideoStreamService:
         latency = random.randint(50, 300) if is_online else None
         
         # 更新数据库中的状态
-        status = "online" if is_online else "offline"
-        db_videostream.status = status
+        str_status = "online" if is_online else "offline"
+        db_videostream.status = str_status
         db_videostream.updated_at = datetime.now()
         db.commit()
         
+        # 返回前端期望的格式，将字符串状态转换为数字
+        status_map = {"offline": 0, "online": 1, "error": 2}
+        status_num = status_map.get(str_status, 0)
+        
         return {
             "id": db_videostream.id,
-            "status": status,
+            "status": status_num,
             "latency": latency,
             "last_checked": db_videostream.updated_at
         }
@@ -156,4 +173,12 @@ class VideoStreamService:
         })
         
         # 将结果转换为字典列表
-        return [dict(row) for row in result] 
+        streams = [dict(row) for row in result]
+        
+        # 将字符串状态转换为数字
+        status_map = {"offline": 0, "online": 1, "error": 2}
+        for stream in streams:
+            if "status" in stream and isinstance(stream["status"], str):
+                stream["status"] = status_map.get(stream["status"].lower(), 0)
+        
+        return streams 

@@ -3,7 +3,8 @@ from app.schemas.user import (
     User, UserCreate, UserUpdate, UserInfo, UserInDB,
     LoginForm, Token, TokenPayload, LoginResponse,
     PaginatedUserList, Message,
-    Role, RoleCreate, RoleUpdate, PaginatedRoleList
+    Role, RoleCreate, RoleUpdate, PaginatedRoleList,
+    RefreshTokenRequest, RefreshTokenResponse
 )
 
 # 在此添加其他模型的导出... 
@@ -29,7 +30,11 @@ from app.schemas.warning import (
 # 用于导出所有模式
 __all__ = [
     # 用户模式
-    "User", "UserCreate", "UserUpdate",
+    "User", "UserCreate", "UserUpdate", "UserInfo", "UserInDB",
+    "LoginForm", "Token", "TokenPayload", "LoginResponse",
+    "PaginatedUserList", "Message",
+    "Role", "RoleCreate", "RoleUpdate", "PaginatedRoleList",
+    "RefreshTokenRequest", "RefreshTokenResponse",
     # 组织模式
     "Organization", "OrganizationCreate", "OrganizationUpdate", "OrganizationWithChildren",
     # 虚拟组织模式

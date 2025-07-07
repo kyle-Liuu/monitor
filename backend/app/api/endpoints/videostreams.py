@@ -12,7 +12,7 @@ router = APIRouter()
 async def get_videostreams(
     current: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
-    status: Optional[str] = None,
+    status: Optional[int] = None,
     organization_id: Optional[int] = None,
     type: Optional[str] = None,
     db: Session = Depends(get_db),
@@ -124,15 +124,26 @@ async def get_videostreams_by_organization(
     """
     return await VideoStreamService.get_videostreams_by_organization(db, organization_id, skip, limit)
 
-@router.get("/virtual-organization/{virtual_org_id}", response_model=List[Dict[str, Any]])
+@router.get("/virtual-organization/{virtual_org_id}", response_model=Dict[str, Any])
 async def get_videostreams_by_virtual_organization(
     virtual_org_id: int,
-    skip: int = 0,
-    limit: int = 100,
+    current: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """
     获取虚拟组织下的所有视频流
     """
-    return await VideoStreamService.get_videostreams_by_virtual_organization(db, virtual_org_id, skip, limit)
+    skip = (current - 1) * size
+    streams = await VideoStreamService.get_videostreams_by_virtual_organization(db, virtual_org_id, skip, size)
+    
+    # 获取总数
+    total_streams = len(await VideoStreamService.get_videostreams_by_virtual_organization(db, virtual_org_id, 0, 1000))
+    
+    return {
+        "records": streams,
+        "current": current,
+        "size": size,
+        "total": total_streams
+    }

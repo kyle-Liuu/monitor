@@ -6,22 +6,7 @@ export class VideoStreamService {
      * @param params 查询参数
      */
     static getVideoStreamList(params: { current?: number; size?: number; organization_id?: number }) {
-        return api.get<{
-            records: Array<{
-                id: number;
-                name: string;
-                url: string;
-                type: string;
-                status: number;
-                organization_id: number;
-                organization_name: string;
-                description?: string;
-                created_at: string;
-            }>;
-            current: number;
-            size: number;
-            total: number;
-        }>({
+        return api.get<Api.VideoStream.VideoStreamListResult>({
             url: '/videostreams',
             params
         })
@@ -31,14 +16,8 @@ export class VideoStreamService {
      * 创建视频流
      * @param streamData 视频流数据
      */
-    static createVideoStream(streamData: {
-        name: string;
-        url: string;
-        type: string;
-        organization_id: number;
-        description?: string;
-    }) {
-        return api.post<any>({
+    static createVideoStream(streamData: Api.VideoStream.CreateVideoStreamParams) {
+        return api.post<Api.VideoStream.VideoStreamInfo>({
             url: '/videostreams',
             data: streamData
         })
@@ -49,15 +28,8 @@ export class VideoStreamService {
      * @param streamId 视频流ID
      * @param streamData 视频流数据
      */
-    static updateVideoStream(streamId: number, streamData: {
-        name?: string;
-        url?: string;
-        type?: string;
-        status?: number;
-        organization_id?: number;
-        description?: string;
-    }) {
-        return api.put<any>({
+    static updateVideoStream(streamId: number, streamData: Api.VideoStream.UpdateVideoStreamParams) {
+        return api.put<Api.VideoStream.VideoStreamInfo>({
             url: `/videostreams/${streamId}`,
             data: streamData
         })
@@ -68,7 +40,7 @@ export class VideoStreamService {
      * @param streamId 视频流ID
      */
     static deleteVideoStream(streamId: number) {
-        return api.del<{ message: string }>({
+        return api.del<Api.Common.MessageResult>({
             url: `/videostreams/${streamId}`
         })
     }
@@ -78,17 +50,7 @@ export class VideoStreamService {
      * @param streamId 视频流ID
      */
     static getVideoStreamById(streamId: number) {
-        return api.get<{
-            id: number;
-            name: string;
-            url: string;
-            type: string;
-            status: number;
-            organization_id: number;
-            organization_name: string;
-            description?: string;
-            created_at: string;
-        }>({
+        return api.get<Api.VideoStream.VideoStreamInfo>({
             url: `/videostreams/${streamId}`
         })
     }

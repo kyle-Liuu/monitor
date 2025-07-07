@@ -31,7 +31,7 @@ async def get_algorithms(
     total = len(await AlgorithmService.get_algorithms(db, type=type, is_active=is_active))
     
     return {
-        "records": algorithms,
+        "items": algorithms,
         "current": current,
         "size": size,
         "total": total

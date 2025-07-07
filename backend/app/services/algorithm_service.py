@@ -42,14 +42,17 @@ class AlgorithmService:
     @staticmethod
     async def create_algorithm(db: Session, algorithm: AlgorithmCreate) -> Algorithm:
         """创建算法"""
+        # 将status转换为is_active
+        is_active = algorithm.status > 0 if hasattr(algorithm, "status") else True
+        
         db_algorithm = Algorithm(
             name=algorithm.name,
             version=algorithm.version,
             description=algorithm.description,
             type=algorithm.type,
             model_path=algorithm.model_path,
-            config_json=json.dumps(algorithm.config_json) if algorithm.config_json else None,
-            is_active=algorithm.is_active
+            config_json=json.dumps(algorithm.config) if algorithm.config else None,
+            is_active=is_active
         )
         db.add(db_algorithm)
         db.commit()
@@ -69,9 +72,13 @@ class AlgorithmService:
             
         update_data = algorithm_update.dict(exclude_unset=True)
         
-        # 特殊处理config_json字段，转换为JSON字符串
-        if "config_json" in update_data and update_data["config_json"] is not None:
-            update_data["config_json"] = json.dumps(update_data["config_json"])
+        # 特殊处理config字段，转换为JSON字符串
+        if "config" in update_data and update_data["config"] is not None:
+            update_data["config_json"] = json.dumps(update_data.pop("config"))
+        
+        # 特殊处理status字段，将数字转换为布尔值
+        if "status" in update_data and update_data["status"] is not None:
+            update_data["is_active"] = update_data.pop("status") > 0
         
         for key, value in update_data.items():
             setattr(db_algorithm, key, value)
@@ -248,7 +255,7 @@ class AlgorithmService:
                        (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
         
         return {
+            "processing_time_ms": processing_time,
             "detections": detections,
-            "result_image": result_img,
-            "processing_time_ms": processing_time
+            "result_image": result_img
         } 

@@ -215,10 +215,20 @@ function handleMenuError(error: unknown): void {
 /**
  * 根据角色过滤菜单
  */
-const filterMenuByRoles = (menu: AppRouteRecord[], roles: string[]): AppRouteRecord[] => {
+const filterMenuByRoles = (menu: AppRouteRecord[], roles: any[]): AppRouteRecord[] => {
+  // 将角色对象数组转换为角色代码字符串数组
+  const roleCodes = Array.isArray(roles)
+    ? roles.map(role => typeof role === 'string' ? role : role.role_code)
+    : [];
+
+  // console.log('过滤菜单，用户角色代码:', roleCodes)
+
   return menu.reduce((acc: AppRouteRecord[], item) => {
     const itemRoles = item.meta?.roles
-    const hasPermission = !itemRoles || itemRoles.some((role) => roles?.includes(role))
+    // console.log('菜单项:', item.name, '需要角色:', itemRoles)
+
+    const hasPermission = !itemRoles || itemRoles.some((role) => roleCodes.includes(role))
+    // console.log('是否有权限:', hasPermission)
 
     if (hasPermission) {
       const filteredItem = { ...item }

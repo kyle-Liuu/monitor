@@ -2,23 +2,15 @@ import { useUserStore } from '@/store/modules/user'
 import { $t } from '@/locales'
 import { consoleSys } from '@/utils/sys/console'
 
-interface WebSocketOptions {
-    url: string
-    onOpen?: (event: Event) => void
-    onMessage?: (event: MessageEvent) => void
-    onError?: (event: Event) => void
-    onClose?: (event: CloseEvent) => void
-}
-
 class WebSocketManager {
     private socket: WebSocket | null = null
-    private options: WebSocketOptions
+    private options: Api.WebSocket.WebSocketOptions
     private reconnectTimer: number | null = null
     private reconnectAttempts = 0
     private maxReconnectAttempts = 5
     private reconnectInterval = 2000
 
-    constructor(options: WebSocketOptions) {
+    constructor(options: Api.WebSocket.WebSocketOptions) {
         this.options = options
         this.init()
     }
@@ -137,6 +129,6 @@ class WebSocketManager {
 }
 
 // 用于创建WebSocket连接的工厂函数
-export function createWebSocket(options: WebSocketOptions) {
+export function createWebSocket(options: Api.WebSocket.WebSocketOptions) {
     return new WebSocketManager(options)
 } 

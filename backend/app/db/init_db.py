@@ -16,8 +16,16 @@ logger = logging.getLogger(__name__)
 # 创建初始角色
 def create_initial_roles(db: Session) -> None:
     roles = [
-        {"role_code": "admin", "role_name": "管理员", "description": "系统管理员"},
-        {"role_code": "user", "role_name": "普通用户", "description": "普通用户权限"}
+        {"role_code": "R_SUPER", "role_name": "超级管理员", "description": "拥有系统全部权限"},
+        {"role_code": "R_ADMIN", "role_name": "管理员", "description": "拥有系统管理权限"},
+        {"role_code": "R_USER", "role_name": "普通用户", "description": "拥有系统普通权限"},
+        {"role_code": "R_FINANCE", "role_name": "财务管理员", "description": "管理财务相关权限"},
+        {"role_code": "R_ANALYST", "role_name": "数据分析师", "description": "拥有数据分析权限"},
+        {"role_code": "R_SUPPORT", "role_name": "客服专员", "description": "处理客户支持请求"},
+        {"role_code": "R_MARKETING", "role_name": "营销经理", "description": "管理营销活动权限"},
+        {"role_code": "R_GUEST", "role_name": "访客用户", "description": "仅限浏览权限"},
+        {"role_code": "R_MAINTAINER", "role_name": "系统维护员", "description": "负责系统维护和更新"},
+        {"role_code": "R_PM", "role_name": "项目经理", "description": "管理项目相关权限"}
     ]
     
     for role_data in roles:
@@ -30,27 +38,70 @@ def create_initial_roles(db: Session) -> None:
 
 # 创建初始超级用户
 def create_initial_superuser(db: Session) -> None:
-    admin_user = db.query(User).filter(User.username == "admin").first()
+    admin_user = db.query(User).filter(User.username == "Super").first()
     if not admin_user:
         user = User(
-            username="admin",
+            username="Super",
             email="admin@example.com",
-            hashed_password=get_password_hash("admin123"),
-            full_name="系统管理员",
+            hashed_password=get_password_hash("123456"),
+            full_name="超级管理员",
             is_active=True,
             is_superuser=True
         )
         db.add(user)
         db.commit()
-        logger.info("创建超级管理员用户: admin")
+        logger.info("创建超级管理员用户: Super")
         
-        # 为管理员添加admin角色
-        admin_role = db.query(Role).filter(Role.role_code == "admin").first()
+        # 为超级管理员添加R_SUPER角色
+        super_role = db.query(Role).filter(Role.role_code == "R_SUPER").first()
+        if super_role:
+            user.roles.append(super_role)
+            db.commit()
+            logger.info(f"为用户Super分配角色: {super_role.role_name}")
+        
+    # 创建普通管理员用户
+    admin_user = db.query(User).filter(User.username == "Admin").first()
+    if not admin_user:
+        user = User(
+            username="Admin",
+            email="admin2@example.com",
+            hashed_password=get_password_hash("123456"),
+            full_name="管理员",
+            is_active=True,
+            is_superuser=False
+        )
+        db.add(user)
+        db.commit()
+        logger.info("创建管理员用户: Admin")
+        
+        # 为管理员添加R_ADMIN角色
+        admin_role = db.query(Role).filter(Role.role_code == "R_ADMIN").first()
         if admin_role:
-            # 使用关系添加角色，而不是直接创建UserRole实例
             user.roles.append(admin_role)
             db.commit()
-            logger.info(f"为用户admin分配角色: {admin_role.role_name}")
+            logger.info(f"为用户Admin分配角色: {admin_role.role_name}")
+            
+    # 创建普通用户
+    user_account = db.query(User).filter(User.username == "User").first()
+    if not user_account:
+        user = User(
+            username="User",
+            email="user@example.com",
+            hashed_password=get_password_hash("123456"),
+            full_name="普通用户",
+            is_active=True,
+            is_superuser=False
+        )
+        db.add(user)
+        db.commit()
+        logger.info("创建普通用户: User")
+        
+        # 为用户添加R_USER角色
+        user_role = db.query(Role).filter(Role.role_code == "R_USER").first()
+        if user_role:
+            user.roles.append(user_role)
+            db.commit()
+            logger.info(f"为用户User分配角色: {user_role.role_name}")
 
 # 初始化数据库
 def init_db(db: Session) -> None:
@@ -64,39 +115,6 @@ def init_db(db: Session) -> None:
     logger.info("初始数据创建完成")
 
 
-def init_test_data(db: Session) -> None:
-    """
-    初始化测试数据
-    
-    Args:
-        db: 数据库会话
-    """
-    # 创建测试用户
-    test_user = db.query(User).filter(User.username == "test").first()
-    if not test_user:
-        user_role = db.query(Role).filter(Role.role_code == "user").first()
-        
-        test_user = User(
-            username="test",
-            email="test@example.com",
-            hashed_password=get_password_hash("test"),
-            full_name="测试用户",
-            phone="13800138000",
-            gender=1,
-            is_active=True
-        )
-        db.add(test_user)
-        db.commit()
-        db.refresh(test_user)
-        
-        # 为测试用户添加角色
-        if user_role:
-            test_user.roles.append(user_role)
-            db.commit()
-        
-        logger.info("测试用户已创建")
-
-
 def main() -> None:
     """
     初始化数据库主函数
@@ -107,7 +125,6 @@ def main() -> None:
     try:
         logger.info("创建初始数据")
         init_db(db)
-        init_test_data(db)
         logger.info("初始数据创建完成")
     finally:
         db.close()

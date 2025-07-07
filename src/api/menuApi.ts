@@ -2,13 +2,9 @@ import { asyncRoutes } from '@/router/routes/asyncRoutes'
 import { menuDataToRouter } from '@/router/utils/menuToRouter'
 import { AppRouteRecord } from '@/types/router'
 
-interface MenuResponse {
-  menuList: AppRouteRecord[]
-}
-
 // 菜单接口
 export const menuService = {
-  async getMenuList(delay = 300): Promise<MenuResponse> {
+  async getMenuList(delay = 300): Promise<Api.Menu.MenuResponse> {
     try {
       // 模拟接口返回的菜单数据
       const menuData = asyncRoutes

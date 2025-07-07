@@ -34,7 +34,7 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = None
     gender: Optional[int] = None
     avatar: Optional[str] = None
-    status: Optional[str] = None
+    status: Optional[int] = None
     is_active: Optional[bool] = None
     is_superuser: Optional[bool] = None
     password: Optional[str] = None
@@ -82,7 +82,7 @@ class UserInDB(UserBase):
     """数据库中的用户模型"""
     id: int
     avatar: Optional[str] = None
-    status: Optional[str] = "1"
+    status: Optional[int] = 1
     last_login: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
@@ -102,7 +102,7 @@ class User(BaseModel):
     phone: Optional[str] = None
     gender: Optional[int] = 1
     avatar: Optional[str] = None
-    status: Optional[str] = "1"
+    status: Optional[int] = 1
     is_active: bool
     is_superuser: bool
     created_at: datetime
@@ -119,28 +119,42 @@ class UserInfo(User):
 
 
 class LoginForm(BaseModel):
-    """登录表单模型"""
-    username: str
+    """登录表单模型 - 适配前端格式"""
+    username: str  # 将userName改为username
     password: str
 
 
 class Token(BaseModel):
     """JWT Token模型"""
     access_token: str
+    refresh_token: str  # 添加刷新令牌字段
     token_type: str
     user: dict
 
 
 class TokenPayload(BaseModel):
     """JWT Token载荷模型"""
-    user_id: int
+    sub: str  # 用户ID
+    exp: int  # 过期时间
+    type: Optional[str] = "access"  # 令牌类型：access 或 refresh
 
 
 class LoginResponse(BaseModel):
-    """登录响应模型"""
-    access_token: str
-    token_type: str
-    user: dict
+    """登录响应模型（与前端对齐）"""
+    token: str
+    refreshToken: str  # 适配前端命名方式
+    user_info: dict
+
+
+class RefreshTokenRequest(BaseModel):
+    """刷新令牌请求模型"""
+    refresh_token: str = Field(..., description="刷新令牌")
+
+
+class RefreshTokenResponse(BaseModel):
+    """刷新令牌响应模型（与前端对齐）"""
+    token: str
+    refreshToken: str
 
 
 class PaginatedUserList(BaseModel):

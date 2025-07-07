@@ -9,7 +9,7 @@
   import zh from 'element-plus/es/locale/lang/zh-cn'
   import en from 'element-plus/es/locale/lang/en'
   import { systemUpgrade } from './utils/sys'
-  import { UserService } from './api/usersApi'
+  import { UserService } from './api/userApi'
   import { setThemeTransitionClass } from './utils/theme/animation'
   import { checkStorageCompatibility } from './utils/storage'
 

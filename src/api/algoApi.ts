@@ -5,19 +5,7 @@ export class AlgorithmService {
      * 获取算法列表
      */
     static getAlgorithmList() {
-        return api.get<{
-            total: number;
-            items: Array<{
-                id: number;
-                name: string;
-                version: string;
-                description: string;
-                type: string;
-                status: number;
-                config: Record<string, any>;
-                created_at: string;
-            }>;
-        }>({
+        return api.get<Api.Algorithm.AlgorithmListResult>({
             url: '/algorithms'
         })
     }
@@ -26,23 +14,8 @@ export class AlgorithmService {
      * 创建算法
      * @param algoData 算法数据
      */
-    static createAlgorithm(algoData: {
-        name: string;
-        version: string;
-        description?: string;
-        type: string;
-        config?: Record<string, any>;
-    }) {
-        return api.post<{
-            id: number;
-            name: string;
-            version: string;
-            description: string;
-            type: string;
-            status: number;
-            config: Record<string, any>;
-            created_at: string;
-        }>({
+    static createAlgorithm(algoData: Api.Algorithm.CreateAlgorithmParams) {
+        return api.post<Api.Algorithm.AlgorithmInfo>({
             url: '/algorithms',
             data: algoData
         })
@@ -53,23 +26,8 @@ export class AlgorithmService {
      * @param algoId 算法ID
      * @param algoData 算法数据
      */
-    static updateAlgorithm(algoId: number, algoData: {
-        name?: string;
-        version?: string;
-        description?: string;
-        status?: number;
-        config?: Record<string, any>;
-    }) {
-        return api.put<{
-            id: number;
-            name: string;
-            version: string;
-            description: string;
-            type: string;
-            status: number;
-            config: Record<string, any>;
-            created_at: string;
-        }>({
+    static updateAlgorithm(algoId: number, algoData: Api.Algorithm.UpdateAlgorithmParams) {
+        return api.put<Api.Algorithm.AlgorithmInfo>({
             url: `/algorithms/${algoId}`,
             data: algoData
         })
@@ -80,7 +38,7 @@ export class AlgorithmService {
      * @param algoId 算法ID
      */
     static deleteAlgorithm(algoId: number) {
-        return api.del<{ message: string }>({
+        return api.del<Api.Common.MessageResult>({
             url: `/algorithms/${algoId}`
         })
     }
@@ -90,16 +48,7 @@ export class AlgorithmService {
      * @param algoId 算法ID
      */
     static getAlgorithmById(algoId: number) {
-        return api.get<{
-            id: number;
-            name: string;
-            version: string;
-            description: string;
-            type: string;
-            status: number;
-            config: Record<string, any>;
-            created_at: string;
-        }>({
+        return api.get<Api.Algorithm.AlgorithmInfo>({
             url: `/algorithms/${algoId}`
         })
     }
@@ -110,7 +59,7 @@ export class AlgorithmService {
      * @param algoIds 算法ID数组
      */
     static assignAlgorithmsToStream(streamId: number, algoIds: number[]) {
-        return api.post<{ message: string }>({
+        return api.post<Api.Common.MessageResult>({
             url: `/videostreams/${streamId}/algorithms`,
             data: { algorithm_ids: algoIds }
         })
@@ -122,7 +71,7 @@ export class AlgorithmService {
      * @param algoId 算法ID
      */
     static removeAlgorithmFromStream(streamId: number, algoId: number) {
-        return api.del<{ message: string }>({
+        return api.del<Api.Common.MessageResult>({
             url: `/videostreams/${streamId}/algorithms/${algoId}`
         })
     }
