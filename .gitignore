@@ -5,7 +5,7 @@ dist-ssr
 *.local
 .cursor
 .vscode
-backend/logs/
+backend/logs/server.log
 
 src/types/auto-imports.d.ts
 src/types/components.d.ts
