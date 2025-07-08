@@ -458,7 +458,7 @@
         status: item.status || '2',
         // 映射角色信息 - 确保用户角色数组存在
         userRoles: Array.isArray(item.userRoles) ? item.userRoles : 
-                   (Array.isArray(item.roles) ? item.roles.map((r: any) => r.role_code || r) : []),
+                   (Array.isArray(item.roles) ? item.roles.map((r: any) => r.role_name || r) : []),
         // 使用后端返回的头像或本地头像
         avatar: item.avatar || ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar
       }))

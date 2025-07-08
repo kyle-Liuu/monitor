@@ -25,8 +25,8 @@ class UserCreate(UserBase):
 
     @validator("password")
     def password_min_length(cls, v):
-        if len(v) < 8:
-            raise ValueError("密码长度不能少于8位")
+        if len(v) < 6:
+            raise ValueError("密码长度不能少于6位")
         return v
 
 
@@ -47,8 +47,8 @@ class UserUpdate(BaseModel):
 
     @validator("password")
     def password_min_length(cls, v):
-        if v is not None and len(v) < 8:
-            raise ValueError("密码长度不能少于8位")
+        if v is not None and len(v) < 6:
+            raise ValueError("密码长度不能少于6位")
         return v
 
 
@@ -199,6 +199,6 @@ class PasswordChange(BaseModel):
 
     @validator("new_password")
     def password_min_length(cls, v):
-        if len(v) < 8:
-            raise ValueError("密码长度不能少于8位")
+        if len(v) < 6:
+            raise ValueError("密码长度不能少于6位")
         return v

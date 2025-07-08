@@ -1533,3 +1533,63 @@
 2025-07-08 10:56:10,212 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751943370.png
 2025-07-08 10:56:15,519 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751943370.png
 2025-07-08 10:56:15,522 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751943375.jpg
+2025-07-08 11:05:04,431 - app.core.events - INFO - 关闭应用...
+2025-07-08 11:05:04,432 - app.ws.connection - INFO - WebSocket连接管理器已停止
+2025-07-08 11:05:04,433 - app.ws.manager - INFO - WebSocket事件管理器已停止
+2025-07-08 11:05:04,433 - app.utils.thread_pool - INFO - 线程池已关闭
+2025-07-08 11:05:04,433 - app.core.events - INFO - 应用已关闭
+2025-07-08 11:05:09,537 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-08 11:05:09,538 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-08 11:05:09,669 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-08 11:05:10,010 - app.core.events - INFO - 启动应用...
+2025-07-08 11:05:10,013 - app.core.events - INFO - 已创建所需的目录
+2025-07-08 11:05:10,017 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-08 11:05:10,058 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-08 11:05:10,059 - app.core.events - INFO - 数据库初始化完成
+2025-07-08 11:05:10,059 - app.core.events - INFO - Redis未启用
+2025-07-08 11:05:10,059 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-08 11:05:10,059 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-08 11:05:10,059 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-08 11:05:10,060 - app.core.events - INFO - 创建上传目录...
+2025-07-08 11:05:10,061 - app.core.events - INFO - 上传目录创建完成
+2025-07-08 11:05:10,061 - app.core.events - INFO - 应用启动完成
+2025-07-08 11:05:22,932 - app.core.events - INFO - 关闭应用...
+2025-07-08 11:05:22,932 - app.ws.connection - INFO - WebSocket连接管理器已停止
+2025-07-08 11:05:22,933 - app.ws.manager - INFO - WebSocket事件管理器已停止
+2025-07-08 11:05:22,933 - app.utils.thread_pool - INFO - 线程池已关闭
+2025-07-08 11:05:22,933 - app.core.events - INFO - 应用已关闭
+2025-07-08 11:05:26,859 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-08 11:05:26,860 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-08 11:05:26,979 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-08 11:05:27,304 - app.core.events - INFO - 启动应用...
+2025-07-08 11:05:27,306 - app.core.events - INFO - 已创建所需的目录
+2025-07-08 11:05:27,309 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-08 11:05:27,345 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-08 11:05:27,345 - app.core.events - INFO - 数据库初始化完成
+2025-07-08 11:05:27,345 - app.core.events - INFO - Redis未启用
+2025-07-08 11:05:27,346 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-08 11:05:27,346 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-08 11:05:27,346 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-08 11:05:27,346 - app.core.events - INFO - 创建上传目录...
+2025-07-08 11:05:27,348 - app.core.events - INFO - 上传目录创建完成
+2025-07-08 11:05:27,348 - app.core.events - INFO - 应用启动完成
+2025-07-08 11:36:01,658 - app.core.events - INFO - 关闭应用...
+2025-07-08 11:36:01,659 - app.ws.connection - INFO - WebSocket连接管理器已停止
+2025-07-08 11:36:01,659 - app.ws.manager - INFO - WebSocket事件管理器已停止
+2025-07-08 11:36:01,660 - app.utils.thread_pool - INFO - 线程池已关闭
+2025-07-08 11:36:01,660 - app.core.events - INFO - 应用已关闭
+2025-07-08 11:36:05,975 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-08 11:36:05,976 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-08 11:36:06,112 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-08 11:36:06,458 - app.core.events - INFO - 启动应用...
+2025-07-08 11:36:06,459 - app.core.events - INFO - 已创建所需的目录
+2025-07-08 11:36:06,463 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-08 11:36:06,505 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-08 11:36:06,506 - app.core.events - INFO - 数据库初始化完成
+2025-07-08 11:36:06,506 - app.core.events - INFO - Redis未启用
+2025-07-08 11:36:06,506 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-08 11:36:06,506 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-08 11:36:06,507 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-08 11:36:06,507 - app.core.events - INFO - 创建上传目录...
+2025-07-08 11:36:06,508 - app.core.events - INFO - 上传目录创建完成
+2025-07-08 11:36:06,509 - app.core.events - INFO - 应用启动完成

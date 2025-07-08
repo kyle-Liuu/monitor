@@ -97,7 +97,7 @@
                   :disabled="!isEdit"
                   :max-tag-count="5"
                   draggable
-                  placeholder="请输入标签"
+                  placeholder="请输入标签，回车确认"
                   @update:modelValue="handleTagsChange"
                 />
               </ElFormItem>
@@ -268,18 +268,20 @@
 
 <script setup lang="ts">
   import { useUserStore } from '@/store/modules/user'
-  import { ElForm, FormInstance, FormRules, ElMessage, ElMessageBox } from 'element-plus'
+  import { ElForm, FormInstance, FormRules, ElMessage, ElMessageBox, ElLoading } from 'element-plus'
   import { HttpError } from '@/utils/http/error'
   import { Plus, Edit, User, Delete } from '@element-plus/icons-vue'
   import { UserService } from '@/api/userApi'
   import { formatImageUrl, formatAvatarUrl, updateAvatarVersion } from '@/utils/dataprocess/format'
   import mittBus from '@/utils/sys/mittBus'
   import ArtCutterImg from '@/components/core/media/art-cutter-img/index.vue'
+  import { useRouter } from 'vue-router'
 
   defineOptions({ name: 'UserCenter' })
 
   const userStore = useUserStore()
   const userInfo = computed(() => userStore.getUserInfo)
+  const router = useRouter()
 
   const isEdit = ref(false)
   const isEditPwd = ref(false)
@@ -387,11 +389,29 @@
   const pwdRules = reactive<FormRules>({
     oldPassword: [
       { required: true, message: '请输入当前密码', trigger: 'blur' },
-      { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+      { min: 6, message: '密码长度不小于6位', trigger: 'blur' }
     ],
     newPassword: [
       { required: true, message: '请输入新密码', trigger: 'blur' },
-      { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+      { 
+        pattern: /^(?:(?=.*[A-Za-z])(?=.*\d)|(?=.*[A-Za-z])(?=.*[@$!%*?&])|(?=.*\d)(?=.*[@$!%*?&]))[A-Za-z\d@$!%*?&]{6,}$/,
+        message: '密码必须包含字母、数字和特殊字符中的至少两种，且长度至少为6位',
+        trigger: 'blur'
+      },
+      { 
+        validator: (rule, value, callback) => {
+          if (value === pwdForm.oldPassword) {
+            callback(new Error('新密码不能与当前密码相同'))
+          } else {
+            // 如果确认密码已输入，则同时校验确认密码
+            if (pwdForm.confirmPassword) {
+              pwdFormRef.value?.validateField('confirmPassword')
+            }
+            callback()
+          }
+        },
+        trigger: 'blur'
+      }
     ],
     confirmPassword: [
       { required: true, message: '请再次输入新密码', trigger: 'blur' },
@@ -404,8 +424,8 @@
           }
         },
         trigger: 'blur'
-    }
-  ]
+      }
+    ]
   })
 
   // 初始化用户信息
@@ -553,28 +573,65 @@
       try {
         await pwdFormRef.value.validate()
         
+        // 二次确认
+        try {
+          await ElMessageBox.confirm(
+            '修改密码后，您将需要重新登录。是否继续？',
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning',
+            }
+          )
+        } catch (e) {
+          return // 用户取消操作
+        }
+        
         const passwordData = {
           current_password: pwdForm.oldPassword,
           new_password: pwdForm.newPassword
         }
         
         if (userInfo.value && userInfo.value.user_id) {
-          // 使用API修改密码
-          await UserService.changePassword(userInfo.value.user_id, passwordData)
+          // 显示加载中
+          const loading = ElLoading.service({
+            lock: true,
+            text: '正在修改密码...',
+            background: 'rgba(0, 0, 0, 0.7)',
+          })
           
-          ElMessage.success('密码修改成功')
-          isEditPwd.value = false
-          
-          // 清空表单
-          pwdForm.oldPassword = ''
-          pwdForm.newPassword = ''
-          pwdForm.confirmPassword = ''
+          try {
+            // 使用API修改密码
+            await UserService.changePassword(userInfo.value.user_id, passwordData)
+            
+            loading.close()
+            ElMessage.success('密码修改成功，请重新登录')
+            isEditPwd.value = false
+            
+            // 清空表单
+            pwdForm.oldPassword = ''
+            pwdForm.newPassword = ''
+            pwdForm.confirmPassword = ''
+            
+            // 延迟一下再登出，让用户能看到成功消息
+            setTimeout(() => {
+              // 登出并跳转到登录页
+              userStore.logOut()
+              router.push('/auth/login')
+            }, 1500)
+          } catch (error) {
+            loading.close()
+            throw error
+          }
         } else {
           ElMessage.error('获取用户ID失败')
         }
       } catch (error) {
         if (error instanceof HttpError) {
-          ElMessage.error(`密码修改失败: ${error.message || '服务器错误'}`)
+          // 直接显示后端返回的错误信息，不添加前缀
+          ElMessage.error(error.message || '服务器错误')
+          console.error('[UserCenter] 修改密码错误:', error)
         } else {
           ElMessage.error('表单验证失败，请检查输入')
           console.error('[UserCenter] 修改密码错误:', error)
