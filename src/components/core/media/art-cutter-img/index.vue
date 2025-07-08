@@ -14,10 +14,10 @@
         class="img-cutter"
       >
         <template #choose>
-          <el-button type="primary" plain v-ripple>选择图片</el-button>
+          <el-button type="primary" plain v-ripple style="display: none;">选择图片</el-button>
         </template>
         <template #cancel>
-          <el-button type="danger" plain v-ripple>清除</el-button>
+          <el-button type="danger" plain v-ripple style="display: none;">清除</el-button>
         </template>
         <template #confirm>
           <!-- <el-button type="primary" style="margin-left: 10px">确定</el-button> -->
@@ -156,10 +156,19 @@
     previewMode: true
   })
 
-  const emit = defineEmits(['update:imgUrl', 'error', 'imageLoadComplete', 'imageLoadError'])
+  const emit = defineEmits([
+    'update:imgUrl', 
+    'error', 
+    'imageLoadComplete', 
+    'imageLoadError',
+    'downloadImage', // 下载图片事件
+    'imageSelected' // 新增图片选择事件
+  ])
 
   const temImgPath = ref('')
+  const originalImgUrl = ref('') // 新增：存储原始图片URL
   const imgCutterModal = ref()
+  const isImageCropped = ref(false) // 新增：标记图片是否已被裁剪
 
   // 计算属性：整合所有ImgCutter的props
   const cutterProps = computed(() => ({
@@ -185,6 +194,7 @@
     if (props.imgUrl) {
       try {
         await preloadImage(props.imgUrl)
+        originalImgUrl.value = props.imgUrl // 初始化时保存原始图片URL
         imgCutterModal.value?.handleOpen({
           name: '封面图片',
           src: props.imgUrl
@@ -200,6 +210,7 @@
   onMounted(() => {
     if (props.imgUrl) {
       temImgPath.value = props.imgUrl
+      originalImgUrl.value = props.imgUrl // 初始化时保存原始图片URL
       initImgCutter()
     }
   })
@@ -210,6 +221,8 @@
     (newVal) => {
       if (newVal) {
         temImgPath.value = newVal
+        originalImgUrl.value = newVal // 初始化时保存原始图片URL
+        isImageCropped.value = false // 重置裁剪状态
         initImgCutter()
       }
     }
@@ -218,15 +231,29 @@
   // 实时预览
   function cutterPrintImg(result: { dataURL: string }) {
     temImgPath.value = result.dataURL
+    isImageCropped.value = true // 标记为已裁剪
   }
 
   // 裁剪完成
   function cutDownImg(result: CutterResult) {
     emit('update:imgUrl', result.dataURL)
+    isImageCropped.value = true // 标记为已裁剪
   }
 
   // 图片加载完成
   function handleImageLoadComplete(result: any) {
+    // 如果是新选择的图片（从文件选择器选择），保存为原始图片
+    if (result && result.src) {
+      console.log('图片加载完成，更新原始图片URL:', result)
+      originalImgUrl.value = result.src
+      isImageCropped.value = false // 重置裁剪状态
+      
+      // 通知父组件新图片已选择
+      emit('imageSelected', {
+        originalUrl: result.src
+      })
+    }
+    
     emit('imageLoadComplete', result)
   }
 
@@ -239,16 +266,45 @@
   // 清除所有
   function handleClearAll() {
     temImgPath.value = ''
+    originalImgUrl.value = ''
+    isImageCropped.value = false
   }
 
   // 下载图片
   function downloadImg() {
     console.log('下载图片')
+    if (!temImgPath.value) return
+    
     const a = document.createElement('a')
     a.href = temImgPath.value
     a.download = 'image.png'
     a.click()
+    
+    // 向父组件发送下载事件，传递图片路径
+    emit('downloadImage', {
+      url: temImgPath.value,
+      filename: 'image.png'
+    })
   }
+  
+  // 暴露方法供父组件调用
+  defineExpose({
+    downloadImg,
+    getCroppedImage: () => temImgPath.value,
+    getOriginalImage: () => originalImgUrl.value, // 新增：获取原始图片
+    isImageCropped: () => isImageCropped.value, // 新增：判断图片是否已被裁剪
+    handleClearAll, // 暴露清空方法给父组件
+    clearImage: () => { // 新增清空图片方法
+      handleClearAll();
+      if (imgCutterModal.value && typeof imgCutterModal.value.clearAll === 'function') {
+        imgCutterModal.value.clearAll();
+      } else if (imgCutterModal.value && typeof imgCutterModal.value.clear === 'function') {
+        imgCutterModal.value.clear();
+      } else {
+        console.warn('裁剪组件未提供clear或clearAll方法');
+      }
+    }
+  })
 </script>
 
 <style lang="scss" scoped>
@@ -302,7 +358,8 @@
     }
 
     :deep(.i-dialog-footer) {
-      margin-top: 60px !important;
+      height: 0 !important;
+      margin-top: 0px !important;
     }
 
     :deep(.dockBtn) {

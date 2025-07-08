@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import glob
 from pathlib import Path
 from datetime import datetime
 from typing import Any
@@ -37,6 +38,10 @@ async def upload_avatar(
     
     返回:
     - 成功响应：包含头像路径的JSON对象
+    
+    说明:
+    - 每个用户只保留一个头像文件，新上传会替换旧头像
+    - 文件名统一使用用户ID作为名称，便于缓存控制
     """
     try:
         # 检查文件类型
@@ -66,14 +71,33 @@ async def upload_avatar(
         user_avatar_dir = AVATARS_DIR / userId
         user_avatar_dir.mkdir(exist_ok=True)
         
-        # 使用用户ID作为文件名
-        file_extension = os.path.splitext(file.filename)[1].lower()
-        filename = f"{userId}{file_extension}"
-        file_path = user_avatar_dir / filename
+        # 删除该用户的所有现有头像文件
+        existing_avatars = glob.glob(str(user_avatar_dir / "*"))
+        for old_avatar in existing_avatars:
+            try:
+                os.remove(old_avatar)
+                logger.info(f"已删除旧头像文件: {old_avatar}")
+            except Exception as e:
+                logger.warning(f"删除旧头像文件失败: {old_avatar}, 错误: {str(e)}")
         
-        # 如果已存在同名文件，先删除
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        # 根据上传的文件类型设置正确的扩展名
+        content_type = file.content_type
+        if content_type == "image/jpeg" or content_type == "image/jpg":
+            file_extension = ".jpg"
+        elif content_type == "image/png":
+            file_extension = ".png"
+        elif content_type == "image/gif":
+            file_extension = ".gif"
+        elif content_type == "image/webp":
+            file_extension = ".webp"
+        else:
+            file_extension = ".jpg"  # 默认使用jpg
+        
+        # 使用用户ID加时间戳作为文件名，确保每次上传都生成新文件
+        # 格式：userId_timestamp.jpg
+        current_timestamp = int(datetime.now().timestamp())
+        filename = f"{userId}_{current_timestamp}{file_extension}"
+        file_path = user_avatar_dir / filename
         
         # 保存文件
         with open(file_path, "wb") as buffer:
@@ -81,6 +105,8 @@ async def upload_avatar(
         
         # 生成相对路径 (用于返回给前端)
         relative_path = f"/uploads/avatars/{userId}/{filename}"
+        
+        logger.info(f"用户 {userId} 成功上传新头像: {relative_path}")
         
         # 注意：这里不再更新用户头像路径，需要前端调用单独的API更新用户信息
         

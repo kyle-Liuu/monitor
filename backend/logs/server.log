@@ -1338,3 +1338,198 @@
 2025-07-07 16:35:36,338 - app.core.events - INFO - 创建上传目录...
 2025-07-07 16:35:36,340 - app.core.events - INFO - 上传目录创建完成
 2025-07-07 16:35:36,340 - app.core.events - INFO - 应用启动完成
+2025-07-07 16:45:23,458 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-07 16:45:23,459 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-07 16:45:23,594 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-07 16:45:23,903 - app.core.events - INFO - 启动应用...
+2025-07-07 16:45:23,905 - app.core.events - INFO - 已创建所需的目录
+2025-07-07 16:45:23,908 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-07 16:45:23,942 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-07 16:45:23,942 - app.core.events - INFO - 数据库初始化完成
+2025-07-07 16:45:23,942 - app.core.events - INFO - Redis未启用
+2025-07-07 16:45:23,943 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-07 16:45:23,943 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-07 16:45:23,943 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-07 16:45:23,943 - app.core.events - INFO - 创建上传目录...
+2025-07-07 16:45:23,945 - app.core.events - INFO - 上传目录创建完成
+2025-07-07 16:45:23,945 - app.core.events - INFO - 应用启动完成
+2025-07-07 16:45:27,351 - app.core.events - INFO - 关闭应用...
+2025-07-07 16:45:27,351 - app.ws.connection - INFO - WebSocket连接管理器已停止
+2025-07-07 16:45:27,352 - app.ws.manager - INFO - WebSocket事件管理器已停止
+2025-07-07 16:45:27,352 - app.utils.thread_pool - INFO - 线程池已关闭
+2025-07-07 16:45:27,352 - app.core.events - INFO - 应用已关闭
+2025-07-07 16:45:31,191 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-07 16:45:31,192 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-07 16:45:31,314 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-07 16:45:31,624 - app.core.events - INFO - 启动应用...
+2025-07-07 16:45:31,627 - app.core.events - INFO - 已创建所需的目录
+2025-07-07 16:45:31,630 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-07 16:45:31,664 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-07 16:45:31,664 - app.core.events - INFO - 数据库初始化完成
+2025-07-07 16:45:31,664 - app.core.events - INFO - Redis未启用
+2025-07-07 16:45:31,664 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-07 16:45:31,665 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-07 16:45:31,665 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-07 16:45:31,665 - app.core.events - INFO - 创建上传目录...
+2025-07-07 16:45:31,667 - app.core.events - INFO - 上传目录创建完成
+2025-07-07 16:45:31,667 - app.core.events - INFO - 应用启动完成
+2025-07-07 17:14:43,876 - __main__ - INFO - 正在启动后端服务，地址: http://127.0.0.1:8000
+2025-07-07 17:14:43,877 - __main__ - INFO - API文档地址: http://127.0.0.1:8000/docs
+2025-07-07 17:14:47,305 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-07 17:14:47,306 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-07 17:14:47,423 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-07 17:14:47,744 - app.core.events - INFO - 启动应用...
+2025-07-07 17:14:47,745 - app.core.events - INFO - 已创建所需的目录
+2025-07-07 17:14:47,748 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-07 17:14:47,782 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-07 17:14:47,782 - app.core.events - INFO - 数据库初始化完成
+2025-07-07 17:14:47,783 - app.core.events - INFO - Redis未启用
+2025-07-07 17:14:47,783 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-07 17:14:47,783 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-07 17:14:47,783 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-07 17:14:47,783 - app.core.events - INFO - 创建上传目录...
+2025-07-07 17:14:47,785 - app.core.events - INFO - 上传目录创建完成
+2025-07-07 17:14:47,785 - app.core.events - INFO - 应用启动完成
+2025-07-07 17:15:46,883 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB.jpg
+2025-07-07 17:16:03,770 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB.jpg
+2025-07-07 17:16:03,772 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB.jpg
+2025-07-07 17:16:40,580 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB.jpg
+2025-07-07 17:16:40,582 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB.jpg
+2025-07-07 17:18:53,406 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB.jpg
+2025-07-07 17:18:53,407 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB.jpg
+2025-07-07 17:26:47,410 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB.jpg
+2025-07-07 17:26:47,412 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB.jpg
+2025-07-07 17:30:01,597 - app.core.events - INFO - 关闭应用...
+2025-07-07 17:30:01,598 - app.ws.connection - INFO - WebSocket连接管理器已停止
+2025-07-07 17:30:01,598 - app.ws.manager - INFO - WebSocket事件管理器已停止
+2025-07-07 17:30:01,598 - app.utils.thread_pool - INFO - 线程池已关闭
+2025-07-07 17:30:01,598 - app.core.events - INFO - 应用已关闭
+2025-07-07 17:30:05,682 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-07 17:30:05,683 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-07 17:30:05,816 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-07 17:30:06,148 - app.core.events - INFO - 启动应用...
+2025-07-07 17:30:06,149 - app.core.events - INFO - 已创建所需的目录
+2025-07-07 17:30:06,153 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-07 17:30:06,189 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-07 17:30:06,189 - app.core.events - INFO - 数据库初始化完成
+2025-07-07 17:30:06,190 - app.core.events - INFO - Redis未启用
+2025-07-07 17:30:06,190 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-07 17:30:06,190 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-07 17:30:06,190 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-07 17:30:06,190 - app.core.events - INFO - 创建上传目录...
+2025-07-07 17:30:06,192 - app.core.events - INFO - 上传目录创建完成
+2025-07-07 17:30:06,192 - app.core.events - INFO - 应用启动完成
+2025-07-07 17:30:39,236 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB.jpg
+2025-07-07 17:30:39,237 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751880639.jpg
+2025-07-07 17:30:44,989 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751880639.jpg
+2025-07-07 17:30:44,991 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751880644.jpg
+2025-07-07 18:31:15,047 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751880644.jpg
+2025-07-07 18:31:15,049 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751884275.jpg
+2025-07-07 18:31:22,841 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751884275.jpg
+2025-07-07 18:31:22,843 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751884282.jpg
+2025-07-07 18:52:51,449 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751884282.jpg
+2025-07-07 18:52:51,451 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751885571.jpg
+2025-07-07 19:16:34,873 - app.core.events - INFO - 关闭应用...
+2025-07-07 19:16:34,874 - app.ws.connection - INFO - WebSocket连接管理器已停止
+2025-07-07 19:16:34,874 - app.ws.manager - INFO - WebSocket事件管理器已停止
+2025-07-07 19:16:34,874 - app.utils.thread_pool - INFO - 线程池已关闭
+2025-07-07 19:16:34,874 - app.core.events - INFO - 应用已关闭
+2025-07-07 19:21:31,403 - __main__ - INFO - 正在启动后端服务，地址: http://127.0.0.1:8000
+2025-07-07 19:21:31,405 - __main__ - INFO - API文档地址: http://127.0.0.1:8000/docs
+2025-07-07 19:21:36,961 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-07 19:21:36,962 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-07 19:21:37,139 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-07 19:21:37,532 - app.core.events - INFO - 启动应用...
+2025-07-07 19:21:37,534 - app.core.events - INFO - 已创建所需的目录
+2025-07-07 19:21:37,538 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-07 19:21:37,574 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-07 19:21:37,574 - app.core.events - INFO - 数据库初始化完成
+2025-07-07 19:21:37,575 - app.core.events - INFO - Redis未启用
+2025-07-07 19:21:37,575 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-07 19:21:37,575 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-07 19:21:37,575 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-07 19:21:37,575 - app.core.events - INFO - 创建上传目录...
+2025-07-07 19:21:37,577 - app.core.events - INFO - 上传目录创建完成
+2025-07-07 19:21:37,577 - app.core.events - INFO - 应用启动完成
+2025-07-07 19:34:52,111 - app.core.events - INFO - 关闭应用...
+2025-07-07 19:34:52,112 - app.ws.connection - INFO - WebSocket连接管理器已停止
+2025-07-07 19:34:52,112 - app.ws.manager - INFO - WebSocket事件管理器已停止
+2025-07-07 19:34:52,112 - app.utils.thread_pool - INFO - 线程池已关闭
+2025-07-07 19:34:52,112 - app.core.events - INFO - 应用已关闭
+2025-07-08 08:37:12,418 - __main__ - INFO - 正在启动后端服务，地址: http://127.0.0.1:8000
+2025-07-08 08:37:12,419 - __main__ - INFO - API文档地址: http://127.0.0.1:8000/docs
+2025-07-08 08:37:17,999 - app.ws.manager - INFO - 注册事件处理器: monitor_status
+2025-07-08 08:37:18,000 - app.ws.manager - INFO - 注册事件处理器: warning_new
+2025-07-08 08:37:18,160 - app.utils.thread_pool - INFO - 线程池初始化完成，最大工作线程数: 80
+2025-07-08 08:37:18,537 - app.core.events - INFO - 启动应用...
+2025-07-08 08:37:18,539 - app.core.events - INFO - 已创建所需的目录
+2025-07-08 08:37:18,542 - app.db.init_db - INFO - 数据库表创建完成
+2025-07-08 08:37:18,578 - app.db.init_db - INFO - 初始数据创建完成
+2025-07-08 08:37:18,578 - app.core.events - INFO - 数据库初始化完成
+2025-07-08 08:37:18,578 - app.core.events - INFO - Redis未启用
+2025-07-08 08:37:18,578 - app.ws.connection - INFO - WebSocket连接管理器已启动
+2025-07-08 08:37:18,579 - app.ws.manager - INFO - WebSocket事件管理器已启动
+2025-07-08 08:37:18,579 - app.core.events - WARNING - Redis连接池创建失败，将使用内存缓存
+2025-07-08 08:37:18,579 - app.core.events - INFO - 创建上传目录...
+2025-07-08 08:37:18,581 - app.core.events - INFO - 上传目录创建完成
+2025-07-08 08:37:18,581 - app.core.events - INFO - 应用启动完成
+2025-07-08 09:22:02,219 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751885571.jpg
+2025-07-08 09:22:02,221 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751937722.png
+2025-07-08 09:22:44,554 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751937722.png
+2025-07-08 09:22:44,556 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751937764.png
+2025-07-08 09:43:36,829 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751937764.png
+2025-07-08 09:43:36,831 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751939016.png
+2025-07-08 09:46:24,809 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751939016.png
+2025-07-08 09:46:24,811 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751939184.png
+2025-07-08 09:46:37,363 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751939184.png
+2025-07-08 09:46:37,366 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751939197.png
+2025-07-08 09:54:54,351 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751939197.png
+2025-07-08 09:54:54,353 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751939694.png
+2025-07-08 10:01:42,201 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751939694.png
+2025-07-08 10:01:42,202 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751940102.png
+2025-07-08 10:05:40,749 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751940102.png
+2025-07-08 10:05:40,750 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751940340.png
+2025-07-08 10:08:28,254 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751940340.png
+2025-07-08 10:08:28,256 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751940508.png
+2025-07-08 10:09:37,201 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751940508.png
+2025-07-08 10:09:37,202 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751940577.png
+2025-07-08 10:14:39,730 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751940577.png
+2025-07-08 10:14:39,732 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751940879.png
+2025-07-08 10:23:46,448 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751940879.png
+2025-07-08 10:23:46,451 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941426.png
+2025-07-08 10:23:55,760 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941426.png
+2025-07-08 10:23:55,763 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941435.png
+2025-07-08 10:28:31,662 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941435.png
+2025-07-08 10:28:31,664 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941711.png
+2025-07-08 10:28:53,654 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941711.png
+2025-07-08 10:28:53,657 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941733.png
+2025-07-08 10:30:37,562 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941733.png
+2025-07-08 10:30:37,565 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941837.png
+2025-07-08 10:30:45,679 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941837.png
+2025-07-08 10:30:45,682 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941845.png
+2025-07-08 10:33:03,426 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941845.png
+2025-07-08 10:33:03,427 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941983.png
+2025-07-08 10:33:17,907 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941983.png
+2025-07-08 10:33:17,909 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751941997.png
+2025-07-08 10:33:40,524 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751941997.png
+2025-07-08 10:33:40,526 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942020.png
+2025-07-08 10:33:54,352 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942020.png
+2025-07-08 10:33:54,354 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942034.png
+2025-07-08 10:39:00,474 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942034.png
+2025-07-08 10:39:00,476 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942340.png
+2025-07-08 10:39:15,891 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942340.png
+2025-07-08 10:39:15,893 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942355.png
+2025-07-08 10:47:32,152 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942355.png
+2025-07-08 10:47:32,154 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942852.jpg
+2025-07-08 10:47:54,587 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942852.jpg
+2025-07-08 10:47:54,590 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942874.png
+2025-07-08 10:48:04,059 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942874.png
+2025-07-08 10:48:04,063 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942884.png
+2025-07-08 10:48:12,402 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942884.png
+2025-07-08 10:48:12,404 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751942892.jpg
+2025-07-08 10:56:05,552 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751942892.jpg
+2025-07-08 10:56:05,554 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751943365.png
+2025-07-08 10:56:10,208 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751943365.png
+2025-07-08 10:56:10,212 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751943370.png
+2025-07-08 10:56:15,519 - app.api.endpoints.uploads - INFO - 已删除旧头像文件: uploads\avatars\userg6vjJFB\userg6vjJFB_1751943370.png
+2025-07-08 10:56:15,522 - app.api.endpoints.uploads - INFO - 用户 userg6vjJFB 成功上传新头像: /uploads/avatars/userg6vjJFB/userg6vjJFB_1751943375.jpg

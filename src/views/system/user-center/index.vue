@@ -15,12 +15,12 @@
 
           <div class="outer-info">
             <div>
-              <i class="iconfont-sys">&#xe72e;</i>
-              <span>{{ userInfo.email || '未设置邮箱' }}</span>
-            </div>
-            <div>
               <i class="iconfont-sys">&#xe60f;</i>
               <span>{{ userInfo.phone || '未设置手机号' }}</span>
+            </div>
+            <div>
+              <i class="iconfont-sys">&#xe72e;</i>
+              <span>{{ userInfo.email || '未设置邮箱' }}</span>
             </div>
           </div>
 
@@ -184,51 +184,82 @@
     <!-- 头像上传对话框 -->
     <el-dialog
       v-model="avatarDialogVisible"
-      title="上传头像"
-      width="400px"
+      title="头像裁剪上传"
+      width="720px"
       :close-on-click-modal="false"
       @close="handleAvatarDialogClose"
+      class="avatar-dialog"
     >
       <div class="avatar-upload-dialog">
-        <div class="avatar-uploader">
-          <!-- 头像预览 -->
-          <template v-if="tempAvatarUrl">
-            <img class="avatar-preview" :src="tempAvatarUrl" />
+        <!-- 使用裁剪组件 -->
+        <ArtCutterImg
+          ref="cutterRef"
+          v-model:imgUrl="tempAvatarUrl"
+          :boxWidth="340"
+          :boxHeight="260"
+          :cutWidth="160"
+          :cutHeight="160"
+          :quality="1"
+          :tool="false"
+          :watermarkText="''"
+          :showPreview="true"
+          :originalGraph="true"
+          :title="''"
+          :previewTitle="'预览效果'"
+          @error="handleCropError"
+          @imageLoadComplete="handleCropLoadComplete"
+          @imageLoadError="handleCropLoadError"
+          @onPrintImg="handlePrintImg"
+          @imageSelected="handleImageSelected"
+          class="cropper-container"
+        >
+          <!-- 隐藏原组件的按钮 -->
+          <template #choose>
+            <div></div>
           </template>
-          <template v-else>
-            <div class="avatar-preview-placeholder">
-              <el-icon><User /></el-icon>
-            </div>
+          <template #cancel>
+            <div></div>
           </template>
-          
-          <!-- 上传按钮 -->
-          <el-upload
-            class="avatar-upload"
-            action=""
-            :auto-upload="false"
-            :show-file-list="false"
-            :on-change="handleAvatarChange"
-          >
-            <el-button type="primary" :icon="Plus" size="small" style="margin-top: 10px">
-              选择图片
-            </el-button>
-            <template #tip>
-              <div class="el-upload__tip">
-                请上传JPG/PNG格式，小于500KB的图片
-              </div>
-            </template>
-          </el-upload>
-        </div>
+          <template #confirm>
+            <div></div>
+          </template>
+        </ArtCutterImg>
         
         <div class="dialog-footer">
-          <el-button @click="avatarDialogVisible = false">取消</el-button>
-          <el-button
-            type="primary"
-            @click="handleAvatarUpload"
-            :loading="isAvatarUploading"
-          >
-            上传
-          </el-button>
+          <div class="left-actions">
+            <el-upload
+              :auto-upload="false"
+              :show-file-list="false"
+              accept="image/*"
+              @change="handleFileSelect"
+            >
+              <el-button type="primary" plain>
+                选择图片
+              </el-button>
+            </el-upload>
+            
+            <el-button type="danger" plain @click="clearImage">
+              清空
+            </el-button>
+          </div>
+          
+          <div class="right-actions">
+            <el-button @click="avatarDialogVisible = false">取消</el-button>
+            <el-button 
+              type="primary" 
+              @click="uploadOriginalImage" 
+              :loading="isAvatarUploading"
+            >
+              上传原图
+            </el-button>
+            <el-button 
+              type="success" 
+              @click="uploadCroppedImage" 
+              :loading="isAvatarUploading"
+            >
+              上传裁剪图
+            </el-button>
+          </div>
         </div>
       </div>
     </el-dialog>
@@ -239,10 +270,11 @@
   import { useUserStore } from '@/store/modules/user'
   import { ElForm, FormInstance, FormRules, ElMessage, ElMessageBox } from 'element-plus'
   import { HttpError } from '@/utils/http/error'
-  import { Plus, Edit, User } from '@element-plus/icons-vue'
+  import { Plus, Edit, User, Delete } from '@element-plus/icons-vue'
   import { UserService } from '@/api/userApi'
   import { formatImageUrl, formatAvatarUrl, updateAvatarVersion } from '@/utils/dataprocess/format'
   import mittBus from '@/utils/sys/mittBus'
+  import ArtCutterImg from '@/components/core/media/art-cutter-img/index.vue'
 
   defineOptions({ name: 'UserCenter' })
 
@@ -260,8 +292,11 @@
   const avatarUrl = ref('')
   const avatarDialogVisible = ref(false)
   const tempAvatarUrl = ref('')
-  const tempAvatarFile = ref<File | null>(null)
+  const originalAvatarUrl = ref('') // 保存原始头像URL
   const isAvatarUploading = ref(false)
+  
+  // 裁剪组件引用
+  const cutterRef = ref()
   
   // 添加缓存破坏时间戳
   const avatarTimestamp = ref(Date.now())
@@ -553,20 +588,14 @@
 
   // 显示头像上传对话框
   const showAvatarUpload = () => {
+    // 保存原始头像URL用于后续上传原图
+    originalAvatarUrl.value = formattedAvatarUrl.value
     tempAvatarUrl.value = formattedAvatarUrl.value
-    tempAvatarFile.value = null // 确保每次打开对话框时清空文件选择
     avatarDialogVisible.value = true
   }
 
-  // 处理头像上传对话框关闭
-  const handleAvatarDialogClose = () => {
-    tempAvatarUrl.value = ''
-    tempAvatarFile.value = null
-    avatarDialogVisible.value = false
-  }
-
-  // 处理头像变更
-  const handleAvatarChange = (file: any) => {
+  // 处理文件选择
+  const handleFileSelect = (file: any) => {
     const rawFile = file.raw
     if (!rawFile) {
       ElMessage.error('无法获取文件信息')
@@ -586,29 +615,125 @@
       return
     }
 
-    // 保存文件和预览URL
-    tempAvatarFile.value = rawFile
-    tempAvatarUrl.value = URL.createObjectURL(rawFile)
+    // 创建本地预览URL并传递给裁剪组件
+    const fileUrl = URL.createObjectURL(rawFile)
+    tempAvatarUrl.value = fileUrl
+    originalAvatarUrl.value = fileUrl
+    
+    // 告诉裁剪组件更新图片
+    if (cutterRef.value && cutterRef.value.imgCutterModal) {
+      cutterRef.value.imgCutterModal.handleOpen({
+        name: rawFile.name || '头像图片',
+        src: fileUrl
+      })
+    }
+  }
+  
+  // 清空图片
+  const clearImage = () => {
+    if (cutterRef.value) {
+      // 使用组件暴露的clearImage方法
+      if (typeof cutterRef.value.clearImage === 'function') {
+        cutterRef.value.clearImage()
+      } else if (typeof cutterRef.value.handleClearAll === 'function') {
+        cutterRef.value.handleClearAll()
+      }
+      
+      // 清空所有相关状态
+      tempAvatarUrl.value = ''
+      originalAvatarUrl.value = ''
+      
+      // 通知用户
+      ElMessage.info('已清空图片')
+    }
   }
 
-  // 处理头像上传
-  const handleAvatarUpload = async () => {
-    // 检查是否选择了新头像文件
-    if (!tempAvatarFile.value) {
-      ElMessage.warning('请先选择头像文件')
-      return
-    }
+  // 处理头像上传对话框关闭
+  const handleAvatarDialogClose = () => {
+    tempAvatarUrl.value = ''
+    originalAvatarUrl.value = ''
+    avatarDialogVisible.value = false
+  }
 
-    if (!userInfo.value || !userInfo.value.user_id) {
-      ElMessage.error('获取用户ID失败')
-      return
-    }
+  // 裁剪组件的错误处理
+  const handleCropError = (error: any) => {
+    console.error('裁剪错误:', error)
+    ElMessage.error('图片裁剪出错')
+  }
 
+  // 裁剪组件的图片加载完成处理
+  const handleCropLoadComplete = (result: any) => {
+    console.log('图片加载完成:', result)
+    
+    // 当用户选择了新图片时，更新原图URL
+    if (result && result.src) {
+      console.log('检测到新图片加载，更新原图URL')
+      originalAvatarUrl.value = result.src
+    }
+  }
+  
+  // 裁剪组件的图片加载错误处理
+  const handleCropLoadError = (error: any) => {
+    console.error('图片加载失败:', error)
+    ElMessage.error('图片加载失败')
+  }
+  
+  // 监听裁剪过程中的预览图像变化
+  const handlePrintImg = (result: { dataURL: string }) => {
+    console.log('图片裁剪预览更新')
+    // 这里不更新originalAvatarUrl，因为这是裁剪过程
+  }
+
+  // 处理新图片选择事件
+  const handleImageSelected = (data: { originalUrl: string }) => {
+    console.log('用户选择了新图片:', data)
+    originalAvatarUrl.value = data.originalUrl
+  }
+
+  // 将Base64图像转换为Blob对象
+  const dataURLtoBlob = (dataURL: string): Blob => {
+    const arr = dataURL.split(',')
+    const mime = arr[0].match(/:(.*?);/)![1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    
+    return new Blob([u8arr], { type: mime })
+  }
+
+  // 将Blob对象转换为File对象
+  const blobToFile = (blob: Blob, filename: string): File => {
+    return new File([blob], filename, { type: blob.type })
+  }
+
+  // 上传原图
+  const uploadOriginalImage = async () => {
+    if (!userInfo.value || !userInfo.value.user_id) return
+    
     try {
       isAvatarUploading.value = true
       
-      // 上传头像文件，使用用户ID作为文件名
-      const avatarPath = await UserService.uploadAvatar(tempAvatarFile.value, userInfo.value.user_id)
+      // 使用组件暴露的方法获取原始图片
+      const originalImg = cutterRef.value?.getOriginalImage()
+      
+      if (!originalImg) {
+        ElMessage.warning('未找到原始图片')
+        isAvatarUploading.value = false
+        return
+      }
+      
+      console.log('上传原图:', originalImg)
+      
+      // 获取原始图片URL，创建Blob和File对象
+      const blob = await fetch(originalImg).then(r => r.blob())
+      const file = blobToFile(blob, `avatar_${Date.now()}.png`)
+      
+      // 上传头像文件
+      const avatarPath = await UserService.uploadAvatar(file, userInfo.value.user_id)
       
       if (!avatarPath) {
         throw new Error('头像上传失败')
@@ -623,13 +748,67 @@
       // 更新用户信息中的头像
       userStore.updateUserAvatar(avatarPath)
       
-      // 更新头像版本号，强制所有使用formattedAvatarUrl的组件刷新
+      // 更新头像版本号，强制刷新头像缓存
       updateAvatarVersion()
       
       // 发出头像更新事件，通知其他组件刷新
       mittBus.emit('avatar-updated')
       
-      ElMessage.success('头像上传成功')
+      ElMessage.success('原图上传成功')
+      
+      // 关闭对话框
+      avatarDialogVisible.value = false
+    } catch (error) {
+      ElMessage.error('头像上传失败')
+      console.error('[UserCenter] 上传头像错误:', error)
+    } finally {
+      isAvatarUploading.value = false
+    }
+  }
+  
+  // 上传裁剪后的图片
+  const uploadCroppedImage = async () => {
+    if (!userInfo.value || !userInfo.value.user_id) return
+    
+    try {
+      isAvatarUploading.value = true
+      
+      // 获取裁剪后的图片
+      const croppedImage = cutterRef.value?.getCroppedImage()
+      
+      if (!croppedImage) {
+        ElMessage.warning('请先裁剪图片')
+        isAvatarUploading.value = false
+        return
+      }
+      
+      // 将裁剪后的图片(Base64)转换为File对象
+      const blob = dataURLtoBlob(croppedImage)
+      const file = blobToFile(blob, `avatar_${Date.now()}.png`)
+      
+      // 上传头像文件
+      const avatarPath = await UserService.uploadAvatar(file, userInfo.value.user_id)
+      
+      if (!avatarPath) {
+        throw new Error('头像上传失败')
+      }
+      
+      // 更新用户头像信息
+      await UserService.updateAvatar(userInfo.value.user_id, avatarPath)
+      
+      // 更新本地头像URL
+      avatarUrl.value = avatarPath
+      
+      // 更新用户信息中的头像
+      userStore.updateUserAvatar(avatarPath)
+      
+      // 更新头像版本号，强制刷新头像缓存
+      updateAvatarVersion()
+      
+      // 发出头像更新事件，通知其他组件刷新
+      mittBus.emit('avatar-updated')
+      
+      ElMessage.success('裁剪图上传成功')
       
       // 关闭对话框
       avatarDialogVisible.value = false
@@ -650,6 +829,31 @@
       overflow: hidden;
       vertical-align: -0.15em;
       fill: currentcolor;
+    }
+    
+    // 头像上传对话框样式
+    .avatar-upload-dialog {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+      .dialog-footer {
+        margin-top: 15px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .left-actions {
+          display: flex;
+          gap: 10px;
+        }
+        
+        .right-actions {
+          display: flex;
+          gap: 10px;
+        }
+      }
     }
   }
 </style>
@@ -734,54 +938,6 @@
       color: var(--el-text-color-placeholder);
       background: var(--el-fill-color-light);
       border-radius: 50%;
-    }
-    
-    // 头像上传对话框
-    .avatar-upload-dialog {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      
-      .avatar-uploader {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 20px;
-        
-        .avatar-preview {
-          width: 120px;
-          height: 120px;
-        }
-        
-        .avatar-uploader-icon {
-          font-size: 28px;
-          color: #8c939d;
-          width: 120px;
-          height: 120px;
-          line-height: 120px;
-          text-align: center;
-          border: 1px dashed var(--el-border-color);
-          border-radius: 50%;
-        }
-        
-        .el-upload__tip {
-          color: var(--el-text-color-secondary);
-          font-size: 12px;
-          margin-top: 8px;
-          text-align: center;
-        }
-      }
-      
-      .dialog-footer {
-        margin-top: 20px;
-        width: 100%;
-        display: flex;
-        justify-content: flex-end;
-        
-        .el-button + .el-button {
-          margin-left: 12px;
-        }
-      }
     }
 
     .content {

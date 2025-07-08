@@ -66,25 +66,33 @@ export function formatImageUrl(url: string): string {
 
 /**
  * 格式化头像URL，添加版本号用于缓存控制
- * 只有当头像更新时才会使用新的版本号
+ * 始终添加版本号以确保头像更新后能立即显示
+ * 
  * @param url 头像URL
- * @returns 格式化后带版本号的URL
+ * @returns 格式化后的URL（始终带有版本号）
  */
 export function formatAvatarUrl(url?: string): string {
   if (!url) return '/assets/avatar/default.webp'
 
-  // 获取当前头像版本号（如果不存在，使用当前时间戳作为初始值）
-  const avatarVersion = local.get(AVATAR_VERSION_KEY) || Date.now().toString()
-
   // 格式化基础URL
   const baseUrl = formatImageUrl(url)
 
-  // 添加版本号参数
-  return baseUrl.includes('?') ? `${baseUrl}&_v=${avatarVersion}` : `${baseUrl}?_v=${avatarVersion}`
+  // 获取当前头像版本号（如果不存在，使用当前时间戳作为初始值）
+  const avatarVersion = local.get(AVATAR_VERSION_KEY) || Date.now().toString()
+
+  // 始终添加版本号参数，确保头像更新后能立即显示
+  // 如果URL中已包含_v参数，先移除再添加新的版本号
+  const baseUrlWithoutVersion = baseUrl.replace(/[?&]_v=[^&]+/, '')
+
+  // 添加新的版本号参数
+  return baseUrlWithoutVersion.includes('?')
+    ? `${baseUrlWithoutVersion}&_v=${avatarVersion}`
+    : `${baseUrlWithoutVersion}?_v=${avatarVersion}`
 }
 
 /**
  * 更新头像版本号，强制刷新所有使用formatAvatarUrl的组件
+ * 只有在头像实际被更新时才应调用此函数
  */
 export function updateAvatarVersion(): void {
   local.set(AVATAR_VERSION_KEY, Date.now().toString())
