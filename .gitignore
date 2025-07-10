@@ -1,0 +1,11 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.cursor
+.vscode
+
+src/types/auto-imports.d.ts
+src/types/components.d.ts
+.auto-imports.json
