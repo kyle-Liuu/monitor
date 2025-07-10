@@ -3,7 +3,7 @@ node_modules
 dist
 dist-ssr
 *.local
-.cursor
+.cursor/**
 .vscode
 
 src/types/auto-imports.d.ts
