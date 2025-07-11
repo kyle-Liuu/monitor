@@ -505,7 +505,7 @@ const {
     apiFn: fetchStreamList,
     apiParams: {
       current: 1,
-      size: 10,
+      size: 20,
       streamName: '',
       streamCode: '',
       protocol: '',

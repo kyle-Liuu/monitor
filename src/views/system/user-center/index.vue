@@ -6,7 +6,7 @@
           <img class="bg" src="@imgs/user/bg.webp" />
           <img class="avatar" src="@imgs/user/avatar.webp" />
           <h2 class="name">{{ userInfo.userName }}</h2>
-          <p class="des">Art Design Pro 是一款漂亮的后台管理系统模版.</p>
+          <p class="des">{{ form.des }}</p>
 
           <div class="outer-info">
             <div>
@@ -166,7 +166,7 @@
     mobile: '18888888888',
     address: '广东省深圳市宝安区西乡街道101栋201',
     sex: '2',
-    des: 'Art Design Pro 是一款漂亮的后台管理系统模版.'
+    des: '个人中心参考v2.4.2.9.1版本去修改'
   })
 
   const pwdForm = reactive({

@@ -15,24 +15,24 @@ export const mockOpenList = [
                 id: 'open-vehicle-001',
                 name: '红色轿车',
                 desc: '红色四门轿车，中型车',
-                image: '/assets/bus.jpg',
-                openFeature: '/assets/bus.jpg',
+                image: '/assets/face.jpg',
+                openFeature: '/assets/facefeature.jpg',
                 createTime: randomDateStr()
             },
             {
                 id: 'open-vehicle-002',
                 name: '白色货车',
                 desc: '白色小型货车，载重2吨',
-                image: '/assets/bus.jpg',
-                openFeature: '/assets/bus.jpg',
+                image: '/assets/face.jpg',
+                openFeature: '/assets/facefeature.jpg',
                 createTime: randomDateStr()
             },
             {
                 id: 'open-vehicle-003',
                 name: '黑色SUV',
                 desc: '黑色大型SUV，七座',
-                image: '/assets/bus.jpg',
-                openFeature: '/assets/bus.jpg',
+                image: '/assets/face.jpg',
+                openFeature: '/assets/facefeature.jpg',
                 createTime: randomDateStr()
             }
         ]
@@ -45,16 +45,16 @@ export const mockOpenList = [
                 id: 'open-object-001',
                 name: '黑色背包',
                 desc: '黑色双肩背包，中等大小',
-                image: '/assets/bus.jpg',
-                openFeature: '/assets/bus.jpg',
+                image: '/assets/face.jpg',
+                openFeature: '/assets/facefeature.jpg',
                 createTime: randomDateStr()
             },
             {
                 id: 'open-object-002',
                 name: '红色行李箱',
                 desc: '红色硬壳行李箱，大号',
-                image: '/assets/bus.jpg',
-                openFeature: '/assets/bus.jpg',
+                image: '/assets/face.jpg',
+                openFeature: '/assets/facefeature.jpg',
                 createTime: randomDateStr()
             }
         ]

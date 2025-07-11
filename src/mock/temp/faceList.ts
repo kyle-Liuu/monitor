@@ -21,8 +21,8 @@ export const mockFaceList = [
                 name: '张明',
                 gender: '男',
                 age: randomAge(25, 45),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '保安部门主管',
                 createTime: randomDateStr()
             },
@@ -31,8 +31,8 @@ export const mockFaceList = [
                 name: '李红',
                 gender: '女',
                 age: randomAge(25, 40),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '前台接待员',
                 createTime: randomDateStr()
             },
@@ -41,8 +41,8 @@ export const mockFaceList = [
                 name: '王刚',
                 gender: '男',
                 age: randomAge(30, 50),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '技术部门经理',
                 createTime: randomDateStr()
             },
@@ -51,8 +51,8 @@ export const mockFaceList = [
                 name: '周慧',
                 gender: '女',
                 age: randomAge(22, 35),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '人事专员',
                 createTime: randomDateStr()
             },
@@ -61,8 +61,8 @@ export const mockFaceList = [
                 name: '刘强',
                 gender: '男',
                 age: randomAge(35, 55),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '运维工程师',
                 createTime: randomDateStr()
             }
@@ -77,8 +77,8 @@ export const mockFaceList = [
                 name: '陈明',
                 gender: '男',
                 age: randomAge(),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '商务洽谈',
                 createTime: randomDateStr()
             },
@@ -87,8 +87,8 @@ export const mockFaceList = [
                 name: '赵婷',
                 gender: '女',
                 age: randomAge(),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '面试应聘',
                 createTime: randomDateStr()
             },
@@ -97,8 +97,8 @@ export const mockFaceList = [
                 name: '林伟',
                 gender: '男',
                 age: randomAge(),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '设备维修',
                 createTime: randomDateStr()
             }
@@ -113,8 +113,8 @@ export const mockFaceList = [
                 name: '黄总',
                 gender: '男',
                 age: randomAge(40, 65),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '公司董事长',
                 createTime: randomDateStr()
             },
@@ -123,8 +123,8 @@ export const mockFaceList = [
                 name: '张董',
                 gender: '男',
                 age: randomAge(40, 60),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '投资方代表',
                 createTime: randomDateStr()
             }
@@ -139,8 +139,8 @@ export const mockFaceList = [
                 name: '曾某',
                 gender: '男',
                 age: randomAge(25, 50),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '前员工，有过不良行为记录',
                 createTime: randomDateStr()
             },
@@ -149,8 +149,8 @@ export const mockFaceList = [
                 name: '钱某',
                 gender: '男',
                 age: randomAge(30, 45),
-                image: '/assets/facetest.jpg',
-                faceFeature: '/assets/face.jpg',
+                image: '/assets/face.jpg',
+                faceFeature: '/assets/facefeature.jpg',
                 desc: '疑似诈骗分子',
                 createTime: randomDateStr()
             }

@@ -32,6 +32,7 @@
 
 // 顶部进度条颜色
 #nprogress .bar {
+  z-index: 2400;
   background-color: color-mix(in srgb, var(--main-color) 65%, white);
 }
 
