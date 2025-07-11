@@ -55,9 +55,9 @@ export enum RoutesAlias {
   WarningInfo = '/warning/warninginfo', // 警告信息
   DataPush = '/warning/datapush', // 数据推送
   Warning = '/warning', // 警告管理
-  VideoStreamInfo = '/videostream/streaminfo', // 视频流信息
-  VirtualOrganization = '/videostream/virtualorganization', // 虚拟组织
-  Organization = '/videostream/organization', // 组织管理
+  StreamInfo = '/videostream/streaminfo', // 视频流信息
+  VirtualBinding = '/videostream/virtualbinding', // 虚拟绑定
+  Organization = '/videostream/organization', // 组织列表
   AlgorithmInfo = '/algorithm/algoinfo', // 算法信息
   RepositoryFace = '/repository/face', // 人脸底库
   RepositoryOpen = '/repository/open' // 开放底库

@@ -327,9 +327,9 @@
     },
     "videostream": {
       "title": "视频流管理",
-      "info": "视频流信息",
-      "virtualorganization": "虚拟组织",
-      "organization": "组织管理"
+      "streaminfo": "视频流信息",
+      "virtualbinding": "虚拟绑定",
+      "organization": "组织列表"
     },
     "algorithm": {
       "title": "算法管理",

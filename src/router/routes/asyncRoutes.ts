@@ -708,20 +708,20 @@ export const asyncRoutes: AppRouteRecord[] = [
     },
     children: [
       {
-        path: 'info',
-        name: 'VideoStreamInfo',
-        component: RoutesAlias.VideoStreamInfo,
+        path: 'streaminfo',
+        name: 'StreamInfo',
+        component: RoutesAlias.StreamInfo,
         meta: {
-          title: 'menus.videostream.info',
+          title: 'menus.videostream.streaminfo',
           keepAlive: true
         }
       },
       {
-        path: 'virtualorganization',
-        name: 'VirtualOrganization',
-        component: RoutesAlias.VirtualOrganization,
+        path: 'virtualbinding',
+        name: 'VirtualBinding',
+        component: RoutesAlias.VirtualBinding,
         meta: {
-          title: 'menus.videostream.virtualorganization',
+          title: 'menus.videostream.virtualbinding',
           keepAlive: true
         }
       },

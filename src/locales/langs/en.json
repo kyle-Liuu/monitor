@@ -327,9 +327,9 @@
     },
     "videostream": {
       "title": "Video Stream Management",
-      "info": "Stream Info",
-      "virtualorganization": "Virtual Organization",
-      "organization": "Organization Management"
+      "streaminfo": "Stream Info",
+      "virtualbinding": "Virtual Binding",
+      "organization": "Organization List"
     },
     "algorithm": {
       "title": "Algorithm Management",

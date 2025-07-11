@@ -1,4 +1,4 @@
-// 组织管理mock数据
+// 组织列表mock数据
 export interface OrgNode {
   id: string
   name: string
