@@ -149,21 +149,21 @@
     {
       key: 'super',
       label: t('login.roles.super'),
-      userName: 'Super',
+      userName: 'super',
       password: '123456',
       roles: ['R_SUPER']
     },
     {
       key: 'admin',
       label: t('login.roles.admin'),
-      userName: 'Admin',
+      userName: 'admin',
       password: '123456',
       roles: ['R_ADMIN']
     },
     {
       key: 'user',
       label: t('login.roles.user'),
-      userName: 'User',
+      userName: 'user',
       password: '123456',
       roles: ['R_USER']
     }
