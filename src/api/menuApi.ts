@@ -17,7 +17,7 @@ export const menuService = {
       }) as any;
       
       // 详细打印响应，帮助调试
-      console.log('原始菜单数据:', JSON.stringify(rawResponse));
+      // console.log('原始菜单数据:', JSON.stringify(rawResponse));
       
       let menuList: AppRouteRecord[] = [];
       
@@ -25,11 +25,11 @@ export const menuService = {
       if (rawResponse && typeof rawResponse === 'object') {
         if (rawResponse.data && rawResponse.data.menuList && Array.isArray(rawResponse.data.menuList)) {
           // 标准格式: {code, msg, data: {menuList: []}}
-          console.log('检测到标准数据格式');
+          // console.log('检测到标准数据格式');
           menuList = rawResponse.data.menuList;
         } else if (rawResponse.menuList && Array.isArray(rawResponse.menuList)) {
           // 简化格式: {menuList: []}
-          console.log('检测到简化数据格式');
+          // console.log('检测到简化数据格式');
           menuList = rawResponse.menuList;
         } else {
           // 尝试查找任何包含menuList的属性
@@ -40,7 +40,7 @@ export const menuService = {
           
           if (menuListKeys.length > 0) {
             const key = menuListKeys[0];
-            console.log(`在键 ${key} 中找到了可能的菜单数据`);
+            // console.log(`在键 ${key} 中找到了可能的菜单数据`);
             menuList = Array.isArray(rawResponse[key]) 
               ? rawResponse[key] 
               : (rawResponse[key].menuList || []);
@@ -58,7 +58,7 @@ export const menuService = {
       if (!menuList || menuList.length === 0) {
         console.warn('菜单列表为空或无效');
       } else {
-        console.log(`成功获取到 ${menuList.length} 个菜单项`);
+        // console.log(`成功获取到 ${menuList.length} 个菜单项`);
       }
       
       // 处理获取的菜单数据
