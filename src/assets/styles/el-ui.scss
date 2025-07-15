@@ -236,8 +236,8 @@ html.dark .el-card {
 
 .el-checkbox {
   .el-checkbox__inner {
-    width: 18px !important;
-    height: 18px !important;
+    width: 16px !important;
+    height: 16px !important;
     border-radius: 4px !important;
 
     &::before {
@@ -260,6 +260,10 @@ html.dark .el-card {
       border-left: 0;
       border-top: 0;
     }
+  }
+
+  &.is-checked .el-checkbox__inner::after {
+    transform: rotate(45deg) scaleY(1) !important;
   }
 }
 
