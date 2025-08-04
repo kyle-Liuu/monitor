@@ -253,7 +253,7 @@
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch, computed, reactive } from 'vue'
   import { Download, Delete, VideoPlay, Refresh } from '@element-plus/icons-vue'
-  import { WarningService, type WarningItem } from '@/api/warningApi'
+  import { WarningService, type AlarmItem, type AlarmDetail, AlarmStatus } from '@/api/warningApi'
   import { ElNotification, ElMessageBox, ElMessage } from 'element-plus'
   import { useRoute } from 'vue-router'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
@@ -285,9 +285,30 @@
     }>
   }
 
-  // 将API返回的WarningItem转换为UI展示需要的格式
-  function convertToUIWarning(apiWarning: WarningItem): WarningUIItem {
-    // 计算危险等级数值 (low=25, medium=50, high=75, critical=100)
+  // 将API返回的AlarmItem转换为UI展示需要的格式
+  function convertToUIWarning(apiWarning: AlarmItem | AlarmDetail): WarningUIItem {
+    // 添加数据验证
+    if (!apiWarning || typeof apiWarning !== 'object') {
+      console.warn('无效的告警数据:', apiWarning)
+      return {
+        id: 'unknown',
+        snap_id: 'unknown',
+        snap_time: new Date().toISOString(),
+        snap_imgurl: '',
+        snap_videourl: '',
+        device_name: '未知设备',
+        device_ip: '',
+        algo_name: '未知算法',
+        process_status: 72,
+        process_level: 25,
+        process_time: '',
+        process_username: '',
+        remark: '',
+        process_history: []
+      }
+    }
+
+    // 计算危险等级数值
     let processLevel = 25
     switch (apiWarning.level) {
       case 'low':
@@ -302,6 +323,9 @@
       case 'critical':
         processLevel = 100
         break
+      default:
+        processLevel = 25
+        break
     }
 
     // 转换处理状态
@@ -312,28 +336,31 @@
       processStatus = 74
     }
 
+    // 检查是否为AlarmDetail类型，获取扩展信息
+    const isDetail = 'task_info' in apiWarning
+    const taskInfo = isDetail ? (apiWarning as AlarmDetail).task_info : undefined
+
     return {
-      id: apiWarning.alarm_id,
-      snap_id: apiWarning.alarm_id, // 使用alarm_id作为snap_id
-      snap_time: apiWarning.timestamp,
-      snap_imgurl: apiWarning.media_files?.image || '',
-      snap_videourl: apiWarning.media_files?.video || '', // 添加空字符串作为默认值
-      device_name: apiWarning.stream_name,
-      device_ip: '', // 添加默认值
-      algo_name: apiWarning.algorithm_name,
+      id: apiWarning.alarm_id || 'unknown',
+      snap_id: apiWarning.alarm_id || 'unknown',
+      snap_time: apiWarning.created_at || new Date().toISOString(),
+      snap_imgurl: apiWarning.media_files?.original_image || '',
+      snap_videourl: apiWarning.media_files?.video_clip || '',
+      device_name: taskInfo?.stream_name || '未知设备',
+      device_ip: '',
+      algo_name: taskInfo?.algorithm_name || '未知算法',
       process_status: processStatus,
       process_level: processLevel,
-      process_time: apiWarning.processed_at,
-      process_username: apiWarning.processed_by,
-      remark: apiWarning.comment,
-      // 默认的处理历史
+      process_time: apiWarning.processed_at || '',
+      process_username: apiWarning.processed_by || '',
+      remark: apiWarning.process_comment || '',
       process_history: apiWarning.processed_at
         ? [
             {
               time: apiWarning.processed_at,
               user: apiWarning.processed_by || '未知用户',
               result: apiWarning.status === 'processed' ? '确认' : '忽略',
-              remark: apiWarning.comment || ''
+              remark: apiWarning.process_comment || ''
             }
           ]
         : []
@@ -341,8 +368,23 @@
   }
 
   // 转换多个告警项
-  function convertToUIWarnings(apiWarnings: WarningItem[]): WarningUIItem[] {
-    return apiWarnings.map(convertToUIWarning)
+  function convertToUIWarnings(apiWarnings: any[]): WarningUIItem[] {
+    if (!Array.isArray(apiWarnings)) {
+      console.warn('告警数据不是数组格式:', apiWarnings)
+      return []
+    }
+
+    return apiWarnings
+      .filter((item) => item && typeof item === 'object') // 过滤无效数据
+      .map((item) => {
+        try {
+          return convertToUIWarning(item)
+        } catch (error) {
+          console.error('转换告警数据失败:', error, item)
+          return null
+        }
+      })
+      .filter(Boolean) as WarningUIItem[] // 过滤转换失败的项
   }
 
   const searchForm = ref({
@@ -364,35 +406,68 @@
   const selectedItems = ref<string[]>([])
 
   // 模拟API函数
+  // 修复API调用函数，使用真实接口参数
   const fetchWarningList = async (params: any) => {
     try {
-      // 转换参数
+      // 转换参数，匹配真实后端接口
       const apiParams = {
-        skip: (params.current - 1) * params.size,
-        limit: params.size,
+        page: params.current || 1, // 修复：使用page替代skip
+        page_size: params.size || 8, // 修复：使用page_size替代limit
         status:
           params.processStatus !== ''
             ? params.processStatus === 0
-              ? 'new'
-              : 'processed'
+              ? AlarmStatus.NEW
+              : AlarmStatus.PROCESSED
             : undefined,
-        algorithm_id: params.algoName || undefined,
+        task_id: params.algoName || undefined, // 修复：使用task_id
         start_time: params.startTime || undefined,
         end_time: params.endTime || undefined
       }
 
+      // console.log('发送API请求参数:', apiParams)
+
       // 调用真实API
       const response = await WarningService.getWarningList(apiParams)
 
-      // 转换返回数据格式以匹配组件需求
-      const records = convertToUIWarnings(response.alarms)
+      // console.log('API响应数据:', response)
+
+      // 修复：根据实际API响应格式处理数据
+      let alarms: any[] = []
+      let total = 0
+
+      // 检查实际的响应格式：直接返回数据，不是包装在data字段中
+      if (response && typeof response === 'object') {
+        // 使用类型断言避免TypeScript错误，因为实际API响应格式与类型定义不匹配
+        const responseData = response as any
+
+        if (responseData.alarms && Array.isArray(responseData.alarms)) {
+          // 实际API响应格式：{alarms: [], total: number, page: number, page_size: number}
+          alarms = responseData.alarms
+          total = responseData.total || 0
+        } else if (responseData.data && responseData.data.alarms) {
+          // 如果是包装格式
+          alarms = responseData.data.alarms
+          total = responseData.data.total || 0
+        } else {
+          console.warn('未识别的响应格式:', response)
+          alarms = []
+          total = 0
+        }
+      }
+
+      // console.log('解析出的告警数据:', { alarms, total })
+
+      // 转换为UI格式
+      const records = convertToUIWarnings(alarms)
+
+      // console.log('转换后的UI数据:', records)
 
       return {
         records,
-        total: response.total,
+        total,
         size: params.size,
         current: params.current,
-        pages: Math.ceil(response.total / params.size)
+        pages: Math.ceil(total / params.size)
       }
     } catch (error) {
       console.error('获取告警列表失败:', error)
@@ -450,6 +525,19 @@
         endTime: searchForm.value.endTime
       },
       immediate: true // 立即执行查询
+    },
+
+    // 数据处理 - 添加自定义响应适配器
+    transform: {
+      responseAdapter: (response: any) => {
+        // 我们的fetchWarningList已经返回了标准格式
+        return {
+          records: response.records || [],
+          total: response.total || 0,
+          current: response.current,
+          size: response.size
+        }
+      }
     },
 
     // 性能优化
@@ -745,17 +833,17 @@
     }
   }
 
-  // 处理点击查看详情
+  // 修复处理详情查看的函数
   const handleViewDetail = async (row: WarningUIItem) => {
-    drawerVisible.value = true
-    processRemark.value = ''
-
     try {
-      // 获取告警详情
-      const warningDetail = await WarningService.getWarningDetail(row.id)
+      drawerVisible.value = true
+      drawerData.value = null
 
-      // 转换格式以符合页面需求
-      drawerData.value = convertToUIWarning(warningDetail)
+      // 获取告警详情
+      const response = await WarningService.getWarningDetail(row.id)
+
+      // 修复：正确处理API响应，提取data字段
+      drawerData.value = convertToUIWarning(response.data)
     } catch (error) {
       console.error('获取告警详情失败:', error)
       ElMessage.error('获取告警详情失败')

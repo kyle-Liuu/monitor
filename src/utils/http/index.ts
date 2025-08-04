@@ -21,12 +21,7 @@ const axiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT, // 请求超时时间(毫秒)
   baseURL: VITE_API_URL, // API地址
   withCredentials: VITE_WITH_CREDENTIALS === 'true', // 是否携带cookie，默认关闭
-  transformRequest: [(data) => JSON.stringify(data)], // 请求数据转换为 JSON 字符串
   validateStatus: (status) => status >= 200 && status < 300, // 只接受 2xx 的状态码
-  headers: {
-    get: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
-    post: { 'Content-Type': 'application/json;charset=utf-8' }
-  },
   transformResponse: [
     (data, headers) => {
       const contentType = headers['content-type']
@@ -47,10 +42,11 @@ axiosInstance.interceptors.request.use(
   (request: InternalAxiosRequestConfig) => {
     const { accessToken } = useUserStore()
 
-    // 设置 token 和 请求头
+    // 设置 token
     if (accessToken) {
       request.headers.set('Authorization', `Bearer ${accessToken}`)
       request.headers.set('Content-Type', 'application/json')
+      request.data = JSON.stringify(request.data)
     }
 
     return request

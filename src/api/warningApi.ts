@@ -13,13 +13,7 @@ export class WarningService {
   static getWarningList(params: AlarmQueryParams = {}) {
     return request.get<AlarmListResponse>({
       url: '/api/analyzer/alarms',
-      params: {
-        page: params.page || 1,
-        page_size: params.page_size || 20,
-        task_id: params.task_id,
-        stream_id: params.stream_id,
-        status: params.status
-      }
+      params
     })
   }
 
@@ -587,3 +581,32 @@ export class AlarmUtils {
     })
   }
 } 
+
+// ========================================
+// 向后兼容的类型别名
+// ========================================
+
+// 为了保持向后兼容性，添加 Warning 前缀的类型别名
+export interface ExtendedWarningItem extends AlarmItem {
+  // 添加UI层需要的属性
+  timestamp?: string // 兼容旧的timestamp字段
+  stream_name?: string // 兼容旧的stream_name字段  
+  algorithm_name?: string // 兼容旧的algorithm_name字段
+  comment?: string // 兼容旧的comment字段
+  
+  // 媒体文件的兼容属性
+  media_files?: {
+    original_image?: string
+    processed_image?: string
+    video_clip?: string
+    image?: string // 兼容属性
+    video?: string // 兼容属性
+  }
+}
+
+// 更新WarningItem别名
+export type WarningItem = ExtendedWarningItem
+export type WarningQueryParams = AlarmQueryParams  
+export type WarningListResponse = AlarmListResponse
+export type WarningStatus = AlarmStatus
+export type WarningLevel = AlarmLevel 

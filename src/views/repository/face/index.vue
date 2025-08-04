@@ -69,7 +69,11 @@
               row-key="id"
               :data="tableData"
               :loading="loading"
-              :pagination="paginationState"
+              :pagination="{
+                current: paginationState.current,
+                size: paginationState.size,
+                total: paginationState.total ?? 0
+              }"
               :columns="columns"
               :table-config="{ emptyHeight: '360px' }"
               :layout="{ marginTop: 10, showIndex: false }"

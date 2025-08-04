@@ -82,7 +82,11 @@
             <ArtTable
               ref="tableRef"
               :loading="loading"
-              :pagination="paginationState"
+              :pagination="{
+                current: paginationState.current,
+                size: paginationState.size,
+                total: paginationState.total ?? 0
+              }"
               :data="tableData"
               :columns="columns"
               :table-config="{

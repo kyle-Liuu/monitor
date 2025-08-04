@@ -17,6 +17,10 @@ export class UserService {
   static getUserInfo() {
     return request.get<UserInfoResponse>({
       url: '/api/user/info'
+      // 自定义请求头
+      // headers: {
+      //   'X-Custom-Header': 'your-custom-value'
+      // }
     })
   }
 

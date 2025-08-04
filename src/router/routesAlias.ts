@@ -62,5 +62,6 @@ export enum RoutesAlias {
   Organization = '/videostream/organization', // 组织列表
   AlgorithmInfo = '/algorithm/algoinfo', // 算法信息
   RepositoryFace = '/repository/face', // 人脸底库
-  RepositoryOpen = '/repository/open' // 开放底库
+  RepositoryOpen = '/repository/open', // 开放底库
+  ExamplesTablesTree = '/examples/tables/tree' // 左右布局表格示例
 }

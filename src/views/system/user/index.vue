@@ -5,11 +5,11 @@
 <template>
   <div class="user-page art-full-height">
     <!-- 搜索栏 -->
-    <UserSearch @reset="resetSearchParams" @search="getDataByPage" />
+    <UserSearch v-model:filter="defaultFilter" @reset="resetSearch" @search="handleSearch" />
 
     <ElCard class="art-table-card" shadow="never">
       <!-- 表格头部 -->
-      <ArtTableHeader v-model:columns="columnChecks" @refresh="refresh">
+      <ArtTableHeader v-model:columns="columnChecks" @refresh="refreshAll">
         <template #left>
           <ElButton @click="showDialog('add')">新增用户</ElButton>
           <ElButton v-if="selectedRows.length > 0" type="danger" @click="batchDeleteUsers">
@@ -20,19 +20,19 @@
 
       <!-- 表格 -->
       <ArtTable
-        :loading="loading"
-        :data="data"
+        :loading="isLoading"
+        :data="tableData"
         :columns="columns"
         :pagination="{
-          current: pagination.current,
-          size: pagination.size,
-          total: pagination.total ?? 0
+          current: paginationState.current,
+          size: paginationState.size,
+          total: paginationState.total ?? 0
         }"
         :table-config="{ rowKey: 'id' }"
         :layout="{ marginTop: 10 }"
         @row:selection-change="handleSelectionChange"
-        @pagination:size-change="handleSizeChange"
-        @pagination:current-change="handleCurrentChange"
+        @pagination:size-change="onPageSizeChange"
+        @pagination:current-change="onCurrentPageChange"
       >
       </ArtTable>
 
@@ -70,6 +70,15 @@
   // 选中行
   const selectedRows = ref<UserListItem[]>([])
 
+  // 表单搜索初始值
+  const defaultFilter = ref({
+    name: undefined,
+    level: 'normal',
+    date: '2025-01-05',
+    daterange: ['2025-01-01', '2025-02-10'],
+    status: '1'
+  })
+
   // 用户状态配置
   const USER_STATUS_CONFIG = {
     '1': { type: 'success' as const, text: '启用' },
@@ -93,17 +102,15 @@
   const {
     columns,
     columnChecks,
-    tableData: data,
-    isLoading: loading,
-    paginationState: pagination,
-    searchData: getDataByPage,
-    resetSearch: resetSearchParams,
-    onPageSizeChange: handleSizeChange,
-    onCurrentPageChange: handleCurrentChange,
-    refreshAll: refresh,
-    refreshAfterCreate: refreshAfterAdd,
-    refreshAfterUpdate: refreshAfterEdit,
-    refreshAfterRemove: refreshAfterDelete
+    tableData,
+    isLoading,
+    paginationState,
+    searchData,
+    searchState,
+    resetSearch,
+    onPageSizeChange,
+    onCurrentPageChange,
+    refreshAll
   } = useTable<UserListItem>({
     // 核心配置
     core: {
@@ -113,6 +120,11 @@
         size: 20,
         keyword: ''
       },
+      // 自定义分页字段映射，同时需要在 apiParams 中配置字段名
+      // paginationKey: {
+      //   current: 'pageNum',
+      //   size: 'pageSize'
+      // },
       columnsFactory: () => [
         { type: 'selection' }, // 勾选列
         { type: 'index', width: 60, label: '序号' }, // 序号
@@ -275,6 +287,20 @@
   })
 
   /**
+   * 搜索处理
+   * @param params 参数
+   */
+  const handleSearch = (params: Record<string, any>) => {
+    // 处理日期区间参数，把 daterange 转换为 startTime 和 endTime
+    const { daterange, ...searchParams } = params
+    const [startTime, endTime] = Array.isArray(daterange) ? daterange : [null, null]
+
+    // 搜索参数赋值
+    Object.assign(searchState, { ...searchParams, startTime, endTime })
+    searchData()
+  }
+
+  /**
    * 显示用户弹窗
    */
   const showDialog = (type: Form.DialogType, row?: UserListItem): void => {
@@ -298,7 +324,6 @@
       try {
         await deleteUser(row.id)
         ElMessage.success('删除成功')
-        refreshAfterDelete() // 智能删除后刷新
       } catch (error: any) {
         console.error('删除用户失败:', error)
         ElMessage.error(error.message || '删除失败')
@@ -333,7 +358,6 @@
 
         ElMessage.success(`成功删除 ${selectedRows.value.length} 个用户`)
         selectedRows.value = [] // 清空选中
-        refreshAfterDelete() // 刷新列表
       } catch (error: any) {
         console.error('批量删除失败:', error)
         ElMessage.error(error.message || '批量删除失败')
@@ -347,7 +371,6 @@
   const handleDialogSubmit = async () => {
     try {
       dialogVisible.value = false
-      await (dialogType.value === 'add' ? refreshAfterAdd() : refreshAfterEdit())
       currentUserData.value = {}
     } catch (error) {
       console.error('提交失败:', error)
