@@ -228,32 +228,56 @@
       // 登录请求
       const { username, password } = formData
 
-      const { token, refreshToken } = await UserService.login({
+      const loginResponse = (await UserService.login({
         userName: username,
         password
-      })
+      })) as any // 临时使用any类型来处理类型不匹配
+
+      // 根据响应格式处理
+      let token, refreshToken, user_info
+
+      if (loginResponse.code !== undefined) {
+        // 包装格式响应：{code, data, msg}
+        if (loginResponse.code !== 200) {
+          throw new Error(loginResponse.msg || '登录失败')
+        }
+        ;({ token, refreshToken, user_info } = loginResponse.data)
+      } else {
+        // 直接数据格式响应：{token, refreshToken, user_info}
+        ;({ token, refreshToken, user_info } = loginResponse)
+      }
 
       // 验证token
       if (!token) {
-        throw new Error('Login failed - no token received')
+        throw new Error('登录失败 - 未收到访问令牌')
       }
 
-      // 存储token和用户信息
+      // 存储token
       userStore.setToken(token, refreshToken)
-      const userInfo = await UserService.getUserInfo()
-      userStore.setUserInfo(userInfo)
       userStore.setLoginStatus(true)
+
+      // 获取用户信息
+      try {
+        const userInfoResponse = (await UserService.getUserInfo()) as any
+        // 根据响应格式提取用户信息
+        const userInfo = userInfoResponse.data || userInfoResponse
+        userStore.setUserInfo(userInfo)
+      } catch (error) {
+        console.warn('获取用户信息失败，继续登录流程:', error)
+      }
 
       // 登录成功处理
       showLoginSuccessNotice()
       router.push('/')
-    } catch (error) {
+    } catch (error: any) {
       // 处理 HttpError
       if (error instanceof HttpError) {
-        // console.log(error.code)
+        ElMessage.error(error.message || '登录失败')
+        console.error('[Login] HTTP error:', error.code, error.message)
       } else {
-        // 处理非 HttpError
-        ElMessage.error('登录失败，请稍后重试')
+        // 处理其他错误
+        const errorMessage = error?.message || '登录失败，请稍后重试'
+        ElMessage.error(errorMessage)
         console.error('[Login] Unexpected error:', error)
       }
     } finally {

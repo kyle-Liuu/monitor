@@ -63,7 +63,9 @@ axiosInstance.interceptors.request.use(
 
 // 响应拦截器
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse<Api.Http.BaseResponse>) => {
+  (response: AxiosResponse) => {
+    // 检查响应数据是否有code字段（包装格式）
+    if (response.data && typeof response.data.code !== 'undefined') {
     const { code, msg } = response.data
 
     switch (code) {
@@ -74,6 +76,11 @@ axiosInstance.interceptors.response.use(
         throw new HttpError(msg || $t('httpMsg.unauthorized'), ApiStatus.unauthorized)
       default:
         throw new HttpError(msg || $t('httpMsg.requestFailed'), code)
+      }
+    } else {
+      // 直接返回数据格式（非包装格式）
+      // HTTP状态码2xx表示成功，直接返回响应
+      return response
     }
   },
   (error) => {
@@ -119,8 +126,16 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
   }
 
   try {
-    const res = await axiosInstance.request<Api.Http.BaseResponse<T>>(config)
+    const res = await axiosInstance.request(config)
+    
+    // 检查响应数据格式
+    if (res.data && typeof res.data.code !== 'undefined' && res.data.data !== undefined) {
+      // 包装格式：{code: 200, msg: "success", data: {...}}
     return res.data.data as T
+    } else {
+      // 直接数据格式：{...}
+      return res.data as T
+    }
   } catch (error) {
     if (error instanceof HttpError) {
       // 根据配置决定是否显示错误消息

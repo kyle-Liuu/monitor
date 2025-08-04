@@ -166,14 +166,21 @@ const app = Vue.createApp({
         player: false,
         alert: false
       },
-      videoUrl: 'ws://192.168.1.74:9002/live/test.live.mp4',
+      videoUrl: 'ws://127.0.0.1/live/test.live.mp4',
       isPlay: false,
       config: {
-        hasAudio: true,
-        MSE: false,
-        WCS: false,
-        bufferTime: 0.2,
-        stretch: false
+        stretch: true,
+        isRtcZLM: true,
+        hasAudio: false,
+        isMute: true,
+        gpuDecoder: true,
+        canvasRender: true,
+        webGPU: true,
+        bufferTime: 0.05,  // 设置最小缓冲时长为0.1秒，降低延迟
+        isLive: true,     // 确保直播模式
+        MSE: true,        // 使用MSE优先解码模式
+        loadTimeOut: 5,   // 缩短加载超时时间
+        debug: false       // 启用调试，方便观察性能
       },
       screenCount: 1,
       playerList: [],

@@ -19,7 +19,7 @@
         >
           <template #left>
             <div class="toolbar-left">
-              <ElButton type="primary" @click="handleAdd" v-ripple :loading="btnLoading.add"
+              <ElButton type="primary" @click="handleAddClick" v-ripple :loading="btnLoading.add"
                 >新增</ElButton
               >
               <!-- 导出导入功能 -->
@@ -158,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, h, nextTick, reactive, watch } from 'vue'
+  import { ref, computed, h, nextTick, reactive, watch, onMounted } from 'vue'
   import { ElMessage, ElTag, ElMessageBox } from 'element-plus'
 
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
@@ -168,12 +168,79 @@
   import type { SearchFormItem } from '@/types'
   import type { FormInstance, FormRules } from 'element-plus'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { ORG_TREE_MOCK, OrgNode } from '@/mock/temp/orgTree'
+  import { OrganizationService, type OrganizationNode } from '@/api/organizationApi'
   import ArtExcelExport from '@/components/core/forms/art-excel-export/index.vue'
   import ArtExcelImport from '@/components/core/forms/art-excel-import/index.vue'
 
+  // 定义本地组织节点类型，与前端模板兼容
+  interface OrgNode {
+    id: string
+    name: string
+    parentId: string | null
+    status: '启用' | '禁用'
+    sort: number
+    desc?: string
+    children?: OrgNode[]
+    created_at?: string // 添加可选的创建时间字段
+    updated_at?: string // 添加可选的更新时间字段
+  }
+
   // 组织树数据
-  const orgTree = ref<OrgNode[]>(structuredClone(ORG_TREE_MOCK))
+  const orgTree = ref<OrgNode[]>([])
+  const loadingTree = ref(false)
+
+  // 记录是否已确认删除带子部门的组织
+  const hasConfirmedDelete = ref(false)
+
+  // 添加按钮点击事件处理函数（用于事件绑定，接收MouseEvent）
+  const handleAddClick = (evt?: MouseEvent) => {
+    handleAdd()
+  }
+
+  // 编辑按钮点击事件（包装函数）
+  const handleEditClick = (row: OrgNode) => {
+    return (evt?: MouseEvent) => {
+      handleEdit(row)
+    }
+  }
+
+  // 删除按钮点击事件（包装函数）
+  const handleDeleteClick = (row: OrgNode) => {
+    return (evt?: MouseEvent) => {
+      handleDelete(row)
+    }
+  }
+
+  // 获取组织树数据
+  const fetchOrganizationTree = async () => {
+    loadingTree.value = true
+    try {
+      const response = await OrganizationService.getOrganizationTree()
+
+      // 将API返回的数据转换为本地OrgNode格式
+      const transformNode = (apiNode: OrganizationNode): OrgNode => ({
+        id: apiNode.org_id,
+        name: apiNode.name,
+        parentId: apiNode.parent_id,
+        status: apiNode.status === 'active' ? '启用' : '禁用',
+        sort: apiNode.sort_order,
+        desc: apiNode.description,
+        children: apiNode.children ? apiNode.children.map(transformNode) : undefined
+      })
+
+      orgTree.value = response.organizations.map(transformNode)
+    } catch (error) {
+      console.error('获取组织树失败:', error)
+      ElMessage.error('获取组织树数据失败')
+    } finally {
+      loadingTree.value = false
+    }
+  }
+
+  // 组件挂载时获取组织树
+  onMounted(() => {
+    fetchOrganizationTree()
+  })
 
   // 状态变量
   const loading = ref(false)
@@ -383,18 +450,18 @@
               h(ArtButtonTable, {
                 type: 'add',
                 title: '添加子部门',
-                onClick: () => handleAdd(undefined, row),
+                onClick: () => handleAdd(row),
                 disabled: row.status === '禁用'
               }),
               h(ArtButtonTable, {
                 type: 'edit',
                 title: '编辑部门',
-                onClick: () => handleEdit(undefined as any, row)
+                onClick: () => handleEdit(row)
               }),
               h(ArtButtonTable, {
                 type: 'delete',
                 title: '删除部门',
-                onClick: () => handleDelete(undefined as any, row),
+                onClick: () => handleDelete(row),
                 disabled: row.children && row.children.length > 0 && !hasConfirmedDelete.value
               })
             ])
@@ -422,129 +489,78 @@
   })
 
   /**
-   * 添加新部门
+   * 打开添加组织对话框
    */
-  async function handleAdd(evt?: MouseEvent, row?: OrgNode) {
-    if (row && row.status === '禁用') {
-      ElMessage.warning('禁用部门不能添加子部门')
+  function handleAdd(parentNode?: OrgNode) {
+    dialogType.value = 'add'
+    dialogVisible.value = true
+    formData.value = {
+      id: '',
+      parentId: parentNode ? parentNode.id : '',
+      name: '',
+      sort: 1,
+      desc: '',
+      status: '启用'
+    }
+    nextTick(() => {
+      formRef.value?.clearValidate()
+    })
+  }
+
+  /**
+   * 打开编辑组织对话框
+   */
+  function handleEdit(node: OrgNode) {
+    dialogType.value = 'edit'
+    dialogVisible.value = true
+    formData.value = {
+      id: node.id,
+      parentId: node.parentId || '',
+      name: node.name,
+      sort: node.sort,
+      desc: node.desc || '',
+      status: node.status
+    }
+    nextTick(() => {
+      formRef.value?.clearValidate()
+    })
+  }
+
+  // 已删除重复的handleSubmit函数，使用handleDialogOk代替
+
+  /**
+   * 处理删除组织
+   */
+  function handleDelete(node: OrgNode) {
+    // 检查是否有子节点，有子节点不允许删除
+    const hasChildren = node.children && node.children.length > 0
+    if (hasChildren) {
+      ElMessage.warning('该组织下有子组织，不允许删除')
       return
     }
 
-    btnLoading.add = true
-    try {
-      dialogType.value = 'add'
-
-      // 重置表单数据
-      formData.value = {
-        id: '',
-        parentId: row?.id || '',
-        name: '',
-        sort: (await getMaxSort(row?.id ?? '')) + 1,
-        desc: '',
-        status: '启用'
-      }
-
-      treeSelectKey.value = Date.now()
-      dialogVisible.value = true
-
-      // 等待DOM更新后清除验证
-      nextTick(() => {
-        if (formRef.value) {
-          formRef.value.clearValidate()
+    ElMessageBox.confirm(`确定要删除组织 "${node.name}" 吗?`, '删除确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+      .then(async () => {
+        try {
+          btnLoading.delete = true
+          await OrganizationService.deleteOrganization(node.id)
+          ElMessage.success('删除组织成功')
+          // 重新获取组织树
+          await fetchOrganizationTree()
+        } catch (error) {
+          console.error('删除组织失败:', error)
+          ElMessage.error('删除组织失败')
+        } finally {
+          btnLoading.delete = false
         }
       })
-    } catch (error) {
-      console.error('准备添加部门失败:', error)
-      ElMessage.error('操作失败，请重试')
-    } finally {
-      btnLoading.add = false
-    }
-  }
-
-  /**
-   * 编辑部门
-   */
-  async function handleEdit(evt: MouseEvent, row: OrgNode) {
-    btnLoading.edit = true
-    try {
-      dialogType.value = 'edit'
-
-      // 设置表单数据
-      formData.value = {
-        id: row.id,
-        parentId: '',
-        name: row.name,
-        sort: row.sort || 1,
-        desc: row.desc || '',
-        status: row.status as '启用' | '禁用'
-      }
-
-      treeSelectKey.value = Date.now()
-      dialogVisible.value = true
-
-      // 等待DOM更新后设置parentId并清除验证
-      nextTick(async () => {
-        formData.value.parentId = (await findParentId(orgTree.value, row.id)) || ''
-        if (formRef.value) {
-          formRef.value.clearValidate()
-        }
+      .catch(() => {
+        // 取消删除
       })
-    } catch (error) {
-      console.error('准备编辑部门失败:', error)
-      ElMessage.error('操作失败，请重试')
-    } finally {
-      btnLoading.edit = false
-    }
-  }
-
-  // 记录是否已确认删除带子部门的组织
-  const hasConfirmedDelete = ref(false)
-
-  /**
-   * 删除部门
-   */
-  async function handleDelete(evt: MouseEvent, row: OrgNode) {
-    btnLoading.delete = true
-    try {
-      if (row.children && row.children.length > 0) {
-        await ElMessageBox.confirm('该部门下有子部门，删除将一并移除，是否继续？', '删除确认', {
-          type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          closeOnClickModal: false
-        })
-        // 用户已确认删除带子部门的组织
-        hasConfirmedDelete.value = true
-      } else {
-        await ElMessageBox.confirm('确定删除该部门？', '删除确认', {
-          type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          closeOnClickModal: false
-        })
-      }
-
-      // 执行删除操作
-      removeNodeById(orgTree.value, row.id)
-      ElMessage.success('删除成功')
-
-      // 移除分页相关逻辑
-      // if (tableData.length === 0 && paginationState.current > 1) {
-      //   onCurrentPageChange(paginationState.current - 1);
-      // }
-
-      // 刷新数据
-      refreshAll()
-    } catch (error) {
-      if (error !== 'cancel') {
-        console.error('删除部门失败:', error)
-        ElMessage.error('删除失败，请重试')
-      }
-    } finally {
-      btnLoading.delete = false
-      // 重置确认状态
-      hasConfirmedDelete.value = false
-    }
   }
 
   /**
@@ -606,78 +622,80 @@
    * 处理添加组织
    */
   async function handleAddOrg() {
-    // 创建新节点
-    const newId = Date.now().toString()
-    const node: OrgNode = {
-      id: newId,
-      name: formData.value.name.trim(),
-      status: formData.value.status,
-      desc: formData.value.desc.trim(),
-      created_at: new Date().toLocaleString('zh-CN', { hour12: false }),
-      sort: formData.value.sort,
-      children: []
-    }
+    try {
+      // 调用API创建组织
+      await OrganizationService.createOrganization({
+        name: formData.value.name.trim(),
+        parent_id: formData.value.parentId || null,
+        description: formData.value.desc.trim(),
+        status: formData.value.status === '启用' ? 'active' : 'inactive',
+        sort_order: formData.value.sort
+      })
 
-    // 添加到组织树中
-    if (formData.value.parentId) {
-      const parent = findNodeById(orgTree.value, formData.value.parentId)
-      if (parent) {
-        if (!parent.children) parent.children = []
-        parent.children.push(node)
-        // 按排序值排序
-        parent.children.sort((a, b) => (a.sort || 0) - (b.sort || 0))
-      }
-    } else {
-      orgTree.value.push(node)
-      // 根级组织按排序值排序
-      orgTree.value.sort((a, b) => (a.sort || 0) - (b.sort || 0))
-    }
+      // 重新获取组织树数据
+      await fetchOrganizationTree()
 
-    // 刷新数据
-    refreshAll()
+      ElMessage.success('添加组织成功')
+    } catch (error) {
+      console.error('添加组织失败:', error)
+      ElMessage.error('添加组织失败')
+      throw error
+    }
   }
 
   /**
    * 处理编辑组织
    */
   async function handleEditOrg() {
-    // 查找并更新节点
-    const node = findNodeById(orgTree.value, formData.value.id)
-    if (!node) {
-      ElMessage.error('未找到要编辑的部门，请刷新页面重试')
-      return Promise.reject('未找到节点')
-    }
+    try {
+      // 调用API更新组织
+      await OrganizationService.updateOrganization(formData.value.id, {
+        name: formData.value.name.trim(),
+        description: formData.value.desc.trim(),
+        status: formData.value.status === '启用' ? 'active' : 'inactive',
+        sort_order: formData.value.sort
+      })
 
-    // 更新节点属性
-    node.name = formData.value.name.trim()
-    node.status = formData.value.status
-    node.desc = formData.value.desc.trim()
-    node.sort = formData.value.sort
+      // 若上级变更，需移动节点
+      const node = findNodeById(orgTree.value, formData.value.id)
+      if (node) {
+        const oldParentId = await findParentId(orgTree.value, formData.value.id)
+        if (oldParentId !== formData.value.parentId) {
+          // 调用移动API
+          await OrganizationService.moveOrganization({
+            org_id: formData.value.id,
+            new_parent_id: formData.value.parentId || '',
+            update_children_path: false
+          })
+        }
 
-    // 若上级变更，需移动节点
-    const oldParentId = await findParentId(orgTree.value, formData.value.id)
-    if (oldParentId !== formData.value.parentId) {
-      await moveNode(orgTree.value, formData.value.id, formData.value.parentId)
-    }
+        // 如果修改了状态为禁用，且有子节点，询问是否级联禁用子节点
+        if (formData.value.status === '禁用' && node.children && node.children.length > 0) {
+          try {
+            await ElMessageBox.confirm('是否将所有子部门也设为禁用状态？', '级联设置', {
+              confirmButtonText: '是',
+              cancelButtonText: '否',
+              type: 'warning',
+              closeOnClickModal: false
+            })
 
-    // 如果修改了状态为禁用，且有子节点，询问是否级联禁用子节点
-    if (node.status === '禁用' && node.children && node.children.length > 0) {
-      try {
-        await ElMessageBox.confirm('是否将所有子部门也设为禁用状态？', '级联设置', {
-          confirmButtonText: '是',
-          cancelButtonText: '否',
-          type: 'warning',
-          closeOnClickModal: false
-        })
-        // 级联设置子节点状态
-        updateChildrenStatus(node, '禁用')
-      } catch (e) {
-        // 用户选择不级联设置，不做处理
+            // 这里应该有API支持级联更新，暂时在前端模拟
+            updateChildrenStatus(node, '禁用')
+          } catch (e) {
+            // 用户选择不级联设置，不做处理
+          }
+        }
       }
-    }
 
-    // 刷新数据
-    refreshAll()
+      // 重新获取组织树数据
+      await fetchOrganizationTree()
+
+      ElMessage.success('编辑组织成功')
+    } catch (error) {
+      console.error('编辑组织失败:', error)
+      ElMessage.error('编辑组织失败')
+      throw error
+    }
   }
 
   /**

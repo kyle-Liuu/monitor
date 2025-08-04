@@ -4,44 +4,61 @@
       <ElRow :gutter="12">
         <ElCol :xs="24" :sm="12" :lg="6">
           <ElFormItem>
-            <ElInput placeholder="请输入角色名称" v-model="form.roleName"></ElInput>
+            <ElInput
+              placeholder="请输入角色名称"
+              v-model="searchForm.keyword"
+              @keyup.enter="fetchRolesList"
+            ></ElInput>
           </ElFormItem>
         </ElCol>
         <ElCol :xs="24" :sm="12" :lg="6">
           <ElFormItem>
-            <ElButton v-ripple>搜索</ElButton>
-            <ElButton @click="showDialog('add')" v-ripple>新增角色</ElButton>
+            <ElButton v-ripple @click="fetchRolesList" :loading="loading">搜索</ElButton>
+            <ElButton @click="showDialog('add')" v-ripple type="primary">新增角色</ElButton>
+          </ElFormItem>
+        </ElCol>
+        <ElCol :xs="24" :sm="12" :lg="6">
+          <ElFormItem>
+            <ElButton v-if="selectedRoles.length > 0" @click="batchOperateRoles" type="warning">
+              批量操作 ({{ selectedRoles.length }})
+            </ElButton>
           </ElFormItem>
         </ElCol>
       </ElRow>
     </ElForm>
-    <ArtTable :data="roleList" index>
+
+    <ArtTable :data="roleList" :loading="loading" index @selection-change="handleSelectionChange">
       <template #default>
-        <ElTableColumn label="角色名称" prop="roleName" />
-        <ElTableColumn label="角色编码" prop="roleCode" />
-        <ElTableColumn label="描述" prop="des" />
-        <ElTableColumn label="启用" prop="enable">
+        <ElTableColumn type="selection" width="55" />
+        <ElTableColumn label="角色名称" prop="role_name" sortable />
+        <ElTableColumn label="角色编码" prop="role_code" sortable>
           <template #default="scope">
-            <ElTag :type="scope.row.enable ? 'primary' : 'info'">
-              {{ scope.row.enable ? '启用' : '禁用' }}
-            </ElTag>
+            <ElTag type="info" size="small">{{ scope.row.role_code }}</ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn label="创建时间" prop="date">
+        <ElTableColumn label="描述" prop="description" show-overflow-tooltip />
+        <ElTableColumn label="用户数量" prop="user_count" sortable width="100">
           <template #default="scope">
-            {{ formatDate(scope.row.date) }}
+            <ElBadge :value="scope.row.user_count || 0" class="item">
+              <ElButton size="small" text>用户</ElButton>
+            </ElBadge>
           </template>
         </ElTableColumn>
-        <ElTableColumn fixed="right" label="操作" width="100px">
+        <ElTableColumn label="状态" prop="is_enabled" width="100">
+          <template #default="scope">
+            <ElSwitch v-model="scope.row.is_enabled" @change="toggleRoleStatus(scope.row)" />
+          </template>
+        </ElTableColumn>
+        <ElTableColumn label="创建时间" prop="created_at" sortable width="180">
+          <template #default="scope">
+            {{ formatDate(scope.row.created_at) }}
+          </template>
+        </ElTableColumn>
+        <ElTableColumn fixed="right" label="操作" width="120px">
           <template #default="scope">
             <ElRow>
-              <!-- 可以在 list 中添加 auth 属性来控制按钮的权限, auth 属性值为权限标识 -->
               <ArtButtonMore
-                :list="[
-                  { key: 'permission', label: '菜单权限' },
-                  { key: 'edit', label: '编辑角色' },
-                  { key: 'delete', label: '删除角色' }
-                ]"
+                :list="getActionList(scope.row)"
                 @click="buttonMoreClick($event, scope.row)"
               />
             </ElRow>
@@ -50,6 +67,7 @@
       </template>
     </ArtTable>
 
+    <!-- 新增/编辑角色对话框 -->
     <ElDialog
       v-model="dialogVisible"
       :title="dialogType === 'add' ? '新增角色' : '编辑角色'"
@@ -57,34 +75,51 @@
       align-center
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="120px">
-        <ElFormItem label="角色名称" prop="roleName">
-          <ElInput v-model="form.roleName" />
+        <ElFormItem label="角色名称" prop="role_name">
+          <ElInput v-model="form.role_name" placeholder="请输入角色名称" />
         </ElFormItem>
-        <ElFormItem label="角色编码" prop="roleCode">
-          <ElInput v-model="form.roleCode" />
+        <ElFormItem label="角色编码" prop="role_code">
+          <ElInput
+            v-model="form.role_code"
+            placeholder="请输入角色编码(如：R_USER)"
+            :disabled="dialogType === 'edit'"
+          />
         </ElFormItem>
-        <ElFormItem label="描述" prop="roleStatus">
-          <ElInput v-model="form.des" type="textarea" :rows="3" />
+        <ElFormItem label="描述" prop="description">
+          <ElInput
+            v-model="form.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入角色描述"
+          />
         </ElFormItem>
-        <ElFormItem label="启用">
-          <ElSwitch v-model="form.enable" />
+        <ElFormItem label="启用状态">
+          <ElSwitch v-model="form.is_enabled" />
         </ElFormItem>
       </ElForm>
       <template #footer>
         <div class="dialog-footer">
           <ElButton @click="dialogVisible = false">取消</ElButton>
-          <ElButton type="primary" @click="handleSubmit(formRef)">提交</ElButton>
+          <ElButton type="primary" :loading="submitting" @click="handleSubmit(formRef)">
+            {{ submitting ? '提交中...' : '提交' }}
+          </ElButton>
         </div>
       </template>
     </ElDialog>
 
+    <!-- 菜单权限对话框 -->
     <ElDialog
       v-model="permissionDialog"
-      title="菜单权限"
+      title="菜单权限配置"
       width="520px"
       align-center
       class="el-dialog-border"
     >
+      <div v-if="currentRole">
+        <p style="margin-bottom: 16px; color: #666">
+          正在为角色「{{ currentRole.role_name }}」配置菜单权限
+        </p>
+      </div>
       <ElScrollbar height="70vh">
         <ElTree
           ref="treeRef"
@@ -92,7 +127,7 @@
           show-checkbox
           node-key="name"
           :default-expand-all="isExpandAll"
-          :default-checked-keys="[1, 2, 3]"
+          :default-checked-keys="checkedMenus"
           :props="defaultProps"
           @check="handleTreeCheck"
         >
@@ -112,7 +147,38 @@
           <ElButton @click="toggleSelectAll" style="margin-left: 8px">{{
             isSelectAll ? '取消全选' : '全部选择'
           }}</ElButton>
-          <ElButton type="primary" @click="savePermission">保存</ElButton>
+          <ElButton type="primary" :loading="savingPermission" @click="savePermission">
+            {{ savingPermission ? '保存中...' : '保存' }}
+          </ElButton>
+        </div>
+      </template>
+    </ElDialog>
+
+    <!-- 批量操作对话框 -->
+    <ElDialog v-model="batchDialog" title="批量操作" width="400px" align-center>
+      <ElForm :model="batchForm" label-width="120px">
+        <ElFormItem label="操作类型">
+          <ElSelect v-model="batchForm.operation" placeholder="请选择操作类型">
+            <ElOption label="启用" value="enable" />
+            <ElOption label="禁用" value="disable" />
+            <ElOption label="删除" value="delete" />
+          </ElSelect>
+        </ElFormItem>
+        <ElFormItem v-if="batchForm.operation === 'delete'" label="确认删除">
+          <ElAlert title="警告：删除操作不可恢复，请谨慎操作！" type="warning" :closable="false" />
+        </ElFormItem>
+      </ElForm>
+      <template #footer>
+        <div class="dialog-footer">
+          <ElButton @click="batchDialog = false">取消</ElButton>
+          <ElButton
+            type="primary"
+            :loading="batchProcessing"
+            @click="confirmBatchOperation"
+            :disabled="!batchForm.operation"
+          >
+            {{ batchProcessing ? '处理中...' : '确认' }}
+          </ElButton>
         </div>
       </template>
     </ElDialog>
@@ -124,17 +190,62 @@
   import { ElMessage, ElMessageBox } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { formatMenuTitle } from '@/router/utils/utils'
-  import { Role, ROLE_LIST_DATA } from '@/mock/temp/formData'
+  import { RoleService } from '@/api/roleApi'
   import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
 
   defineOptions({ name: 'Role' })
 
+  // 响应式数据
   const dialogVisible = ref(false)
   const permissionDialog = ref(false)
+  const batchDialog = ref(false)
   const { menuList } = storeToRefs(useMenuStore())
   const treeRef = ref()
   const isExpandAll = ref(true)
   const isSelectAll = ref(false)
+  const loading = ref(false)
+  const submitting = ref(false)
+  const savingPermission = ref(false)
+  const batchProcessing = ref(false)
+
+  // 角色列表数据
+  const roleList = ref<any[]>([])
+  const selectedRoles = ref<any[]>([])
+  const currentRole = ref<any>(null)
+  const checkedMenus = ref<string[]>([])
+
+  // 搜索表单
+  const searchForm = reactive({
+    keyword: ''
+  })
+
+  // 批量操作表单
+  const batchForm = reactive({
+    operation: '' as 'delete' | 'enable' | 'disable' | ''
+  })
+
+  // 获取角色列表
+  const fetchRolesList = async () => {
+    loading.value = true
+    try {
+      const response = await RoleService.getRolesList({
+        keyword: searchForm.keyword
+      })
+      // 直接使用响应数据，不再检查code字段
+      roleList.value = response.roles || []
+    } catch (error: any) {
+      console.error('获取角色列表失败:', error)
+      ElMessage.error(error.message || '获取角色列表失败')
+      roleList.value = []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 页面初始化时获取角色列表
+  onMounted(() => {
+    fetchRolesList()
+  })
 
   // 处理菜单数据，将 authList 转换为子节点
   const processedMenuList = computed(() => {
@@ -169,30 +280,35 @@
   const formRef = ref<FormInstance>()
 
   const rules = reactive<FormRules>({
-    name: [
+    role_name: [
       { required: true, message: '请输入角色名称', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
     ],
-    des: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
+    role_code: [
+      { required: true, message: '请输入角色编码', trigger: 'blur' },
+      {
+        pattern: /^R_[A-Z_]+$/,
+        message: '角色编码必须以R_开头，只能包含大写字母和下划线',
+        trigger: 'blur'
+      }
+    ],
+    description: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
   })
 
-  const form = reactive<Role>({
-    roleName: '',
-    roleCode: '',
-    des: '',
-    date: '',
-    enable: true
-  })
-
-  const roleList = ref<Role[]>([])
-
-  onMounted(() => {
-    getTableData()
-  })
-
-  const getTableData = () => {
-    roleList.value = ROLE_LIST_DATA
+  // 表单数据类型
+  interface RoleFormData {
+    role_name: string
+    role_code: string
+    description: string
+    is_enabled: boolean
   }
+
+  const form = reactive<RoleFormData>({
+    role_name: '',
+    role_code: '',
+    description: '',
+    is_enabled: true
+  })
 
   const dialogType = ref('add')
 
@@ -201,32 +317,65 @@
     dialogType.value = type
 
     if (type === 'edit' && row) {
-      form.roleName = row.roleName
-      form.roleCode = row.roleCode
-      form.des = row.des
-      form.date = row.date
-      form.enable = row.enable
+      form.role_name = row.role_name
+      form.role_code = row.role_code
+      form.description = row.description
+      form.is_enabled = row.is_enabled
+      currentRole.value = row
     } else {
-      form.roleName = ''
-      form.roleCode = ''
-      form.des = ''
-      form.date = ''
-      form.enable = true
+      form.role_name = ''
+      form.role_code = ''
+      form.description = ''
+      form.is_enabled = true
+      currentRole.value = null
     }
+  }
+
+  // 获取操作按钮列表
+  const getActionList = (row: any) => {
+    const actions = [
+      { key: 'permission', label: '菜单权限' },
+      { key: 'edit', label: '编辑角色' }
+    ]
+
+    // 系统预设角色不允许删除
+    if (!['R_SUPER', 'R_ADMIN', 'R_USER'].includes(row.role_code)) {
+      actions.push({ key: 'delete', label: '删除角色' })
+    }
+
+    return actions
   }
 
   const buttonMoreClick = (item: ButtonMoreItem, row: any) => {
     if (item.key === 'permission') {
-      showPermissionDialog()
+      showPermissionDialog(row)
     } else if (item.key === 'edit') {
       showDialog('edit', row)
     } else if (item.key === 'delete') {
-      deleteRole()
+      deleteRole(row)
     }
   }
 
-  const showPermissionDialog = () => {
+  const showPermissionDialog = (role: any) => {
+    currentRole.value = role
+    // TODO: 获取角色的菜单权限
+    checkedMenus.value = []
     permissionDialog.value = true
+  }
+
+  // 切换角色状态
+  const toggleRoleStatus = async (role: any) => {
+    try {
+      await RoleService.updateRole(role.role_id, {
+        is_enabled: role.is_enabled
+      })
+      ElMessage.success(`角色已${role.is_enabled ? '启用' : '禁用'}`)
+    } catch (error: any) {
+      // 恢复原状态
+      role.is_enabled = !role.is_enabled
+      console.error('更新角色状态失败:', error)
+      ElMessage.error(error.message || '更新角色状态失败')
+    }
   }
 
   const defaultProps = {
@@ -234,32 +383,128 @@
     label: (data: any) => formatMenuTitle(data.meta?.title) || ''
   }
 
-  const deleteRole = () => {
-    ElMessageBox.confirm('确定删除该角色吗？', '删除确认', {
+  const deleteRole = (role: any) => {
+    ElMessageBox.confirm(`确定删除角色「${role.role_name}」吗？`, '删除确认', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'error'
-    }).then(() => {
-      ElMessage.success('删除成功')
+      type: 'warning'
+    }).then(async () => {
+      try {
+        await RoleService.deleteRole(role.role_id)
+        ElMessage.success('删除成功')
+        fetchRolesList() // 重新获取列表
+      } catch (error: any) {
+        console.error('删除角色失败:', error)
+        ElMessage.error(error.message || '删除失败')
+      }
     })
   }
 
   const handleSubmit = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
 
-    await formEl.validate((valid) => {
-      if (valid) {
-        const message = dialogType.value === 'add' ? '新增成功' : '修改成功'
-        ElMessage.success(message)
-        dialogVisible.value = false
-        formEl.resetFields()
-      }
+    const valid = await new Promise((resolve) => {
+      formEl.validate((valid) => resolve(valid))
     })
+
+    if (!valid) return
+
+    try {
+      submitting.value = true
+
+      if (dialogType.value === 'add') {
+        // 创建角色
+        await RoleService.createRole({
+          role_name: form.role_name,
+          role_code: form.role_code,
+          description: form.description,
+          is_enabled: form.is_enabled
+        })
+        ElMessage.success('创建成功')
+      } else {
+        // 更新角色
+        await RoleService.updateRole(currentRole.value.role_id, {
+          role_name: form.role_name,
+          description: form.description,
+          is_enabled: form.is_enabled
+        })
+        ElMessage.success('更新成功')
+      }
+
+      dialogVisible.value = false
+      formEl.resetFields()
+      fetchRolesList() // 重新获取列表
+    } catch (error: any) {
+      console.error('提交失败:', error)
+      ElMessage.error(error.message || '操作失败')
+    } finally {
+      submitting.value = false
+    }
   }
 
-  const savePermission = () => {
-    ElMessage.success('权限保存成功')
-    permissionDialog.value = false
+  const savePermission = async () => {
+    if (!currentRole.value) return
+
+    try {
+      savingPermission.value = true
+      // TODO: 调用保存权限的API
+      ElMessage.success('权限保存成功')
+      permissionDialog.value = false
+    } catch (error: any) {
+      console.error('保存权限失败:', error)
+      ElMessage.error(error.message || '保存权限失败')
+    } finally {
+      savingPermission.value = false
+    }
+  }
+
+  // 表格选择变化
+  const handleSelectionChange = (selection: any[]) => {
+    selectedRoles.value = selection
+  }
+
+  // 批量操作角色
+  const batchOperateRoles = () => {
+    if (selectedRoles.value.length === 0) {
+      ElMessage.warning('请先选择要操作的角色')
+      return
+    }
+    batchForm.operation = ''
+    batchDialog.value = true
+  }
+
+  // 确认批量操作
+  const confirmBatchOperation = async () => {
+    if (!batchForm.operation) {
+      ElMessage.warning('请选择操作类型')
+      return
+    }
+
+    try {
+      batchProcessing.value = true
+      const roleIds = selectedRoles.value.map((role) => role.role_id)
+
+      await RoleService.batchOperateRoles({
+        role_ids: roleIds,
+        operation: batchForm.operation
+      })
+
+      const operationText = {
+        enable: '启用',
+        disable: '禁用',
+        delete: '删除'
+      }[batchForm.operation]
+
+      ElMessage.success(`批量${operationText}成功`)
+      batchDialog.value = false
+      selectedRoles.value = []
+      fetchRolesList() // 重新获取列表
+    } catch (error: any) {
+      console.error('批量操作失败:', error)
+      ElMessage.error(error.message || '批量操作失败')
+    } finally {
+      batchProcessing.value = false
+    }
   }
 
   const toggleExpandAll = () => {
@@ -320,6 +565,7 @@
   }
 
   const formatDate = (date: string) => {
+    if (!date) return '-'
     return new Date(date)
       .toLocaleString('zh-CN', {
         year: 'numeric',

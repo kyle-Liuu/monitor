@@ -47,7 +47,11 @@
         row-key="id"
         :data="streamData"
         :loading="isLoading"
-        :pagination="paginationState"
+        :pagination="{
+          current: paginationState.current,
+          size: paginationState.size,
+          total: paginationState.total ?? 0
+        }"
         :columns="columns"
         :table-config="{ emptyHeight: '360px' }"
         :layout="{ marginTop: 10, showIndex: false }"
@@ -209,10 +213,38 @@
   } from 'element-plus'
   import { BgColorEnum } from '@/enums/appEnum'
   import type { SearchFormItem } from '@/types'
-  import { STREAM_LIST_MOCK, StreamItem, findOrgNameById } from '@/mock/temp/streamList'
-  import { ORG_TREE_MOCK } from '@/mock/temp/orgTree'
+  import { StreamService, type StreamItem as APIStreamItem } from '@/api/streamApi'
+  import { OrganizationService, type OrganizationNode } from '@/api/organizationApi'
+  import { VirtualOrgService } from '@/api/virtualOrgApi'
   import { defineProps } from 'vue'
   import type { TransferDataItem, TransferKey, TransferDirection } from 'element-plus'
+
+  // 定义本地StreamItem类型，与前端模板兼容
+  interface StreamItem {
+    id: string // 改为string类型
+    streamName: string
+    streamCode: string
+    protocol: string
+    orgId: string
+    orgName: string
+    description: string
+    enable: boolean
+    createTime: string
+    org_id?: string // 添加兼容后端API的字段
+    algos?: string[] // 添加可能需要的字段
+    algoConfigs?: Record<string, any> // 添加可能需要的字段
+  }
+
+  // 本地组织节点类型
+  interface OrgNode {
+    id: string
+    name: string
+    parentId: string | null
+    status: '启用' | '禁用'
+    sort: number
+    desc?: string
+    children?: OrgNode[]
+  }
 
   interface Props {
     orgId?: string
@@ -224,16 +256,54 @@
 
   const { width } = useWindowSize()
   const loading = ref(false)
+  const errorMessage = ref<string>('')
+
+  // 表单和组织树相关
+  const formRef = ref<FormInstance>()
+  const orgTree = ref<OrgNode[]>([])
+  const expandedOrgKeys = ref<string[]>([])
+  const treeSelectKey = ref(0)
+  const selectedOrgPath = ref<string[]>([])
+  const selectedOrgPathIds = ref<string[]>([])
+  const formData = ref({
+    streamName: '',
+    orgId: '',
+    description: '',
+    enable: false
+  })
+  const formRules = {
+    streamName: [
+      { required: true, message: '请输入流名称', trigger: 'blur' },
+      { min: 2, max: 50, message: '流名称长度为2-50字符', trigger: 'blur' }
+    ],
+    orgId: [{ required: true, message: '请选择组织', trigger: 'change' }]
+  }
+
+  // 编辑对话框相关
   const dialogVisible = ref(false)
   const dialogType = ref<'add' | 'edit'>('add')
-  const selectedRows = ref<StreamItem[]>([])
-  const errorMessage = ref<string>('')
   const isSubmitting = ref(false)
-  const batchOperationLoading = ref(false)
-  const transferSubmitting = ref(false)
-  // 删除重复声明的tableData
-  // const tableData = ref<StreamItem[]>([])
+  const editRowId = ref<string | null>(null)
 
+  // 批量操作相关
+  const btnLoading = reactive({
+    add: false,
+    edit: false,
+    delete: false,
+    enable: false,
+    disable: false
+  })
+  const selectedRows = ref<StreamItem[]>([])
+  const batchOperationLoading = ref(false)
+
+  // 穿梭框相关变量
+  const transferVisible = ref(false)
+  const transferLoading = ref(false)
+  const transferSubmitting = ref(false)
+  const transferData = ref<TransferDataItem[]>([])
+  const transferValue = ref<TransferKey[]>([])
+
+  // 搜索相关
   const formFilters = reactive({
     streamName: '',
     streamCode: '',
@@ -263,33 +333,47 @@
     }
   ]
 
-  // 删除自定义的pagination对象
-  // const pagination = reactive({
-  //   currentPage: 1,
-  //   pageSize: 20,
-  //   total: 0
-  // })
-
   const tableRef = ref()
 
-  const formRef = ref<FormInstance>()
-  const orgTree = ref(ORG_TREE_MOCK)
-  const expandedOrgKeys = ref<string[]>([])
-  const treeSelectKey = ref(0)
-  const selectedOrgPath = ref<string[]>([])
-  const selectedOrgPathIds = ref<string[]>([])
-  const formData = ref({
-    streamName: '',
-    orgId: '',
-    description: '',
-    enable: false
-  })
-  const formRules = {
-    streamName: [
-      { required: true, message: '请输入流名称', trigger: 'blur' },
-      { min: 2, max: 50, message: '流名称长度为2-50字符', trigger: 'blur' }
-    ],
-    orgId: [{ required: true, message: '请选择组织', trigger: 'change' }]
+  // 获取组织树数据
+  const fetchOrganizationTree = async () => {
+    try {
+      const response = await OrganizationService.getOrganizationTree()
+
+      // 将API返回的组织结构转换为前端需要的格式
+      const transformNode = (apiNode: OrganizationNode): OrgNode => ({
+        id: apiNode.org_id,
+        name: apiNode.name,
+        parentId: apiNode.parent_id,
+        status: apiNode.status === 'active' ? '启用' : '禁用',
+        sort: apiNode.sort_order || 0,
+        desc: apiNode.description,
+        children: apiNode.children?.map(transformNode)
+      })
+
+      // 转换组织树数据
+      orgTree.value = response.organizations.map(transformNode)
+    } catch (error) {
+      console.error('获取组织树失败:', error)
+      ElMessage.error('获取组织树失败')
+      orgTree.value = []
+    }
+  }
+
+  // 辅助函数 - 根据ID查找组织名称
+  function findOrgNameById(nodes: OrgNode[], id: string): string {
+    if (!id) return ''
+
+    for (const node of nodes) {
+      if (node.id === id) return node.name
+
+      if (node.children && node.children.length > 0) {
+        const found = findOrgNameById(node.children, id)
+        if (found) return found
+      }
+    }
+
+    return ''
   }
 
   // useTable Hook实现
@@ -313,44 +397,62 @@
     // 核心配置
     core: {
       apiFn: async (params: any) => {
-        // 模拟API请求延迟
-        await new Promise((resolve) => setTimeout(resolve, 300))
-
         try {
-          let filtered = [...STREAM_LIST_MOCK]
+          const response = await StreamService.getStreamList({
+            skip: (params.current - 1) * params.size,
+            limit: params.size,
+            name: params.streamName,
+            stream_type: params.protocol,
+            status: params.disable === 'true' ? 'active' : undefined
+          })
 
-          // 应用筛选条件
-          if (params.streamName && typeof params.streamName === 'string') {
-            const searchTerm = params.streamName.toLowerCase().trim()
-            filtered = filtered.filter((item) => item.streamName.toLowerCase().includes(searchTerm))
-          }
+          // 将API返回的流数据转换为前端需要的格式
+          const records: StreamItem[] = await Promise.all(
+            response.items.map(async (apiStream) => {
+              // 查找组织名称 (如果apiStream.org_id存在)
+              let orgName = ''
+              if (apiStream.org_id) {
+                try {
+                  const orgDetail = await OrganizationService.getOrganizationDetail(
+                    apiStream.org_id
+                  )
+                  orgName = orgDetail.name
+                } catch (e) {
+                  console.error('获取组织名称失败:', e)
+                }
+              }
 
-          // 按组织筛选
-          if (params.orgId) {
-            filtered = filtered.filter((item) => item.orgId === params.orgId)
-          }
-
-          // 根据启用状态筛选
-          if (params.disable === 'true') {
-            filtered = filtered.filter((item) => item.enable === true)
-          } else if (params.disable === 'false') {
-            filtered = filtered.filter((item) => item.enable === false)
-          }
-
-          // 分页处理
-          const start = (params.current - 1) * params.size
-          const end = start + params.size
-          const pageData = filtered.slice(start, end)
+              return {
+                id: apiStream.stream_id,
+                streamName: apiStream.name,
+                streamCode: apiStream.url,
+                protocol: apiStream.stream_type,
+                orgId: apiStream.org_id || '',
+                orgName: orgName,
+                description: apiStream.description || '',
+                enable: apiStream.status === 'active',
+                createTime: new Date(apiStream.created_at).toLocaleString()
+              }
+            })
+          )
 
           return {
-            records: pageData,
-            total: filtered.length,
+            records,
+            total: response.total,
             size: params.size,
-            current: params.current
+            current: params.current,
+            pages: Math.ceil(response.total / params.size)
           }
         } catch (err) {
-          console.error('数据处理错误:', err)
-          throw new Error('数据处理出错，请刷新重试')
+          console.error('获取视频流列表失败:', err)
+          ElMessage.error('获取视频流列表失败，请重试')
+          return {
+            records: [],
+            total: 0,
+            size: params.size,
+            current: params.current,
+            pages: 0
+          }
         }
       },
       apiParams: {
@@ -476,138 +578,123 @@
   }
 
   /**
-   * 批量启用/禁用流
+   * 批量删除
    */
-  const handleBatchEnable = async (enableStatus: boolean) => {
-    if (!selectedRows.value.length) return
+  function handleBatchDelete() {
+    if (!selectedRows.value.length) {
+      ElMessage.warning('请选择要删除的流')
+      return
+    }
 
-    const actionText = enableStatus ? '启用' : '禁用'
+    const count = selectedRows.value.length
+    ElMessageBox.confirm(`确定要删除选中的 ${count} 个流吗？此操作不可恢复！`, '批量删除确认', {
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+      .then(async () => {
+        try {
+          batchOperationLoading.value = true
+
+          if (!props.orgId) {
+            ElMessage.warning('未选择组织')
+            return
+          }
+
+          // 获取所有选中流的ID
+          const streamIds = selectedRows.value.map((row) => row.id)
+
+          // 调用API批量删除绑定关系
+          await VirtualOrgService.batchDeleteOrganizationBindings({
+            binding_ids: streamIds // 这里应该是绑定ID，需要根据实际业务调整
+          })
+
+          ElMessage.success(`成功删除 ${streamIds.length} 个流`)
+
+          // 重置选择
+          selectedRows.value = []
+
+          // 刷新数据
+          refreshAll()
+        } catch (error) {
+          console.error('批量删除失败:', error)
+          ElMessage.error('批量删除失败，请重试')
+        } finally {
+          batchOperationLoading.value = false
+        }
+      })
+      .catch(() => {
+        // 用户取消操作
+      })
+  }
+
+  /**
+   * 批量启用/禁用
+   */
+  async function handleBatchEnable(enable: boolean) {
+    if (!selectedRows.value.length) {
+      ElMessage.warning(`请选择要${enable ? '启用' : '禁用'}的流`)
+      return
+    }
+
+    const count = selectedRows.value.length
+    const action = enable ? '启用' : '禁用'
 
     try {
+      batchOperationLoading.value = true
+
+      // 获取所有选中流的ID
+      const streamIds = selectedRows.value.map((row) => row.id)
+
+      // 调用批量操作API
+      await StreamService.batchOperateStreams({
+        stream_ids: streamIds,
+        operation: enable ? 'start' : 'stop'
+      })
+
+      ElMessage.success(`成功${action} ${streamIds.length} 个流`)
+
+      // 刷新数据
+      refreshAll()
+    } catch (error) {
+      console.error(`批量${action}失败:`, error)
+      ElMessage.error(`批量${action}失败，请重试`)
+    } finally {
+      batchOperationLoading.value = false
+    }
+  }
+
+  /**
+   * 处理删除单个流
+   */
+  async function handleDelete(row: StreamItem) {
+    try {
       await ElMessageBox.confirm(
-        `确认${actionText}选中的 ${selectedRows.value.length} 条记录吗？`,
-        '提示',
+        `确定要删除流 "${row.streamName}" 吗？此操作不可恢复！`,
+        '删除确认',
         {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: enableStatus ? 'success' : 'warning',
+          type: 'warning',
           closeOnClickModal: false
         }
       )
 
-      batchOperationLoading.value = true
-
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      const ids = selectedRows.value.map((row) => row.id)
-      let count = 0
-
-      // 更新表格数据
-      streamData.value.forEach((item) => {
-        if (ids.includes(item.id)) {
-          item.enable = enableStatus
-          count++
-        }
-      })
-
-      // 同步更新Mock数据
-      ids.forEach((id) => {
-        const mockItem = STREAM_LIST_MOCK.find((item) => item.id === id)
-        if (mockItem) {
-          mockItem.enable = enableStatus
-        }
-      })
-
-      ElMessage.success(`批量${actionText}成功，共处理${count}条记录`)
-    } catch (err) {
-      // 用户取消操作，不做任何处理
-      console.log('操作已取消')
-    } finally {
-      batchOperationLoading.value = false
-    }
-  }
-
-  /**
-   * 删除单条记录
-   */
-  const handleDelete = async (row: StreamItem) => {
-    try {
-      await ElMessageBox.confirm('确定要删除该流吗？', '删除确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        closeOnClickModal: false
-      })
-
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      const index = STREAM_LIST_MOCK.findIndex((item) => item.id === row.id)
-      if (index !== -1) {
-        STREAM_LIST_MOCK.splice(index, 1)
-      }
-
-      // 同步更新表格数据
-      const tableIndex = streamData.value.findIndex((item) => item.id === row.id)
-      if (tableIndex !== -1) {
-        streamData.value.splice(tableIndex, 1)
-      }
+      // 调用API删除流
+      await StreamService.deleteStream(row.id)
 
       ElMessage.success('删除成功')
 
-      // 如果当前页删除完了，且不是第一页，则回到上一页
+      // 刷新表格数据
+      refreshAll()
+
+      // 如果当前页删除完了且不是第一页，则回到上一页
       if (streamData.value.length === 0 && paginationState.current > 1) {
-        onCurrentPageChange(paginationState.current - 1) // 使用onCurrentPageChange方法
-      } else if (streamData.value.length === 0) {
-        // 如果是第一页且已删空，重新获取数据
-        getTableData()
+        onCurrentPageChange(paginationState.current - 1)
       }
     } catch (err) {
-      // 用户取消操作，不做任何处理
-      console.log('操作已取消')
-    }
-  }
-
-  /**
-   * 批量删除记录
-   */
-  const handleBatchDelete = async () => {
-    if (!selectedRows.value.length) return
-
-    try {
-      await ElMessageBox.confirm(`确认删除选中的 ${selectedRows.value.length} 条记录吗？`, '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        closeOnClickModal: false
-      })
-
-      batchOperationLoading.value = true
-
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      const ids = selectedRows.value.map((row) => row.id)
-
-      // 从Mock数据中删除
-      ids.forEach((id) => {
-        const index = STREAM_LIST_MOCK.findIndex((item) => item.id === id)
-        if (index !== -1) {
-          STREAM_LIST_MOCK.splice(index, 1)
-        }
-      })
-
-      ElMessage.success(`批量删除成功，共删除${ids.length}条记录`)
-      selectedRows.value = []
-
-      // 重新获取数据
-      getTableData()
-    } catch (err) {
-      // 用户取消操作，不做任何处理
-      console.log('操作已取消')
-    } finally {
-      batchOperationLoading.value = false
+      // 用户取消操作或API错误，不做特殊处理
+      console.log('删除操作已取消或出错', err)
     }
   }
 
@@ -669,8 +756,6 @@
       return ''
     }
   }
-
-  const editRowId = ref<number | null>(null)
 
   /**
    * 打开编辑/新增对话框
@@ -735,105 +820,114 @@
    * 处理新增流
    */
   async function handleAddStream() {
-    const now = new Date().toLocaleString('zh-CN', { hour12: false })
-    const orgName = findOrgNameById(orgTree.value, formData.value.orgId)
+    try {
+      const streamName = formData.value.streamName.trim()
+      const orgId = formData.value.orgId
 
-    if (!orgName) {
-      ElMessage.warning('选择的组织不存在，请重新选择')
-      return Promise.reject(new Error('组织不存在'))
+      // 验证组织存在
+      if (orgId) {
+        const orgName = findOrgNameById(orgTree.value, orgId)
+        if (!orgName) {
+          ElMessage.warning('选择的组织不存在，请重新选择')
+          return Promise.reject(new Error('组织不存在'))
+        }
+      }
+
+      // 检查是否存在同名流
+      const existingStreams = await StreamService.getStreamList({
+        name: streamName,
+        limit: 1
+      })
+
+      if (existingStreams.items && existingStreams.items.length > 0) {
+        ElMessage.warning('已存在同名流，请修改名称')
+        return Promise.reject(new Error('流名称重复'))
+      }
+
+      // 创建新流
+      await StreamService.createStream({
+        name: streamName,
+        url: `rtsp://example.com/${streamName}`, // 生成一个示例RTSP URL
+        description: formData.value.description.trim(),
+        stream_type: 'rtsp',
+        org_id: formData.value.orgId,
+        auto_start: formData.value.enable
+      })
+
+      ElMessage.success('添加视频流成功')
+
+      // 刷新数据
+      refreshAll()
+
+      return Promise.resolve()
+    } catch (error) {
+      console.error('添加视频流失败:', error)
+      ElMessage.error('添加视频流失败')
+      return Promise.reject(error)
     }
-
-    // 检查是否存在同名流
-    const streamName = formData.value.streamName.trim()
-    const existingStream = STREAM_LIST_MOCK.find(
-      (item) => item.streamName.toLowerCase() === streamName.toLowerCase()
-    )
-
-    if (existingStream) {
-      ElMessage.warning('已存在同名流，请修改名称')
-      return Promise.reject(new Error('流名称重复'))
-    }
-
-    // 创建新流
-    const newItem: StreamItem = {
-      id: Date.now(),
-      orgId: formData.value.orgId,
-      orgName,
-      streamName,
-      streamCode: Math.random().toString(36).slice(2, 10),
-      protocol: 'rtsp',
-      description: formData.value.description.trim(),
-      enable: formData.value.enable,
-      algos: [],
-      algoConfigs: {},
-      createTime: now
-    }
-
-    // 更新数据
-    streamData.value.unshift(newItem)
-    STREAM_LIST_MOCK.unshift(newItem)
-
-    ElMessage.success('添加成功')
-    return Promise.resolve()
   }
 
   /**
    * 处理编辑流
    */
   async function handleEditStream() {
-    if (editRowId.value === null) return Promise.reject(new Error('无效的编辑ID'))
+    try {
+      if (editRowId.value === null) {
+        ElMessage.warning('未找到要编辑的流')
+        return Promise.reject(new Error('无效的流ID'))
+      }
 
-    const idx = streamData.value.findIndex((item) => item.id === editRowId.value)
-    if (idx === -1) {
-      ElMessage.error('要编辑的流不存在，请刷新页面')
-      return Promise.reject(new Error('流不存在'))
+      const streamId = editRowId.value.toString()
+      const streamName = formData.value.streamName.trim()
+      const orgId = formData.value.orgId
+
+      // 验证组织存在
+      if (orgId) {
+        const orgName = findOrgNameById(orgTree.value, orgId)
+        if (!orgName) {
+          ElMessage.warning('选择的组织不存在，请重新选择')
+          return Promise.reject(new Error('组织不存在'))
+        }
+      }
+
+      // 检查是否存在同名流（排除自身）
+      const existingStreams = await StreamService.getStreamList({
+        name: streamName,
+        limit: 5
+      })
+
+      const duplicateStream = existingStreams.items?.find(
+        (stream: any) =>
+          stream.name.toLowerCase() === streamName.toLowerCase() && stream.stream_id !== streamId
+      )
+
+      if (duplicateStream) {
+        ElMessage.warning('已存在同名流，请修改名称')
+        return Promise.reject(new Error('流名称重复'))
+      }
+
+      // 更新流信息
+      await StreamService.updateStream(streamId, {
+        name: streamName,
+        description: formData.value.description.trim(),
+        org_id: formData.value.orgId
+      })
+
+      ElMessage.success('更新视频流成功')
+
+      // 刷新数据
+      refreshAll()
+
+      return Promise.resolve()
+    } catch (error) {
+      console.error('更新视频流失败:', error)
+      ElMessage.error('更新视频流失败')
+      return Promise.reject(error)
     }
-
-    const orgName = findOrgNameById(orgTree.value, formData.value.orgId)
-    if (!orgName) {
-      ElMessage.warning('选择的组织不存在，请重新选择')
-      return Promise.reject(new Error('组织不存在'))
-    }
-
-    const updatedName = formData.value.streamName.trim()
-
-    // 检查是否有同名流（排除自身）
-    const existingStream = STREAM_LIST_MOCK.find(
-      (item) =>
-        item.streamName.toLowerCase() === updatedName.toLowerCase() && item.id !== editRowId.value
-    )
-
-    if (existingStream) {
-      ElMessage.warning('已存在同名流，请修改名称')
-      return Promise.reject(new Error('流名称重复'))
-    }
-
-    // 更新表格数据
-    streamData.value[idx] = {
-      ...streamData.value[idx],
-      streamName: updatedName,
-      orgId: formData.value.orgId,
-      orgName,
-      description: formData.value.description.trim(),
-      enable: formData.value.enable
-    }
-
-    // 更新Mock数据源
-    const mockItem = STREAM_LIST_MOCK.find((item) => item.id === editRowId.value)
-    if (mockItem) {
-      mockItem.streamName = updatedName
-      mockItem.orgId = formData.value.orgId
-      mockItem.orgName = orgName
-      mockItem.description = formData.value.description.trim()
-      mockItem.enable = formData.value.enable
-    }
-
-    ElMessage.success('更新成功')
-    getTableData() // 刷新数据，确保与筛选条件一致
-    return Promise.resolve()
   }
 
   onMounted(() => {
+    fetchOrganizationTree() // 调用获取组织树的函数
     getTableData()
   })
 
@@ -847,27 +941,54 @@
     }
   )
 
-  const transferVisible = ref(false)
-  const transferValue = ref<number[]>([])
-  const transferLoading = ref(false)
-  const transferData = computed(() => {
-    return STREAM_LIST_MOCK.filter(
-      (item) => !item.orgId || item.orgId === '' || item.orgId === props.orgId
-    ).map((item) => ({
-      key: item.id,
-      label: item.streamName,
-      initial: item.streamName,
-      disabled: false
-    }))
-  })
+  // 获取穿梭框数据
+  const fetchTransferData = async () => {
+    transferLoading.value = true
+    try {
+      // 获取所有流
+      const allStreamsResponse = await StreamService.getStreamList({
+        limit: 1000 // 获取足够多的流
+      })
+
+      // 获取已分配给当前组织的流
+      const currentStreams = streamData.value
+      const currentStreamIds = currentStreams.map((stream) => stream.id)
+
+      // 转换为穿梭框数据格式
+      transferData.value = allStreamsResponse.items.map((stream) => ({
+        key: stream.stream_id,
+        label: stream.name,
+        disabled: false // 可以根据需要设置禁用条件
+      }))
+
+      // 设置默认已选择的值
+      transferValue.value = currentStreamIds
+    } catch (error) {
+      console.error('获取穿梭框数据失败:', error)
+      ElMessage.error('获取穿梭框数据失败')
+      transferData.value = []
+      transferValue.value = []
+    } finally {
+      transferLoading.value = false
+    }
+  }
+
+  // 打开穿梭框
+  const openTransfer = async () => {
+    transferVisible.value = true
+    await fetchTransferData()
+  }
 
   /**
    * 初始化穿梭框选中值
    */
   function initTransferValue() {
-    transferValue.value = STREAM_LIST_MOCK.filter((item) => item.orgId === props.orgId).map(
-      (item) => item.id
-    )
+    if (!transferValue || !streamData.value) return
+
+    // 使用当前表格数据中的流ID初始化穿梭框选中值
+    transferValue.value = streamData.value
+      .filter((item) => item.orgId === props.orgId)
+      .map((item) => item.id)
   }
 
   watch(streamData, () => {
@@ -936,76 +1057,49 @@
   }
 
   /**
-   * 打开穿梭框
+   * 穿梭框确认
    */
-  function openTransfer() {
+  async function handleTransferOk() {
     if (!props.orgId) {
       ElMessage.warning('请先选择组织')
       return
     }
 
-    transferLoading.value = true
-    initTransferValue()
-    transferVisible.value = true
-
-    // 模拟加载延迟
-    setTimeout(() => {
-      transferLoading.value = false
-    }, 300)
-  }
-
-  /**
-   * 处理穿梭框确认
-   */
-  async function handleTransferOk() {
-    if (transferLoading.value || transferSubmitting.value) return
-
     transferSubmitting.value = true
-
     try {
-      // 找出新增的和移除的ID
-      const newIds = transferValue.value.filter((id) => {
-        const stream = STREAM_LIST_MOCK.find((item) => item.id === id)
-        return stream && stream.orgId !== props.orgId
-      })
+      // 获取当前已选择的流ID
+      const selectedStreamIds = transferValue.value as string[]
 
-      const removedIds = STREAM_LIST_MOCK.filter(
-        (item) => item.orgId === props.orgId && !transferValue.value.includes(item.id)
-      ).map((item) => item.id)
+      // 获取当前组织下的所有流
+      const currentStreams = streamData.value
+      const currentStreamIds = currentStreams.map((stream) => stream.id)
 
-      if (newIds.length === 0 && removedIds.length === 0) {
-        ElMessage.info('未做任何更改')
-        transferVisible.value = false
-        return
+      // 计算需要添加和移除的流
+      const toAdd = selectedStreamIds.filter((id) => !currentStreamIds.includes(id))
+      const toRemove = currentStreamIds.filter((id) => !selectedStreamIds.includes(id))
+
+      // 调用API进行添加和移除操作
+      if (toAdd.length > 0) {
+        await VirtualOrgService.batchCreateOrganizationBindings({
+          org_id: props.orgId!,
+          stream_ids: toAdd
+        })
       }
 
-      // 模拟API调用延迟
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      if (toRemove.length > 0) {
+        await VirtualOrgService.batchDeleteOrganizationBindings({
+          binding_ids: toRemove // 这里应该是绑定ID，需要根据实际业务调整
+        })
+      }
 
-      // 处理新增的流
-      newIds.forEach((id) => {
-        const stream = STREAM_LIST_MOCK.find((item) => item.id === id)
-        if (stream) {
-          stream.orgId = props.orgId || ''
-          stream.orgName = findOrgNameById(ORG_TREE_MOCK, props.orgId || '') || '未知组织'
-        }
-      })
-
-      // 处理移除的流
-      removedIds.forEach((id) => {
-        const stream = STREAM_LIST_MOCK.find((item) => item.id === id)
-        if (stream) {
-          stream.orgId = ''
-          stream.orgName = ''
-        }
-      })
-
-      ElMessage.success(`成功添加${newIds.length}个流，移除${removedIds.length}个流`)
+      ElMessage.success('流分配成功')
       transferVisible.value = false
-      getTableData()
-    } catch (err) {
-      console.error('分配流错误:', err)
-      ElMessage.error('操作失败，请重试')
+
+      // 刷新数据
+      refreshAll()
+    } catch (error) {
+      console.error('流分配失败:', error)
+      ElMessage.error('流分配失败，请重试')
     } finally {
       transferSubmitting.value = false
     }

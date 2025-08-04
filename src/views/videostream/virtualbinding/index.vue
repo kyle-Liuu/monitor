@@ -65,15 +65,65 @@
   import { ElSplitter, ElSplitterPanel, ElTree, ElInput, ElIcon, ElMessage } from 'element-plus'
   import { Search as ElSearch } from '@element-plus/icons-vue'
   import VirtualOrgAndStream from '@/views/videostream/virtualbinding/vittualOrgAndStream.vue'
-  import { ORG_TREE_MOCK, OrgNode } from '@/mock/temp/orgTree'
+  import { OrganizationService, type OrganizationNode } from '@/api/organizationApi'
+
+  // 定义本地组织节点类型，与前端模板兼容
+  interface OrgNode {
+    id: string
+    name: string
+    parentId: string | null
+    status: '启用' | '禁用'
+    sort: number
+    desc?: string
+    children?: OrgNode[]
+    created_at?: string
+  }
 
   const orgSearch = ref('')
   const treeProps = { children: 'children', label: 'name' }
-  const treeData = ref<OrgNode[]>(ORG_TREE_MOCK)
-  const filteredTreeData = ref<OrgNode[]>(ORG_TREE_MOCK)
-  const selectedOrgId = ref(treeData.value[0]?.id || '')
+  const treeData = ref<OrgNode[]>([])
+  const filteredTreeData = ref<OrgNode[]>([])
+  const selectedOrgId = ref('')
   const loading = ref(false)
   const virtualOrgStreamRef = ref()
+
+  /**
+   * 获取组织树数据
+   */
+  const fetchOrganizationTree = async () => {
+    loading.value = true
+    try {
+      const response = await OrganizationService.getOrganizationTree()
+
+      // 将API返回的组织结构转换为前端需要的格式
+      const transformNode = (apiNode: OrganizationNode): OrgNode => ({
+        id: apiNode.org_id,
+        name: apiNode.name,
+        parentId: apiNode.parent_id,
+        status: apiNode.status === 'active' ? '启用' : '禁用',
+        sort: apiNode.sort_order || 0,
+        desc: apiNode.description,
+        created_at: apiNode.created_at,
+        children: apiNode.children?.map(transformNode)
+      })
+
+      // 转换组织树数据
+      treeData.value = response.organizations.map(transformNode)
+      filteredTreeData.value = treeData.value
+
+      // 如果没有选中的组织，选择第一个
+      if (!selectedOrgId.value && treeData.value.length > 0) {
+        selectedOrgId.value = treeData.value[0].id
+      }
+    } catch (error) {
+      console.error('获取组织树失败:', error)
+      ElMessage.error('获取组织树失败，请刷新页面重试')
+      treeData.value = []
+      filteredTreeData.value = []
+    } finally {
+      loading.value = false
+    }
+  }
 
   function filterOrgTree() {
     if (!orgSearch.value) {
@@ -121,11 +171,9 @@
     })
   }
 
-  // 初始化时确保有默认选中的组织
+  // 初始化时获取组织树数据
   onMounted(() => {
-    if (!selectedOrgId.value && treeData.value.length > 0) {
-      selectedOrgId.value = treeData.value[0].id
-    }
+    fetchOrganizationTree()
   })
 </script>
 

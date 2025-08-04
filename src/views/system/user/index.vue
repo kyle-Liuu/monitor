@@ -12,6 +12,9 @@
       <ArtTableHeader v-model:columns="columnChecks" @refresh="refresh">
         <template #left>
           <ElButton @click="showDialog('add')">新增用户</ElButton>
+          <ElButton v-if="selectedRows.length > 0" type="danger" @click="batchDeleteUsers">
+            批量删除 ({{ selectedRows.length }})
+          </ElButton>
         </template>
       </ArtTableHeader>
 
@@ -20,7 +23,11 @@
         :loading="loading"
         :data="data"
         :columns="columns"
-        :pagination="pagination"
+        :pagination="{
+          current: pagination.current,
+          size: pagination.size,
+          total: pagination.total ?? 0
+        }"
         :table-config="{ rowKey: 'id' }"
         :layout="{ marginTop: 10 }"
         @row:selection-change="handleSelectionChange"
@@ -53,7 +60,7 @@
 
   type UserListItem = Api.User.UserListItem
   const { width } = useWindowSize()
-  const { getUserList } = UserService
+  const { getUserList, deleteUser, batchOperateUsers } = UserService
 
   // 弹窗相关
   const dialogType = ref<Form.DialogType>('add')
@@ -65,10 +72,10 @@
 
   // 用户状态配置
   const USER_STATUS_CONFIG = {
-    '1': { type: 'success' as const, text: '在线' },
-    '2': { type: 'info' as const, text: '离线' },
-    '3': { type: 'warning' as const, text: '异常' },
-    '4': { type: 'danger' as const, text: '注销' }
+    '1': { type: 'success' as const, text: '启用' },
+    '2': { type: 'danger' as const, text: '禁用' },
+    active: { type: 'success' as const, text: '启用' },
+    inactive: { type: 'danger' as const, text: '禁用' }
   } as const
 
   /**
@@ -104,24 +111,33 @@
       apiParams: {
         current: 1,
         size: 20,
-        name: '',
-        phone: '',
-        address: undefined
+        keyword: ''
       },
       columnsFactory: () => [
         { type: 'selection' }, // 勾选列
         { type: 'index', width: 60, label: '序号' }, // 序号
-        // { type: 'expand' }, // 展开列
         {
           prop: 'avatar',
-          label: '用户名',
-          minWidth: width.value < 500 ? 220 : '',
+          label: '用户信息',
+          minWidth: width.value < 500 ? 220 : 200,
           formatter: (row) => {
             return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
               h('img', { class: 'avatar', src: row.avatar }),
               h('div', {}, [
                 h('p', { class: 'user-name' }, row.userName),
-                h('p', { class: 'email' }, row.userEmail)
+                h('p', { class: 'email' }, row.userEmail),
+                // 显示用户标签
+                ...(row.userTags && row.userTags.length > 0
+                  ? [
+                      h(
+                        'div',
+                        { class: 'tags' },
+                        row.userTags.map((tag: string) =>
+                          h(ElTag, { size: 'small', style: 'margin-right: 4px;' }, () => tag)
+                        )
+                      )
+                    ]
+                  : [])
               ])
             ])
           }
@@ -129,27 +145,72 @@
         {
           prop: 'userGender',
           label: '性别',
+          width: 80,
           sortable: true,
-          formatter: (row) => row.userGender
+          formatter: (row) => row.userGender || '-'
         },
-        { prop: 'userPhone', label: '手机号' },
+        {
+          prop: 'userPhone',
+          label: '手机号',
+          width: 130,
+          formatter: (row) => row.userPhone || '-'
+        },
+        {
+          prop: 'userRoles',
+          label: '角色',
+          width: 120,
+          formatter: (row) => {
+            if (!row.userRoles || row.userRoles.length === 0) return '-'
+            return h(
+              'div',
+              { class: 'roles' },
+              row.userRoles
+                .slice(0, 2)
+                .map((role) =>
+                  h(ElTag, { type: 'primary', size: 'small', style: 'margin-right: 4px;' }, () => {
+                    // 角色代码映射为可读名称
+                    const roleNames = {
+                      R_SUPER: '超级管理员',
+                      R_ADMIN: '管理员',
+                      R_USER: '普通用户'
+                    }
+                    return roleNames[role as keyof typeof roleNames] || role
+                  })
+                )
+                .concat(
+                  row.userRoles.length > 2
+                    ? [
+                        h(
+                          'span',
+                          { style: 'color: #999; font-size: 12px;' },
+                          `+${row.userRoles.length - 2}`
+                        )
+                      ]
+                    : []
+                )
+            )
+          }
+        },
         {
           prop: 'status',
           label: '状态',
+          width: 80,
           formatter: (row) => {
             const statusConfig = getUserStatusConfig(row.status)
             return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
           }
         },
         {
-          prop: 'createTime',
+          prop: 'created_at',
           label: '创建日期',
-          sortable: true
+          width: 160,
+          sortable: true,
+          formatter: (row) => row.created_at || '-'
         },
         {
           prop: 'operation',
           label: '操作',
-          width: 120,
+          width: 140,
           fixed: 'right', // 固定列
           formatter: (row) =>
             h('div', [
@@ -159,7 +220,7 @@
               }),
               h(ArtButtonTable, {
                 type: 'delete',
-                onClick: () => deleteUser(row)
+                onClick: () => handleDeleteUser(row)
               })
             ])
         }
@@ -167,7 +228,7 @@
     },
     // 数据处理
     transform: {
-      // 数据转换器 - 替换头像
+      // 数据转换器 - 替换头像和处理数据格式
       dataTransformer: (records: any) => {
         // 类型守卫检查
         if (!Array.isArray(records)) {
@@ -175,11 +236,25 @@
           return []
         }
 
-        // 使用本地头像替换接口返回的头像
+        // 使用本地头像替换接口返回的头像，并处理数据格式
         return records.map((item: any, index: number) => {
           return {
             ...item,
-            avatar: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar
+            avatar: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar,
+            // 处理角色数据：如果是字符串则分割为数组
+            userRoles:
+              typeof item.userRoles === 'string'
+                ? item.userRoles.split(',').filter(Boolean)
+                : Array.isArray(item.userRoles)
+                  ? item.userRoles
+                  : [],
+            // 处理标签数据
+            userTags:
+              typeof item.userTags === 'string'
+                ? item.userTags.split(',').filter(Boolean)
+                : Array.isArray(item.userTags)
+                  ? item.userTags
+                  : []
           }
         })
       }
@@ -192,9 +267,6 @@
     // 生命周期钩子
     hooks: {
       onError: (error) => ElMessage.error(error.message) // 错误处理
-      // onSuccess: (data) => console.log('数据加载成功:', data), // 成功处理
-      // onCacheHit: (data) => console.log('缓存命中:', data), // 缓存命中处理
-      // resetFormCallback: () => console.log('重置表单')
     },
     // 调试配置
     debug: {
@@ -215,17 +287,57 @@
   }
 
   /**
-   * 删除用户
+   * 删除单个用户
    */
-  const deleteUser = (row: UserListItem): void => {
-    console.log('删除用户:', row)
-    ElMessageBox.confirm(`确定要注销该用户吗？`, '注销用户', {
+  const handleDeleteUser = (row: UserListItem): void => {
+    ElMessageBox.confirm(`确定要删除用户「${row.userName}」吗？`, '删除用户', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'error'
-    }).then(() => {
-      ElMessage.success('注销成功')
-      refreshAfterDelete() // 智能删除后刷新
+      type: 'warning'
+    }).then(async () => {
+      try {
+        await deleteUser(row.id)
+        ElMessage.success('删除成功')
+        refreshAfterDelete() // 智能删除后刷新
+      } catch (error: any) {
+        console.error('删除用户失败:', error)
+        ElMessage.error(error.message || '删除失败')
+      }
+    })
+  }
+
+  /**
+   * 批量删除用户
+   */
+  const batchDeleteUsers = (): void => {
+    if (selectedRows.value.length === 0) {
+      ElMessage.warning('请先选择要删除的用户')
+      return
+    }
+
+    ElMessageBox.confirm(
+      `确定要删除选中的 ${selectedRows.value.length} 个用户吗？`,
+      '批量删除用户',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    ).then(async () => {
+      try {
+        const userIds = selectedRows.value.map((row) => row.id)
+        await batchOperateUsers({
+          operation: 'delete',
+          user_ids: userIds
+        })
+
+        ElMessage.success(`成功删除 ${selectedRows.value.length} 个用户`)
+        selectedRows.value = [] // 清空选中
+        refreshAfterDelete() // 刷新列表
+      } catch (error: any) {
+        console.error('批量删除失败:', error)
+        ElMessage.error(error.message || '批量删除失败')
+      }
     })
   }
 
@@ -266,8 +378,25 @@
         .user-name {
           font-weight: 500;
           color: var(--art-text-gray-800);
+          margin-bottom: 2px;
+        }
+
+        .email {
+          font-size: 12px;
+          color: var(--art-text-gray-500);
+          margin-bottom: 4px;
+        }
+
+        .tags {
+          margin-top: 4px;
         }
       }
+    }
+
+    :deep(.roles) {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
     }
   }
 </style>

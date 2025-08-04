@@ -1,3 +1,11 @@
+<!--
+本文件已修复以下TypeScript错误：
+1. 添加了algos?属性到StreamItem接口
+2. 创建了本地AlgorithmTabItem接口，用于处理算法标签展示
+3. 替换了mockAlgoList为从API获取的数据
+4. 添加了fetchAlgorithmList函数，获取后端算法数据
+5. 组织树暂时使用空数组，后续需从API获取
+-->
 <template>
   <div class="streaminfo-page art-full-height">
     <ArtSearchBar
@@ -36,7 +44,11 @@
         row-key="streamCode"
         :data="tableData"
         :loading="loading"
-        :pagination="paginationState"
+        :pagination="{
+          current: paginationState.current,
+          size: paginationState.size,
+          total: paginationState.total ?? 0
+        }"
         :columns="columns"
         :layout="{ marginTop: 10 }"
         :table-config="{ emptyHeight: '360px' }"
@@ -527,16 +539,24 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { BgColorEnum } from '@/enums/appEnum'
   import type { FormInstance } from 'element-plus'
-  import { STREAM_LIST_MOCK, StreamItem } from '@/mock/temp/streamList'
-  import { ORG_TREE_MOCK } from '@/mock/temp/orgTree'
-  import { mockAlgoList } from '@/mock/temp/algoList'
+  import { StreamService, type StreamItem as APIStreamItem } from '@/api/streamApi'
+  import { AlgorithmService, type AlgorithmItem as APIAlgorithmItem } from '@/api/algorithmApi'
   import { h } from 'vue'
-  import { findOrgNameById } from '@/mock/temp/streamList'
   import { useDebounce } from '@vueuse/core'
   import { useTable } from '@/composables/useTable'
   import type { SearchFormItem } from '@/types'
   import ArtExcelExport from '@/components/core/forms/art-excel-export/index.vue'
   import ArtExcelImport from '@/components/core/forms/art-excel-import/index.vue'
+
+  // 为算法标签页定义本地类型，以便与模板兼容
+  interface AlgorithmTabItem {
+    id: string
+    label: string
+    value: string
+    type: string
+    tabName: string
+    desc?: string
+  }
 
   // 定义坐标点类型
   interface Point {
@@ -558,6 +578,21 @@
     voice: string
     level: string
     polygons: PolygonData[]
+  }
+
+  // 本地StreamItem接口，扩展APIStreamItem
+  interface StreamItem {
+    id: string
+    streamName: string
+    streamCode: string
+    protocol: string
+    orgId: string
+    orgName: string
+    description: string
+    enable: boolean
+    isForwarding: boolean // 是否正在转发
+    createTime: string
+    algos?: string[] // 添加算法ID数组属性
   }
 
   const tableRef = ref()
@@ -621,6 +656,7 @@
       { prop: 'algos', label: '算法标签' },
       { prop: 'description', label: '描述' },
       { prop: 'enable', label: '状态' },
+      { prop: 'isForwarding', label: '转发状态' },
       { prop: 'createTime', label: '创建时间' }
     ]
   })
@@ -629,49 +665,47 @@
   const fetchStreamList = async (params: any) => {
     console.log('获取视频流列表，参数:', params)
 
-    // 延迟模拟接口调用
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    try {
+      // 调用真实的API
+      const response = await StreamService.getStreamList({
+        skip: (params.current - 1) * params.size,
+        limit: params.size,
+        name: params.streamName,
+        stream_type: params.protocol,
+        status: params.enable ? 'active' : undefined
+      })
 
-    // 过滤数据
-    let filteredData = STREAM_LIST_MOCK.slice()
+      // 将API数据转换为页面需要的格式
+      const records: StreamItem[] = response.items.map((apiStream) => ({
+        id: apiStream.stream_id,
+        streamName: apiStream.name,
+        streamCode: apiStream.url,
+        protocol: apiStream.stream_type,
+        orgId: '', // API中没有组织信息，暂时留空
+        orgName: '', // API中没有组织信息，暂时留空
+        description: apiStream.description || '',
+        enable: apiStream.status === 'active',
+        isForwarding: apiStream.is_forwarding || false,
+        createTime: new Date(apiStream.created_at).toLocaleString()
+      }))
 
-    // 按流名称筛选
-    if (params.streamName) {
-      filteredData = filteredData.filter((item) =>
-        item.streamName.toLowerCase().includes(params.streamName.toLowerCase())
-      )
-    }
-
-    // 按流地址筛选
-    if (params.streamCode) {
-      filteredData = filteredData.filter((item) =>
-        item.streamCode.toLowerCase().includes(params.streamCode.toLowerCase())
-      )
-    }
-
-    // 按协议筛选
-    if (params.protocol) {
-      filteredData = filteredData.filter((item) => item.protocol === params.protocol)
-    }
-
-    // 按启用状态筛选
-    if (params.enable !== '' && params.enable !== undefined) {
-      const enableStatus = params.enable === 'true' || params.enable === true
-      filteredData = filteredData.filter((item) => item.enable === enableStatus)
-    }
-
-    // 分页
-    const total = filteredData.length
-    const start = (params.current - 1) * params.size
-    const end = start + params.size
-    const records = filteredData.slice(start, end)
-
-    return {
-      records,
-      total,
-      size: params.size,
-      current: params.current,
-      pages: Math.ceil(total / params.size)
+      return {
+        records,
+        total: response.total,
+        size: params.size,
+        current: params.current,
+        pages: Math.ceil(response.total / params.size)
+      }
+    } catch (error) {
+      console.error('获取视频流列表失败:', error)
+      ElMessage.error('获取视频流列表失败')
+      return {
+        records: [],
+        total: 0,
+        size: params.size,
+        current: params.current,
+        pages: 0
+      }
     }
   }
 
@@ -806,6 +840,22 @@
           useSlot: true
         },
         {
+          prop: 'isForwarding',
+          label: '转发状态',
+          width: 100,
+          formatter: (row: StreamItem) => {
+            return h(
+              ElTag,
+              {
+                type: row.isForwarding ? 'success' : 'info',
+                effect: 'light',
+                size: 'small'
+              },
+              () => (row.isForwarding ? '转发中' : '未转发')
+            )
+          }
+        },
+        {
           prop: 'createTime',
           label: '创建时间',
           width: 180,
@@ -887,7 +937,7 @@
   }
 
   // 组织树
-  const orgTree = ref(ORG_TREE_MOCK)
+  const orgTree = ref<any[]>([]) // 临时使用空数组，后续应从API获取
   const expandedOrgKeys = ref<string[]>([])
   const treeSelectKey = ref(Date.now())
 
@@ -963,13 +1013,66 @@
   // 算法对话框
   const algoDialogVisible = ref(false)
   const algoTab = ref('basic')
-  const algoTabs = mockAlgoList
+  const algoTabs = ref<{ name: string; label: string; items: AlgorithmTabItem[] }[]>([]) // 改为ref，从API获取
   const algoSearchKeyword = ref('')
   const algoDialogChecked = ref<string[]>([])
 
+  // 获取算法列表
+  const fetchAlgorithmList = async () => {
+    try {
+      const response = await AlgorithmService.getAlgorithmList()
+
+      // 根据算法类型分组
+      const algosByType: Record<string, AlgorithmTabItem[]> = {}
+
+      // 处理API返回的算法数据
+      if (response && response.items && Array.isArray(response.items)) {
+        response.items.forEach((algo: APIAlgorithmItem) => {
+          const type = algo.algorithm_type || 'basic'
+          if (!algosByType[type]) {
+            algosByType[type] = []
+          }
+
+          // 转换为本地AlgorithmTabItem格式
+          algosByType[type].push({
+            id: algo.algo_id,
+            label: algo.name,
+            value: algo.algo_id,
+            type: algo.algorithm_type,
+            tabName: algo.algorithm_type || 'basic',
+            desc: algo.description
+          })
+        })
+      } else {
+        console.error('算法数据格式错误:', response)
+      }
+
+      // 转换为标签页格式
+      const tabs = Object.keys(algosByType).map((type) => ({
+        name: type,
+        label: type === 'basic' ? '基础算法' : type === 'advanced' ? '高级算法' : type,
+        items: algosByType[type]
+      }))
+
+      algoTabs.value = tabs
+
+      if (tabs.length > 0 && !algoTab.value) {
+        algoTab.value = tabs[0].name
+      }
+    } catch (error) {
+      console.error('获取算法列表失败:', error)
+      ElMessage.error('获取算法列表失败')
+    }
+  }
+
+  // 组件挂载后获取算法列表
+  onMounted(() => {
+    fetchAlgorithmList()
+  })
+
   // 所有算法项
   const allAlgoItems = computed(() => {
-    return mockAlgoList.flatMap((tab) =>
+    return algoTabs.value.flatMap((tab) =>
       tab.items.map((item) => ({
         ...item,
         tabName: tab.name
