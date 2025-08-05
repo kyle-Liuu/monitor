@@ -26,6 +26,7 @@ export class UserService {
 
   // 获取用户列表
   static getUserList(params: Api.Common.PaginatingSearchParams) {
+    // console.log('发送用户列表请求参数:', params)
     return request.get<UserListResponse>({
       url: '/api/user/list',
       params
@@ -184,6 +185,10 @@ declare global {
       // 扩展现有的UserListItem接口
       interface UserListItem {
         userTags?: string[]  // 新增用户标签字段
+        createTime?: string  // 创建时间
+        updateTime?: string  // 更新时间
+        createBy?: string    // 创建人
+        updateBy?: string    // 更新人
       }
     }
 

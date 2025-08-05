@@ -14,12 +14,8 @@
         <ElCol :xs="24" :sm="12" :lg="6">
           <ElFormItem>
             <ElButton v-ripple @click="fetchRolesList" :loading="loading">搜索</ElButton>
-            <ElButton @click="showDialog('add')" v-ripple type="primary">新增角色</ElButton>
-          </ElFormItem>
-        </ElCol>
-        <ElCol :xs="24" :sm="12" :lg="6">
-          <ElFormItem>
-            <ElButton v-if="selectedRoles.length > 0" @click="batchOperateRoles" type="warning">
+            <ElButton @click="showDialog('add')" v-ripple>新增角色</ElButton>
+            <ElButton v-if="selectedRoles.length > 0" @click="batchOperateRoles">
               批量操作 ({{ selectedRoles.length }})
             </ElButton>
           </ElFormItem>
@@ -39,7 +35,7 @@
         <ElTableColumn label="描述" prop="description" show-overflow-tooltip />
         <ElTableColumn label="用户数量" prop="user_count" sortable width="100">
           <template #default="scope">
-            <ElBadge :value="scope.row.user_count || 0" class="item">
+            <ElBadge :value="scope.row.user_count || 0" class="item" type="primary">
               <ElButton size="small" text>用户</ElButton>
             </ElBadge>
           </template>
@@ -339,7 +335,7 @@
     ]
 
     // 系统预设角色不允许删除
-    if (!['R_SUPER', 'R_ADMIN', 'R_USER'].includes(row.role_code)) {
+    if (!['R_SUPER'].includes(row.role_code)) {
       actions.push({ key: 'delete', label: '删除角色' })
     }
 
@@ -482,26 +478,84 @@
 
     try {
       batchProcessing.value = true
-      const roleIds = selectedRoles.value.map((role) => role.role_id)
 
-      await RoleService.batchOperateRoles({
-        role_ids: roleIds,
-        operation: batchForm.operation
-      })
+      // 如果是删除操作，需要检查是否包含基础角色
+      if (batchForm.operation === 'delete') {
+        const systemRoles = selectedRoles.value.filter((role) =>
+          ['R_SUPER'].includes(role.role_code)
+        )
+        const deletableRoles = selectedRoles.value.filter(
+          (role) => !['R_SUPER'].includes(role.role_code)
+        )
 
-      const operationText = {
-        enable: '启用',
-        disable: '禁用',
-        delete: '删除'
-      }[batchForm.operation]
+        if (systemRoles.length > 0) {
+          const systemRoleNames = systemRoles.map((role) => role.role_code).join('、')
 
-      ElMessage.success(`批量${operationText}成功`)
+          if (deletableRoles.length === 0) {
+            // 全部都是系统角色，不能删除
+            ElMessage.warning(`系统预设角色「${systemRoleNames}」不允许删除`)
+            return
+          } else {
+            // 部分是系统角色，给出提示并继续删除其他角色
+            await ElMessageBox.confirm(
+              `选中的角色中包含系统预设角色「${systemRoleNames}」，这些角色不能删除。\n\n是否继续删除其他 ${deletableRoles.length} 个角色？`,
+              '批量删除确认',
+              {
+                confirmButtonText: '继续删除',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: false
+              }
+            )
+          }
+        }
+
+        // 只操作可删除的角色
+        const roleIds = deletableRoles.map((role) => role.role_id)
+
+        if (roleIds.length === 0) {
+          ElMessage.warning('没有可删除的角色')
+          return
+        }
+
+        await RoleService.batchOperateRoles({
+          role_ids: roleIds,
+          operation: batchForm.operation
+        })
+
+        if (systemRoles.length > 0) {
+          ElMessage.success(`批量删除完成，已跳过 ${systemRoles.length} 个系统预设角色`)
+        } else {
+          ElMessage.success('批量删除成功')
+        }
+      } else {
+        // 其他操作（启用/禁用）正常处理
+        const roleIds = selectedRoles.value.map((role) => role.role_id)
+
+        await RoleService.batchOperateRoles({
+          role_ids: roleIds,
+          operation: batchForm.operation
+        })
+
+        const operationText = {
+          enable: '启用',
+          disable: '禁用'
+        }[batchForm.operation]
+
+        ElMessage.success(`批量${operationText}成功`)
+      }
+
       batchDialog.value = false
       selectedRoles.value = []
       fetchRolesList() // 重新获取列表
     } catch (error: any) {
-      console.error('批量操作失败:', error)
-      ElMessage.error(error.message || '批量操作失败')
+      if (error === 'cancel') {
+        // 用户取消操作
+        ElMessage.info('已取消批量删除')
+      } else {
+        console.error('批量操作失败:', error)
+        ElMessage.error(error.message || '批量操作失败')
+      }
     } finally {
       batchProcessing.value = false
     }
@@ -588,5 +642,9 @@
       vertical-align: -8px;
       fill: currentcolor;
     }
+  }
+  .item {
+    margin-top: 10px;
+    margin-right: 30px;
   }
 </style>

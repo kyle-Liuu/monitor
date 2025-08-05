@@ -1,7 +1,7 @@
 <!-- 用户搜索栏 -->
 <template>
   <ArtSearchBar
-    v-model:filter="searchFormState"
+    v-model:filter="filter"
     :items="formItems"
     @reset="handleReset"
     @search="handleSearch"
@@ -9,53 +9,51 @@
 </template>
 
 <script setup lang="ts">
-  import type { SearchChangeParams, SearchFormItem } from '@/types'
+  import type { SearchFormItem } from '@/types'
+  import { useRoles } from '@/composables/useRoles'
 
-  interface Emits {
-    (e: 'search', params: Record<string, any>): void
-    (e: 'reset'): void
-  }
+  interface Props {}
 
-  const props = defineProps<{
-    filter: Record<string, any>
+  const props = withDefaults(defineProps<Props>(), {})
+
+  const filter = defineModel<any>('filter', { required: true })
+
+  const emit = defineEmits<{
+    reset: []
+    search: [params: Record<string, any>]
   }>()
 
-  const emit = defineEmits<Emits>()
+  // 使用角色管理 composable
+  const { roleOptions, fetchRoles } = useRoles()
 
-  const searchFormState = ref({ ...props.filter })
+  // 组件挂载时获取角色数据
+  onMounted(() => {
+    fetchRoles()
+  })
 
-  watch(
-    () => props.filter,
-    (newFilter) => {
-      searchFormState.value = { ...newFilter }
-    },
-    { deep: true, immediate: true }
-  )
-
-  // 重置表单
+  // 重置处理
   const handleReset = () => {
-    searchFormState.value = { ...props.filter }
     emit('reset')
   }
 
   // 搜索处理
   const handleSearch = () => {
-    console.log('搜索参数:', searchFormState.value)
-    emit('search', searchFormState.value)
+    emit('search', filter.value)
   }
 
-  const handleFormChange = (params: SearchChangeParams): void => {
-    console.log('表单项变更:', params)
+  const handleFormChange = () => {
+    emit('search', filter.value)
   }
 
   // --- 表单配置项 ---
   const formItems: SearchFormItem[] = [
     {
       label: '用户名',
-      prop: 'name',
+      prop: 'username',
       type: 'input',
       config: {
-        clearable: true
+        clearable: true,
+        placeholder: '输入用户名进行搜索'
       },
       onChange: handleFormChange
     },
@@ -64,24 +62,21 @@
       prop: 'phone',
       type: 'input',
       config: {
-        clearable: true
+        clearable: true,
+        placeholder: '输入手机号进行搜索'
       },
       onChange: handleFormChange
     },
     {
-      label: '用户等级',
-      prop: 'level',
+      label: '角色',
+      prop: 'role_filter',
       type: 'select',
       config: {
-        clearable: true
+        clearable: true,
+        placeholder: '选择用户角色'
       },
-      // options 可以是一个函数返回数组，也可以是直接的数组
-      options: [
-        { label: '普通用户', value: 'normal' },
-        { label: 'VIP用户', value: 'vip' },
-        { label: '高级VIP', value: 'svip' },
-        { label: '企业用户', value: 'enterprise', disabled: true }
-      ],
+      // 动态获取角色选项
+      options: () => roleOptions.value,
       onChange: handleFormChange
     },
     {
@@ -89,7 +84,8 @@
       prop: 'address',
       type: 'input',
       config: {
-        clearable: true
+        clearable: true,
+        placeholder: '输入地址信息进行搜索'
       },
       onChange: handleFormChange
     },
@@ -98,7 +94,8 @@
       prop: 'email',
       type: 'input',
       config: {
-        clearable: true
+        clearable: true,
+        placeholder: '输入邮箱地址进行搜索'
       },
       onChange: handleFormChange
     },
@@ -126,8 +123,8 @@
       prop: 'status',
       type: 'radio',
       options: [
-        { label: '在线', value: '1' },
-        { label: '离线', value: '2' }
+        { label: '启用', value: '1' },
+        { label: '禁用', value: '2' }
       ],
       onChange: handleFormChange
     }

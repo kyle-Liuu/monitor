@@ -94,21 +94,6 @@ declare namespace Api {
       keyword?: string
     }
 
-    /** 查询参数 */
-    interface QueryParams {
-      /** 页码 */
-      page?: number
-      /** 每页大小 */
-      page_size?: number
-      /** 搜索关键词 */
-      keyword?: string
-      /** 状态过滤 */
-      status?: string
-      /** 开始时间 */
-      start_time?: string
-      /** 结束时间 */
-      end_time?: string
-    }
 
     /** 启用状态 */
     type EnableStatus = '1' | '2' | 'active' | 'inactive'

@@ -53,6 +53,7 @@
   import { ElMessageBox, ElMessage, ElTag } from 'element-plus'
   import { useTable } from '@/composables/useTable'
   import { UserService } from '@/api/usersApi'
+  import { useRoles } from '@/composables/useRoles'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
 
@@ -61,6 +62,9 @@
   type UserListItem = Api.User.UserListItem
   const { width } = useWindowSize()
   const { getUserList, deleteUser, batchOperateUsers } = UserService
+
+  // 使用角色管理 composable
+  const { getRoleNames, getRoleName, fetchRoles } = useRoles()
 
   // 弹窗相关
   const dialogType = ref<Form.DialogType>('add')
@@ -72,10 +76,13 @@
 
   // 表单搜索初始值
   const defaultFilter = ref({
-    name: undefined,
-    level: 'normal',
-    date: '2025-01-05',
-    daterange: ['2025-01-01', '2025-02-10'],
+    username: '',
+    phone: '',
+    role_filter: '',
+    address: '',
+    email: '',
+    date: '',
+    daterange: [],
     status: '1'
   })
 
@@ -87,17 +94,15 @@
     inactive: { type: 'danger' as const, text: '禁用' }
   } as const
 
-  /**
-   * 获取用户状态配置
-   */
+  // 获取用户状态配置
   const getUserStatusConfig = (status: string) => {
-    return (
-      USER_STATUS_CONFIG[status as keyof typeof USER_STATUS_CONFIG] || {
-        type: 'info' as const,
-        text: '未知'
-      }
-    )
+    return USER_STATUS_CONFIG[status as keyof typeof USER_STATUS_CONFIG] || USER_STATUS_CONFIG['2']
   }
+
+  // 页面挂载时获取角色数据
+  onMounted(() => {
+    fetchRoles()
+  })
 
   const {
     columns,
@@ -180,13 +185,8 @@
                 .slice(0, 2)
                 .map((role) =>
                   h(ElTag, { type: 'primary', size: 'small', style: 'margin-right: 4px;' }, () => {
-                    // 角色代码映射为可读名称
-                    const roleNames = {
-                      R_SUPER: '超级管理员',
-                      R_ADMIN: '管理员',
-                      R_USER: '普通用户'
-                    }
-                    return roleNames[role as keyof typeof roleNames] || role
+                    // 使用动态角色名称映射
+                    return getRoleName(role)
                   })
                 )
                 .concat(
@@ -213,11 +213,11 @@
           }
         },
         {
-          prop: 'created_at',
+          prop: 'createTime',
           label: '创建日期',
           width: 160,
           sortable: true,
-          formatter: (row) => row.created_at || '-'
+          formatter: (row) => row.createTime || '-'
         },
         {
           prop: 'operation',
@@ -291,12 +291,41 @@
    * @param params 参数
    */
   const handleSearch = (params: Record<string, any>) => {
-    // 处理日期区间参数，把 daterange 转换为 startTime 和 endTime
-    const { daterange, ...searchParams } = params
-    const [startTime, endTime] = Array.isArray(daterange) ? daterange : [null, null]
+    console.log('🔍 前端原始搜索参数:', params)
 
-    // 搜索参数赋值
-    Object.assign(searchState, { ...searchParams, startTime, endTime })
+    // 构建关键词搜索：将多个文本字段合并
+    const searchKeywords = []
+    if (params.username) searchKeywords.push(params.username)
+    if (params.phone) searchKeywords.push(params.phone)
+    if (params.address) searchKeywords.push(params.address)
+    if (params.email) searchKeywords.push(params.email)
+
+    // 构建符合后端PaginatingParams的搜索参数
+    const searchParams: any = {}
+
+    // 关键词搜索（后端会在username中搜索）
+    if (searchKeywords.length > 0) {
+      searchParams.keyword = searchKeywords.join(' ')
+    }
+
+    // 状态过滤（映射到后端的status_filter）
+    if (params.status && params.status !== '') {
+      searchParams.status_filter = params.status === '1' // '1'=启用, '2'=禁用
+    }
+
+    // 角色过滤（直接传递给后端的role_filter）
+    if (params.role_filter && params.role_filter !== '') {
+      searchParams.role_filter = params.role_filter
+    }
+
+    console.log('🚀 发送给后端的搜索参数:', searchParams)
+
+    // 搜索参数赋值（保持分页参数）
+    Object.assign(searchState, {
+      current: searchState.current,
+      size: searchState.size,
+      ...searchParams
+    })
     searchData()
   }
 
