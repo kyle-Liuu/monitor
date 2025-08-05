@@ -15,21 +15,24 @@
             >
               <div class="tab-content">
                 <i :class="getTabIcon(tab.name)" class="tab-icon"></i>
-                <div class="tab-label" v-if="editingTab?.name !== tab.name">
+                <div class="tab-label" v-if="editingTabName !== tab.name">
                   {{ tab.label }}
                 </div>
-                <div v-else class="tab-edit-container">
+                <div v-else class="tab-edit-container" @click.stop>
                   <ElInput
-                    ref="tabEditInputRef"
-                    v-model="editingTab.label"
+                    :ref="(el) => setTabEditInputRef(el)"
+                    v-model="editingTabLabel"
                     size="small"
                     class="edit-tab-input"
                     :maxlength="20"
-                    @blur="handleTabLabelEditComplete"
+                    @blur="handleTabLabelEditBlur"
                     @keyup.enter="handleTabLabelEditComplete"
                     @keyup.esc="cancelTabLabelEdit"
+                    @focus="handleTabLabelEditFocus"
+                    @click.stop
+                    @mousedown.stop
+                    @mouseup.stop
                     placeholder="输入分类名称"
-                    autofocus
                   />
                 </div>
               </div>
@@ -307,9 +310,12 @@
   const previewImages = ref<string[]>([])
 
   // 编辑标签相关
-  const editingTab = ref<TabItem | null>(null)
+  const editingTabName = ref<string>('') // 正在编辑的标签名
+  const editingTabLabel = ref<string>('') // 编辑中的标签文本
   const tabEditInputRef = ref<InstanceType<typeof ElInput> | null>(null)
-  const editingTabOriginalLabel = ref('') // 保存原始标签名，用于取消编辑时恢复
+  const editingTabOriginalLabel = ref('')
+  const isEditingFocused = ref(false) // 编辑输入框是否已获得焦点
+  const editStartTime = ref(0) // 编辑开始时间，用于防抖 // 保存原始标签名，用于取消编辑时恢复
 
   // 右键菜单相关
   const tabMenuRef = ref<InstanceType<typeof ArtMenuRight>>()
@@ -620,7 +626,7 @@
   // 切换标签页
   const handleTabChange = (tabName: string) => {
     // 如果当前有正在编辑的标签，先保存或取消编辑
-    if (editingTab.value) {
+    if (editingTabName.value) {
       handleTabLabelEditComplete()
     }
     activeTabName.value = tabName
@@ -667,44 +673,155 @@
     }
   }
 
+  // 动态设置输入框 ref
+  const setTabEditInputRef = (el: any) => {
+    tabEditInputRef.value = el
+  }
+
+  // 处理输入框获得焦点
+  const handleTabLabelEditFocus = () => {
+    isEditingFocused.value = true
+    editStartTime.value = Date.now()
+  }
+
+  // 处理输入框失去焦点（改为更精确的点击外部检测）
+  const handleTabLabelEditBlur = (event: FocusEvent) => {
+    // 防抖：编辑开始后至少500ms才允许通过blur保存
+    const timeSinceStart = Date.now() - editStartTime.value
+    if (timeSinceStart < 500) {
+      return
+    }
+
+    // 检查失焦的目标元素
+    const relatedTarget = event.relatedTarget as HTMLElement
+
+    // 如果失焦目标是输入框本身或其容器，不触发保存
+    if (relatedTarget && tabEditInputRef.value) {
+      const inputContainer = tabEditInputRef.value.$el
+      if (
+        inputContainer &&
+        (inputContainer.contains(relatedTarget) || inputContainer === relatedTarget)
+      ) {
+        return
+      }
+    }
+
+    isEditingFocused.value = false
+
+    // 延迟执行，避免与点击事件冲突
+    setTimeout(() => {
+      if (!isEditingFocused.value && editingTabName.value) {
+        handleTabLabelEditComplete()
+      }
+    }, 150)
+  }
+
+  // 全局点击事件监听器，用于检测点击编辑区域外部
+  const handleGlobalClick = (event: MouseEvent) => {
+    if (!editingTabName.value) return
+
+    const target = event.target as HTMLElement
+
+    // 检查点击是否在编辑区域内
+    if (tabEditInputRef.value && tabEditInputRef.value.$el) {
+      const editContainer = tabEditInputRef.value.$el
+      const tabEditContainer = editContainer.closest('.tab-edit-container')
+
+      // 检查多个层级的包含关系
+      const isInEditingArea =
+        editContainer.contains(target) ||
+        editContainer === target ||
+        (tabEditContainer && (tabEditContainer.contains(target) || tabEditContainer === target)) ||
+        target.closest('.tab-edit-container') !== null ||
+        target.closest('.el-input') !== null ||
+        target.tagName === 'INPUT'
+
+      // 如果点击在编辑容器内部，不处理
+      if (isInEditingArea) return
+    }
+
+    // 防抖：编辑开始后至少800ms才允许通过点击外部保存
+    const timeSinceStart = Date.now() - editStartTime.value
+    if (timeSinceStart < 800) return
+
+    // 点击在编辑区域外部，保存编辑
+    handleTabLabelEditComplete()
+  }
+
   // 开始编辑标签名称
   const startTabLabelEdit = (tab: TabItem) => {
-    editingTab.value = tab
+    editingTabName.value = tab.name
+    editingTabLabel.value = tab.label
     editingTabOriginalLabel.value = tab.label
+    isEditingFocused.value = false
+    editStartTime.value = Date.now()
+
+    // 添加全局点击监听
+    document.addEventListener('click', handleGlobalClick, true)
 
     // 等待DOM更新后，聚焦输入框
     nextTick(() => {
-      if (tabEditInputRef.value) {
-        tabEditInputRef.value.$el.querySelector('input')?.focus()
-      }
+      // 多种方式尝试聚焦
+      setTimeout(() => {
+        if (tabEditInputRef.value) {
+          // 方法1：直接调用focus方法
+          if (typeof tabEditInputRef.value.focus === 'function') {
+            tabEditInputRef.value.focus()
+          }
+          // 方法2：通过DOM元素聚焦
+          else if (tabEditInputRef.value.$el) {
+            const inputElement = tabEditInputRef.value.$el.querySelector('input')
+            if (inputElement) {
+              inputElement.focus()
+              inputElement.select() // 选中全部文本
+            }
+          }
+        }
+      }, 50) // 给DOM更新一点时间
     })
   }
 
   // 完成标签名称编辑
-  const handleTabLabelEditComplete = () => {
-    if (!editingTab.value) return
+  const handleTabLabelEditComplete = (source?: string) => {
+    if (!editingTabName.value) return
 
     // 验证标签名不为空
-    if (!editingTab.value.label.trim()) {
-      editingTab.value.label = editingTabOriginalLabel.value
+    if (!editingTabLabel.value.trim()) {
+      editingTabLabel.value = editingTabOriginalLabel.value
       ElMessage.warning('标签名不能为空')
+      return
     }
 
+    // 找到对应的标签并更新
+    const targetTab = faceTabs.value.find((tab) => tab.name === editingTabName.value)
+    if (targetTab) {
+      targetTab.label = editingTabLabel.value.trim()
+    }
+
+    // 移除全局点击监听
+    document.removeEventListener('click', handleGlobalClick, true)
+
     // 清除编辑状态
-    editingTab.value = null
+    editingTabName.value = ''
+    editingTabLabel.value = ''
     editingTabOriginalLabel.value = ''
+    isEditingFocused.value = false
+    editStartTime.value = 0
   }
 
   // 取消标签名称编辑
   const cancelTabLabelEdit = () => {
-    if (!editingTab.value) return
+    if (!editingTabName.value) return
 
-    // 恢复原标签名
-    editingTab.value.label = editingTabOriginalLabel.value
+    // 移除全局点击监听
+    document.removeEventListener('click', handleGlobalClick, true)
 
     // 清除编辑状态
-    editingTab.value = null
+    editingTabName.value = ''
+    editingTabLabel.value = ''
     editingTabOriginalLabel.value = ''
+    isEditingFocused.value = false
+    editStartTime.value = 0
   }
 
   // 处理删除标签页
