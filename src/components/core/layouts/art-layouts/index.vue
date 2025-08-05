@@ -1,7 +1,10 @@
 <!-- 布局容器组件 -->
 <template>
   <div v-if="isMonitorRoute" class="monitor-container">
-    <iframe src="/monitor.html" frameborder="0" style="
+    <iframe
+      src="/monitor.html"
+      frameborder="0"
+      style="
         width: 100vw;
         height: 100vh;
         position: fixed;
@@ -9,7 +12,8 @@
         top: 0;
         z-index: 9999;
         background: #000;
-      "></iframe>
+      "
+    ></iframe>
   </div>
   <div class="layouts" :style="layoutStyle">
     <slot></slot>
@@ -17,59 +21,59 @@
 </template>
 
 <script setup lang="ts">
-import '@/assets/styles/transition.scss'
-import { MenuWidth, MenuTypeEnum } from '@/enums/appEnum'
-import { useMenuStore } from '@/store/modules/menu'
-import { useSettingStore } from '@/store/modules/setting'
-import { getTabConfig } from '@/utils/ui'
-import { useRouter } from 'vue-router'
+  import '@/assets/styles/transition.scss'
+  import { MenuWidth, MenuTypeEnum } from '@/enums/appEnum'
+  import { useMenuStore } from '@/store/modules/menu'
+  import { useSettingStore } from '@/store/modules/setting'
+  import { getTabConfig } from '@/utils/ui'
+  import { useRouter } from 'vue-router'
 
-defineOptions({ name: 'ArtLayouts' })
+  defineOptions({ name: 'ArtLayouts' })
 
-const settingStore = useSettingStore()
-const menuStore = useMenuStore()
-const router = useRouter()
+  const settingStore = useSettingStore()
+  const menuStore = useMenuStore()
+  const router = useRouter()
 
-const { menuType, menuOpen, showWorkTab, tabStyle } = storeToRefs(settingStore)
+  const { menuType, menuOpen, showWorkTab, tabStyle } = storeToRefs(settingStore)
 
-// 判断是否为/monitor路由
-const isMonitorRoute = computed(() => router.currentRoute.value.path === '/monitor')
-// 菜单宽度变化
-watchEffect(() => {
-  const isOpen = menuOpen.value
-  const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
-  menuStore.setMenuWidth(width)
-})
+  // 判断是否为/monitor路由
+  const isMonitorRoute = computed(() => router.currentRoute.value.path === '/monitor')
+  // 菜单宽度变化
+  watchEffect(() => {
+    const isOpen = menuOpen.value
+    const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
+    menuStore.setMenuWidth(width)
+  })
 
-// 布局样式
-const layoutStyle = computed(() => ({
-  paddingLeft: paddingLeft.value,
-  paddingTop: paddingTop.value
-}))
+  // 布局样式
+  const layoutStyle = computed(() => ({
+    paddingLeft: paddingLeft.value,
+    paddingTop: paddingTop.value
+  }))
 
-// 左侧距离
-const paddingLeft = computed(() => {
-  const { meta } = router.currentRoute.value
-  const isFirstLevel = meta.isFirstLevel
-  const type = menuType.value
-  const isOpen = menuOpen.value
-  const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
+  // 左侧距离
+  const paddingLeft = computed(() => {
+    const { meta } = router.currentRoute.value
+    const isFirstLevel = meta.isFirstLevel
+    const type = menuType.value
+    const isOpen = menuOpen.value
+    const width = isOpen ? settingStore.getMenuOpenWidth : MenuWidth.CLOSE
 
-  switch (type) {
-    case MenuTypeEnum.DUAL_MENU:
-      return isFirstLevel ? '80px' : `calc(${width} + 80px)`
-    case MenuTypeEnum.TOP_LEFT:
-      return isFirstLevel ? 0 : width
-    case MenuTypeEnum.TOP:
-      return 0
-    default:
-      return width
-  }
-})
+    switch (type) {
+      case MenuTypeEnum.DUAL_MENU:
+        return isFirstLevel ? '80px' : `calc(${width} + 80px)`
+      case MenuTypeEnum.TOP_LEFT:
+        return isFirstLevel ? 0 : width
+      case MenuTypeEnum.TOP:
+        return 0
+      default:
+        return width
+    }
+  })
 
-// 顶部距离
-const paddingTop = computed(() => {
-  const { openTop, closeTop } = getTabConfig(tabStyle.value)
-  return `${showWorkTab.value ? openTop : closeTop}px`
-})
+  // 顶部距离
+  const paddingTop = computed(() => {
+    const { openTop, closeTop } = getTabConfig(tabStyle.value)
+    return `${showWorkTab.value ? openTop : closeTop}px`
+  })
 </script>

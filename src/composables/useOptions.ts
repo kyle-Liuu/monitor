@@ -119,14 +119,16 @@ export function useOptions() {
     { label: 'rtsp', value: 'rtsp' },
     { label: 'GB28181', value: 'GB28181' },
     { label: 'rtmp', value: 'rtmp' },
-    { label: 'hls', value: 'hls' }
+    { label: 'file', value: 'file' },
+    { label: 'http', value: 'http' }
   ])
 
   // 告警状态选项
   const alarmStatusOptions = computed(() => [
     { label: '未处理', value: 'no' },
     { label: '已处理', value: 'processed' },
-    { label: '已忽略', value: 'ignored' }
+    { label: '已忽略', value: 'ignored' },
+    { label: '误报', value: 'false' }
   ])
 
   // 告警等级选项

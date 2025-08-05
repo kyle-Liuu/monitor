@@ -1,10 +1,11 @@
 <script setup lang="ts">
-  // 不再需要重定向，iframe会在布局组件中加载
+  // 监控页面 - 实际内容通过布局组件中的 iframe 加载
 </script>
 
 <template>
   <div class="page-content monitor">
-    <!-- 空模板，实际内容通过iframe在布局组件中加载 -->
+    <!-- 实际内容通过布局组件中的 iframe 加载 -->
+    <!-- 全屏提示和iframe管理在 art-layouts 组件中处理 -->
   </div>
 </template>
 
