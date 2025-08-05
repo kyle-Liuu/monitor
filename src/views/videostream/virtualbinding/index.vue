@@ -65,6 +65,7 @@
   import { ElSplitter, ElSplitterPanel, ElTree, ElInput, ElIcon, ElMessage } from 'element-plus'
   import { Search as ElSearch } from '@element-plus/icons-vue'
   import VirtualOrgAndStream from '@/views/videostream/virtualbinding/vittualOrgAndStream.vue'
+  import { useOptions } from '@/composables/useOptions'
   import { OrganizationService, type OrganizationNode } from '@/api/organizationApi'
 
   // 定义本地组织节点类型，与前端模板兼容
@@ -87,15 +88,16 @@
   const loading = ref(false)
   const virtualOrgStreamRef = ref()
 
+  // 使用 useOptions 获取组织数据
+  const { fetchOrgs, fetchOrgsWithTransform } = useOptions()
+
   /**
-   * 获取组织树数据
+   * 获取组织树数据 - 使用统一的 fetchOrgsWithTransform
    */
   const fetchOrganizationTree = async () => {
     loading.value = true
     try {
-      const response = await OrganizationService.getOrganizationTree()
-
-      // 将API返回的组织结构转换为前端需要的格式
+      // 定义数据转换函数
       const transformNode = (apiNode: OrganizationNode): OrgNode => ({
         id: apiNode.org_id,
         name: apiNode.name,
@@ -103,12 +105,14 @@
         status: apiNode.status === 'active' ? '启用' : '禁用',
         sort: apiNode.sort_order || 0,
         desc: apiNode.description,
-        created_at: apiNode.created_at,
-        children: apiNode.children?.map(transformNode)
+        created_at: apiNode.created_at
       })
 
+      // 使用统一的获取和转换方法
+      const transformedData = (await fetchOrgsWithTransform<OrgNode>(transformNode)) as OrgNode[]
+
       // 转换组织树数据
-      treeData.value = response.organizations.map(transformNode)
+      treeData.value = transformedData
       filteredTreeData.value = treeData.value
 
       // 如果没有选中的组织，选择第一个
@@ -172,7 +176,8 @@
   }
 
   // 初始化时获取组织树数据
-  onMounted(() => {
+  onMounted(async () => {
+    await fetchOrgs() // 先获取组织选项数据
     fetchOrganizationTree()
   })
 </script>

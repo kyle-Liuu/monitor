@@ -23,14 +23,18 @@
       </ElFormItem>
       <ElFormItem label="性别" prop="gender">
         <ElSelect v-model="formData.gender">
-          <ElOption label="男" value="男" />
-          <ElOption label="女" value="女" />
+          <ElOption
+            v-for="option in userGenderOptions"
+            :key="option.value"
+            :label="option.label"
+            :value="option.value"
+          />
         </ElSelect>
       </ElFormItem>
       <ElFormItem label="角色" prop="roles">
         <ElSelect v-model="formData.roles" multiple>
           <ElOption
-            v-for="role in roleList"
+            v-for="role in rolesList"
             :key="role.role_id"
             :value="role.role_code"
             :label="role.role_name"
@@ -61,7 +65,7 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import { UserService } from '@/api/usersApi'
-  import { RoleService } from '@/api/roleApi'
+  import { useOptions } from '@/composables/useOptions'
 
   interface Props {
     visible: boolean
@@ -77,12 +81,13 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
+  // 使用统一选项管理
+  const { userGenderOptions, rolesList, fetchRoles, rolesLoading } = useOptions()
+
   // 加载状态
   const submitting = ref(false)
-  const loadingRoles = ref(false)
 
-  // 角色列表数据
-  const roleList = ref<any[]>([])
+  // 通用标签数据
   const commonTags = ref(['VIP用户', '测试用户', '临时用户', '系统用户'])
 
   // 对话框显示控制
@@ -127,23 +132,6 @@
     roles: [{ required: true, message: '请选择角色', trigger: 'blur' }]
   }
 
-  // 加载角色列表
-  const loadRoleList = async () => {
-    try {
-      loadingRoles.value = true
-      const response = await RoleService.getRolesList()
-      // if (response.code === 200) {
-      //   roleList.value = response.data.roles || []
-      // }
-      roleList.value = response.roles
-    } catch (error) {
-      console.error('加载角色列表失败:', error)
-      ElMessage.error('加载角色列表失败')
-    } finally {
-      loadingRoles.value = false
-    }
-  }
-
   // 初始化表单数据
   const initFormData = () => {
     const isEdit = props.type === 'edit' && props.userData
@@ -183,7 +171,7 @@
     ([visible]) => {
       if (visible) {
         initFormData()
-        loadRoleList()
+        fetchRoles() // 直接使用统一的 fetchRoles
         nextTick(() => {
           formRef.value?.clearValidate()
         })

@@ -116,6 +116,7 @@
             </template>
           </div>
         </ElFormItem>
+
         <ElFormItem label="名称" prop="name">
           <ElInput
             v-model.trim="formData.name"
@@ -169,6 +170,7 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { OrganizationService, type OrganizationNode } from '@/api/organizationApi'
+  import { useOptions } from '@/composables/useOptions'
   import ArtExcelExport from '@/components/core/forms/art-excel-export/index.vue'
   import ArtExcelImport from '@/components/core/forms/art-excel-import/index.vue'
 
@@ -185,9 +187,12 @@
     updated_at?: string // 添加可选的更新时间字段
   }
 
+  // 使用统一选项管理
+  const { fetchOrgsWithTransform, orgsLoading } = useOptions()
+
   // 组织树数据
   const orgTree = ref<OrgNode[]>([])
-  const loadingTree = ref(false)
+  const loadingTree = computed(() => orgsLoading.value)
 
   // 记录是否已确认删除带子部门的组织
   const hasConfirmedDelete = ref(false)
@@ -211,13 +216,10 @@
     }
   }
 
-  // 获取组织树数据
+  // 获取组织树数据 - 使用统一的 fetchOrgsWithTransform
   const fetchOrganizationTree = async () => {
-    loadingTree.value = true
     try {
-      const response = await OrganizationService.getOrganizationTree()
-
-      // 将API返回的数据转换为本地OrgNode格式
+      // 定义数据转换函数
       const transformNode = (apiNode: OrganizationNode): OrgNode => ({
         id: apiNode.org_id,
         name: apiNode.name,
@@ -225,15 +227,16 @@
         status: apiNode.status === 'active' ? '启用' : '禁用',
         sort: apiNode.sort_order,
         desc: apiNode.description,
-        children: apiNode.children ? apiNode.children.map(transformNode) : undefined
+        created_at: apiNode.created_at,
+        updated_at: apiNode.updated_at
       })
 
-      orgTree.value = response.organizations.map(transformNode)
+      // 使用统一的获取和转换方法
+      const transformedData = (await fetchOrgsWithTransform<OrgNode>(transformNode)) as OrgNode[]
+      orgTree.value = transformedData
     } catch (error) {
       console.error('获取组织树失败:', error)
       ElMessage.error('获取组织树数据失败')
-    } finally {
-      loadingTree.value = false
     }
   }
 

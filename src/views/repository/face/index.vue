@@ -69,11 +69,7 @@
               row-key="id"
               :data="tableData"
               :loading="loading"
-              :pagination="{
-                current: paginationState.current,
-                size: paginationState.size,
-                total: paginationState.total ?? 0
-              }"
+              :pagination="paginationState"
               :columns="columns"
               :table-config="{ emptyHeight: '360px' }"
               :layout="{ marginTop: 10, showIndex: false }"
@@ -153,8 +149,12 @@
         </ElFormItem>
         <ElFormItem label="性别" prop="gender">
           <ElSelect v-model="faceForm.gender" placeholder="请选择性别" style="width: 100%">
-            <ElOption label="男" value="男" />
-            <ElOption label="女" value="女" />
+            <ElOption
+              v-for="option in userGenderOptions"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
           </ElSelect>
         </ElFormItem>
         <ElFormItem label="年龄" prop="age">
@@ -232,6 +232,7 @@
     ElImage
   } from 'element-plus'
   import { mockFaceList } from '@/mock/temp/faceList'
+  import { useOptions } from '@/composables/useOptions'
 
   import ArtTableHeader from '@/components/core/tables/art-table-header/index.vue'
   import ArtTable from '@/components/core/tables/art-table/index.vue'
@@ -275,6 +276,9 @@
   }
 
   defineOptions({ name: 'RepositoryFace' })
+
+  // 使用统一选项管理
+  const { userGenderOptions } = useOptions()
 
   // 保存创建的对象URL，以便在组件卸载时释放
   const createdObjectUrls = ref<string[]>([])
@@ -376,11 +380,7 @@
         placeholder: '请选择性别',
         clearable: true
       },
-      options: [
-        { label: '全部', value: '' },
-        { label: '男', value: '男' },
-        { label: '女', value: '女' }
-      ]
+      options: () => [{ label: '全部', value: '' }, ...userGenderOptions.value]
     }
   ]
 

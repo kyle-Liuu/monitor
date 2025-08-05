@@ -23,11 +23,7 @@
         :loading="isLoading"
         :data="tableData"
         :columns="columns"
-        :pagination="{
-          current: paginationState.current,
-          size: paginationState.size,
-          total: paginationState.total ?? 0
-        }"
+        :pagination="paginationState"
         :table-config="{ rowKey: 'id' }"
         :layout="{ marginTop: 10 }"
         @row:selection-change="handleSelectionChange"
@@ -53,7 +49,7 @@
   import { ElMessageBox, ElMessage, ElTag } from 'element-plus'
   import { useTable } from '@/composables/useTable'
   import { UserService } from '@/api/usersApi'
-  import { useRoles } from '@/composables/useRoles'
+  import { useOptions } from '@/composables/useOptions'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
 
@@ -64,7 +60,7 @@
   const { getUserList, deleteUser, batchOperateUsers } = UserService
 
   // 使用角色管理 composable
-  const { getRoleNames, getRoleName, fetchRoles } = useRoles()
+  const { getRoleNames, getRoleName, fetchRoles } = useOptions()
 
   // 弹窗相关
   const dialogType = ref<Form.DialogType>('add')

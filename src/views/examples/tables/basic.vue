@@ -9,11 +9,7 @@
         :loading="loading"
         :data="tableData"
         :columns="columns"
-        :pagination="{
-          current: paginationState.current,
-          size: paginationState.size,
-          total: paginationState.total ?? 0
-        }"
+        :pagination="pagination"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       >
@@ -32,7 +28,7 @@
     tableData,
     columns,
     isLoading: loading,
-    paginationState,
+    paginationState: pagination,
     onPageSizeChange: handleSizeChange,
     onCurrentPageChange: handleCurrentChange
   } = useTable<Api.User.UserListItem>({

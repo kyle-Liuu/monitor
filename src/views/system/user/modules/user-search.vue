@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
   import type { SearchFormItem } from '@/types'
-  import { useRoles } from '@/composables/useRoles'
+  import { useOptions } from '@/composables/useOptions'
 
   interface Props {}
 
@@ -23,12 +23,12 @@
     search: [params: Record<string, any>]
   }>()
 
-  // 使用角色管理 composable
-  const { roleOptions, fetchRoles } = useRoles()
+  // 使用统一选项管理 composable
+  const { roleOptions, userStatusOptions, initializeOptions } = useOptions()
 
-  // 组件挂载时获取角色数据
+  // 组件挂载时获取数据
   onMounted(() => {
-    fetchRoles()
+    initializeOptions()
   })
 
   // 重置处理
@@ -122,10 +122,7 @@
       label: '状态',
       prop: 'status',
       type: 'radio',
-      options: [
-        { label: '启用', value: '1' },
-        { label: '禁用', value: '2' }
-      ],
+      options: () => userStatusOptions.value,
       onChange: handleFormChange
     }
   ]

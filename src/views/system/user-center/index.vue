@@ -209,9 +209,13 @@
 <script setup lang="ts">
   import { useUserStore } from '@/store/modules/user'
   import { UserService } from '@/api/usersApi'
+  import { useOptions } from '@/composables/useOptions'
   import { ElForm, ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
 
   defineOptions({ name: 'UserCenter' })
+
+  // 使用统一选项管理
+  const { userGenderOptions } = useOptions()
 
   const userStore = useUserStore()
   const currentUserInfo = computed(() => userStore.getUserInfo)
@@ -282,10 +286,8 @@
     ]
   })
 
-  const genderOptions = [
-    { value: '男', label: '男' },
-    { value: '女', label: '女' }
-  ]
+  // 性别选项使用统一管理
+  const genderOptions = userGenderOptions
 
   const commonTags = ref(['专注设计', '很有想法', '技术专家', '团队协作', '创新思维', '沟通能力强'])
 

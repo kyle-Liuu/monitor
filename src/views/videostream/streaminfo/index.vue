@@ -44,11 +44,7 @@
         row-key="streamCode"
         :data="tableData"
         :loading="loading"
-        :pagination="{
-          current: paginationState.current,
-          size: paginationState.size,
-          total: paginationState.total ?? 0
-        }"
+        :pagination="paginationState"
         :columns="columns"
         :layout="{ marginTop: 10 }"
         :table-config="{ emptyHeight: '360px' }"
@@ -79,8 +75,13 @@
         </ElFormItem>
         <ElFormItem label="协议" prop="protocol">
           <ElSelect v-model="formData.protocol" name="protocol">
-            <ElOption label="rtsp" value="rtsp" />
-            <ElOption label="GB28181" value="GB28181" disabled />
+            <ElOption
+              v-for="option in streamProtocolOptions"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+              :disabled="option.value === 'GB28181'"
+            />
           </ElSelect>
         </ElFormItem>
         <ElFormItem label="流地址" prop="streamCode">
@@ -107,12 +108,12 @@
           <ElTreeSelect
             :key="treeSelectKey"
             v-model="formData.orgId"
-            :data="orgTree"
+            :data="orgTreeOptions"
             :props="{
-              label: 'name',
-              value: 'id',
+              label: 'label',
+              value: 'value',
               children: 'children',
-              disabled: (node: any) => node.status === '禁用'
+              disabled: 'disabled'
             }"
             :default-expanded-keys="expandedOrgKeys"
             placeholder="请选择组织"
@@ -125,10 +126,12 @@
             <template #default="{ node, data }">
               <span
                 :style="
-                  selectedOrgPathIds.includes(data.id) ? 'color: #409EFF; font-weight: bold;' : ''
+                  selectedOrgPathIds.includes(data.value)
+                    ? 'color: #409EFF; font-weight: bold;'
+                    : ''
                 "
               >
-                {{ data.name }}
+                {{ data.label }}
               </span>
             </template>
           </ElTreeSelect>
@@ -541,6 +544,7 @@
   import type { FormInstance } from 'element-plus'
   import { StreamService, type StreamItem as APIStreamItem } from '@/api/streamApi'
   import { AlgorithmService, type AlgorithmItem as APIAlgorithmItem } from '@/api/algorithmApi'
+  import { useOptions } from '@/composables/useOptions'
   import { h } from 'vue'
   import { useDebounce } from '@vueuse/core'
   import { useTable } from '@/composables/useTable'
@@ -598,12 +602,24 @@
   const tableRef = ref()
   const formRef = ref<FormInstance>()
 
+  // 使用统一的 useOptions 获取所有选项数据
+  const {
+    orgTreeOptions,
+    orgOptionsForSearch,
+    streamProtocolOptions,
+    statusOptions,
+    getOrgName,
+    fetchOrgs,
+    initializeOptions
+  } = useOptions()
+
   // 表单筛选项
   const formFilters = ref({
     streamName: '',
     streamCode: '',
     protocol: '',
-    enable: ''
+    enable: '',
+    orgId: '' // 添加组织筛选
   })
 
   // 筛选表单配置
@@ -625,20 +641,25 @@
       prop: 'protocol',
       type: 'select',
       config: { placeholder: '请选择协议', clearable: true },
-      options: [
-        { label: '全部', value: '' },
-        { label: 'rtsp', value: 'rtsp' },
-        { label: 'GB28181', value: 'GB28181' },
-        { label: 'rtmp', value: 'rtmp' },
-        { label: 'hls', value: 'hls' }
-      ]
+      options: () => [{ label: '全部', value: '' }, ...streamProtocolOptions.value]
+    },
+    {
+      label: '所属组织',
+      prop: 'orgId',
+      type: 'select',
+      config: {
+        placeholder: '请选择组织',
+        clearable: true,
+        filterable: true
+      },
+      options: () => orgOptionsForSearch.value
     },
     {
       label: '状态',
       prop: 'enable',
       type: 'select',
       config: { placeholder: '请选择状态', clearable: true },
-      options: [
+      options: () => [
         { label: '全部', value: '' },
         { label: '启用', value: 'true' },
         { label: '禁用', value: 'false' }
@@ -672,7 +693,8 @@
         limit: params.size,
         name: params.streamName,
         stream_type: params.protocol,
-        status: params.enable ? 'active' : undefined
+        status: params.enable ? 'active' : undefined,
+        org_id: params.orgId || undefined
       })
 
       // 将API数据转换为页面需要的格式
@@ -748,7 +770,8 @@
         streamName: '',
         streamCode: '',
         protocol: '',
-        enable: ''
+        enable: '',
+        orgId: ''
       } as any,
       immediate: true,
       columnsFactory: () => [
@@ -936,8 +959,7 @@
     protocol: [{ required: true, message: '请选择协议', trigger: 'change' }]
   }
 
-  // 组织树
-  const orgTree = ref<any[]>([]) // 临时使用空数组，后续应从API获取
+  // 组织树选择器相关
   const expandedOrgKeys = ref<string[]>([])
   const treeSelectKey = ref(Date.now())
 
@@ -948,8 +970,8 @@
     const path: string[] = []
     const getPath = (tree: any[], id: string, currentPath: string[] = []) => {
       for (const node of tree) {
-        const newPath = [...currentPath, node.name]
-        if (node.id === id) {
+        const newPath = [...currentPath, node.label]
+        if (node.value === id) {
           path.push(...newPath)
           return true
         }
@@ -960,7 +982,7 @@
       return false
     }
 
-    getPath(orgTree.value, formData.orgId)
+    getPath(orgTreeOptions.value, formData.orgId)
     return path
   })
 
@@ -971,8 +993,8 @@
     const ids: string[] = []
     const getPathIds = (tree: any[], id: string, currentIds: string[] = []) => {
       for (const node of tree) {
-        const newIds = [...currentIds, node.id]
-        if (node.id === id) {
+        const newIds = [...currentIds, node.value]
+        if (node.value === id) {
           ids.push(...newIds)
           return true
         }
@@ -983,7 +1005,7 @@
       return false
     }
 
-    getPathIds(orgTree.value, formData.orgId)
+    getPathIds(orgTreeOptions.value, formData.orgId)
     return ids
   })
 
@@ -994,8 +1016,8 @@
   // 获取组织父级ID列表
   function getOrgParentKeys(tree: any[], id: string, path: string[] = []): string[] {
     for (const node of tree) {
-      const currentPath = [...path, node.id]
-      if (node.id === id) return path
+      const currentPath = [...path, node.value]
+      if (node.value === id) return path
       if (node.children) {
         const result = getOrgParentKeys(node.children, id, currentPath)
         if (result.length) return result
@@ -1012,7 +1034,7 @@
 
   // 算法对话框
   const algoDialogVisible = ref(false)
-  const algoTab = ref('basic')
+  const algoTab = ref('') // 改为空字符串，让它在获取到数据后自动设置
   const algoTabs = ref<{ name: string; label: string; items: AlgorithmTabItem[] }[]>([]) // 改为ref，从API获取
   const algoSearchKeyword = ref('')
   const algoDialogChecked = ref<string[]>([])
@@ -1056,7 +1078,8 @@
 
       algoTabs.value = tabs
 
-      if (tabs.length > 0 && !algoTab.value) {
+      // 确保默认选中第一个可用的标签页
+      if (tabs.length > 0) {
         algoTab.value = tabs[0].name
       }
     } catch (error) {
@@ -1066,9 +1089,7 @@
   }
 
   // 组件挂载后获取算法列表
-  onMounted(() => {
-    fetchAlgorithmList()
-  })
+  // 注意：这个 onMounted 已经在后面合并了
 
   // 所有算法项
   const allAlgoItems = computed(() => {
@@ -1164,6 +1185,10 @@
   // 打开算法选择对话框
   function openAlgoDialog() {
     algoDialogChecked.value = [...selectedAlgos.value]
+    // 确保默认选中第一个可用的标签页
+    if (algoTabs.value.length > 0) {
+      algoTab.value = algoTabs.value[0].name
+    }
     algoDialogVisible.value = true
   }
 
@@ -1221,7 +1246,7 @@
 
       // 设置组织树展开状态
       if (row.orgId) {
-        expandedOrgKeys.value = getOrgParentKeys(orgTree.value, row.orgId)
+        expandedOrgKeys.value = getOrgParentKeys(orgTreeOptions.value, row.orgId)
       }
 
       // 编辑模式下，自动检测视频流是否在线
@@ -2005,7 +2030,9 @@
   })
 
   // 页面初始化时加载数据
-  onMounted(() => {
+  onMounted(async () => {
+    // 先获取所有选项数据和算法列表，再获取表格数据
+    await Promise.all([initializeOptions(), fetchAlgorithmList()])
     getTableData()
   })
 

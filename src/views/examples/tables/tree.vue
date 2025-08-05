@@ -23,11 +23,7 @@
             :loading="loading"
             :data="tableData"
             :columns="columns"
-            :pagination="{
-              current: paginationState.current,
-              size: paginationState.size,
-              total: paginationState.total ?? 0
-            }"
+            :pagination="paginationState"
             @pagination:size-change="handleSizeChange"
             @pagination:current-change="handleCurrentChange"
           >

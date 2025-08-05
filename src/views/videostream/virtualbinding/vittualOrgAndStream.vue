@@ -47,11 +47,7 @@
         row-key="id"
         :data="streamData"
         :loading="isLoading"
-        :pagination="{
-          current: paginationState.current,
-          size: paginationState.size,
-          total: paginationState.total ?? 0
-        }"
+        :pagination="paginationState"
         :columns="columns"
         :table-config="{ emptyHeight: '360px' }"
         :layout="{ marginTop: 10, showIndex: false }"
@@ -131,12 +127,12 @@
           <ElTreeSelect
             :key="treeSelectKey"
             v-model="formData.orgId"
-            :data="orgTree"
+            :data="orgTreeOptions"
             :props="{
-              label: 'name',
-              value: 'id',
+              label: 'label',
+              value: 'value',
               children: 'children',
-              disabled: (node: any) => node.status === '禁用'
+              disabled: 'disabled'
             }"
             :default-expanded-keys="expandedOrgKeys"
             placeholder="请选择组织"
@@ -148,10 +144,12 @@
             <template #default="{ node, data }">
               <span
                 :style="
-                  selectedOrgPathIds.includes(data.id) ? 'color: #409EFF; font-weight: bold;' : ''
+                  selectedOrgPathIds.includes(data.value)
+                    ? 'color: #409EFF; font-weight: bold;'
+                    : ''
                 "
               >
-                {{ data.name }}
+                {{ data.label }}
               </span>
             </template>
           </ElTreeSelect>
@@ -216,6 +214,7 @@
   import { StreamService, type StreamItem as APIStreamItem } from '@/api/streamApi'
   import { OrganizationService, type OrganizationNode } from '@/api/organizationApi'
   import { VirtualOrgService } from '@/api/virtualOrgApi'
+  import { useOptions } from '@/composables/useOptions'
   import { defineProps } from 'vue'
   import type { TransferDataItem, TransferKey, TransferDirection } from 'element-plus'
 
@@ -258,9 +257,11 @@
   const loading = ref(false)
   const errorMessage = ref<string>('')
 
-  // 表单和组织树相关
+  // 使用 useOptions 获取组织选项
+  const { orgTreeOptions, fetchOrgs } = useOptions()
+
+  // 表单相关
   const formRef = ref<FormInstance>()
-  const orgTree = ref<OrgNode[]>([])
   const expandedOrgKeys = ref<string[]>([])
   const treeSelectKey = ref(0)
   const selectedOrgPath = ref<string[]>([])
@@ -324,56 +325,23 @@
       type: 'select',
       config: {
         clearable: true,
-        options: [
+        options: computed(() => [
           { label: '全部', value: '' },
           { label: '启用', value: 'true' },
           { label: '禁用', value: 'false' }
-        ]
+        ])
       }
     }
   ]
 
   const tableRef = ref()
 
-  // 获取组织树数据
-  const fetchOrganizationTree = async () => {
-    try {
-      const response = await OrganizationService.getOrganizationTree()
+  // 获取组织相关数据和状态选项（用于查找组织名称等操作）
+  const { orgsList, getOrgName, statusOptions } = useOptions()
 
-      // 将API返回的组织结构转换为前端需要的格式
-      const transformNode = (apiNode: OrganizationNode): OrgNode => ({
-        id: apiNode.org_id,
-        name: apiNode.name,
-        parentId: apiNode.parent_id,
-        status: apiNode.status === 'active' ? '启用' : '禁用',
-        sort: apiNode.sort_order || 0,
-        desc: apiNode.description,
-        children: apiNode.children?.map(transformNode)
-      })
-
-      // 转换组织树数据
-      orgTree.value = response.organizations.map(transformNode)
-    } catch (error) {
-      console.error('获取组织树失败:', error)
-      ElMessage.error('获取组织树失败')
-      orgTree.value = []
-    }
-  }
-
-  // 辅助函数 - 根据ID查找组织名称
-  function findOrgNameById(nodes: OrgNode[], id: string): string {
-    if (!id) return ''
-
-    for (const node of nodes) {
-      if (node.id === id) return node.name
-
-      if (node.children && node.children.length > 0) {
-        const found = findOrgNameById(node.children, id)
-        if (found) return found
-      }
-    }
-
-    return ''
+  // 辅助函数 - 根据ID查找组织名称（使用统一的方法）
+  const findOrgNameById = (nodes: any[], id: string): string => {
+    return getOrgName(id)
   }
 
   // useTable Hook实现
@@ -826,8 +794,8 @@
 
       // 验证组织存在
       if (orgId) {
-        const orgName = findOrgNameById(orgTree.value, orgId)
-        if (!orgName) {
+        const orgName = getOrgName(orgId)
+        if (!orgName || orgName === orgId) {
           ElMessage.warning('选择的组织不存在，请重新选择')
           return Promise.reject(new Error('组织不存在'))
         }
@@ -883,8 +851,8 @@
 
       // 验证组织存在
       if (orgId) {
-        const orgName = findOrgNameById(orgTree.value, orgId)
-        if (!orgName) {
+        const orgName = getOrgName(orgId)
+        if (!orgName || orgName === orgId) {
           ElMessage.warning('选择的组织不存在，请重新选择')
           return Promise.reject(new Error('组织不存在'))
         }
@@ -926,8 +894,8 @@
     }
   }
 
-  onMounted(() => {
-    fetchOrganizationTree() // 调用获取组织树的函数
+  onMounted(async () => {
+    await fetchOrgs() // 获取组织树选项
     getTableData()
   })
 
@@ -1029,7 +997,7 @@
         return
       }
 
-      const pathArr = getOrgPathWithIds(orgTree.value, newId)
+      const pathArr = getOrgPathWithIds(orgTreeOptions.value, newId)
       selectedOrgPath.value = pathArr.map((item: { id: string; name: string }) => item.name)
       selectedOrgPathIds.value = pathArr.map((item: { id: string; name: string }) => item.id)
     }
@@ -1044,11 +1012,11 @@
     path: { id: string; name: string }[] = []
   ): { id: string; name: string }[] {
     for (const node of tree) {
-      if (node.id === id) return [...path, { id: node.id, name: node.name }]
+      if (node.value === id) return [...path, { id: node.value, name: node.label }]
       if (node.children && node.children.length) {
         const found = getOrgPathWithIds(node.children, id, [
           ...path,
-          { id: node.id, name: node.name }
+          { id: node.value, name: node.label }
         ])
         if (found.length) return found
       }

@@ -155,9 +155,12 @@
       <ElForm :model="batchForm" label-width="120px">
         <ElFormItem label="操作类型">
           <ElSelect v-model="batchForm.operation" placeholder="请选择操作类型">
-            <ElOption label="启用" value="enable" />
-            <ElOption label="禁用" value="disable" />
-            <ElOption label="删除" value="delete" />
+            <ElOption
+              v-for="option in batchOperationOptions"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
           </ElSelect>
         </ElFormItem>
         <ElFormItem v-if="batchForm.operation === 'delete'" label="确认删除">
@@ -187,9 +190,20 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import { formatMenuTitle } from '@/router/utils/utils'
   import { RoleService } from '@/api/roleApi'
+  import { useOptions } from '@/composables/useOptions'
   import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
 
   defineOptions({ name: 'Role' })
+
+  // 使用统一选项管理
+  const { statusOptions, fetchRolesWithSearch, rolesLoading } = useOptions()
+
+  // 批量操作选项
+  const batchOperationOptions = computed(() => [
+    { label: '启用', value: 'enable' },
+    { label: '禁用', value: 'disable' },
+    { label: '删除', value: 'delete' }
+  ])
 
   // 响应式数据
   const dialogVisible = ref(false)
@@ -199,7 +213,6 @@
   const treeRef = ref()
   const isExpandAll = ref(true)
   const isSelectAll = ref(false)
-  const loading = ref(false)
   const submitting = ref(false)
   const savingPermission = ref(false)
   const batchProcessing = ref(false)
@@ -209,6 +222,9 @@
   const selectedRoles = ref<any[]>([])
   const currentRole = ref<any>(null)
   const checkedMenus = ref<string[]>([])
+
+  // 使用统一的加载状态
+  const loading = computed(() => rolesLoading.value)
 
   // 搜索表单
   const searchForm = reactive({
@@ -220,21 +236,17 @@
     operation: '' as 'delete' | 'enable' | 'disable' | ''
   })
 
-  // 获取角色列表
+  // 获取角色列表 - 使用统一的 fetchRolesWithSearch
   const fetchRolesList = async () => {
-    loading.value = true
     try {
-      const response = await RoleService.getRolesList({
+      const roles = await fetchRolesWithSearch({
         keyword: searchForm.keyword
       })
-      // 直接使用响应数据，不再检查code字段
-      roleList.value = response.roles || []
+      roleList.value = roles
     } catch (error: any) {
       console.error('获取角色列表失败:', error)
       ElMessage.error(error.message || '获取角色列表失败')
       roleList.value = []
-    } finally {
-      loading.value = false
     }
   }
 
