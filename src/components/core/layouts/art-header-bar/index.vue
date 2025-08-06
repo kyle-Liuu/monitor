@@ -333,9 +333,14 @@
         confirmButtonText: t('common.confirm'),
         cancelButtonText: t('common.cancel'),
         customClass: 'login-out-dialog'
-      }).then(() => {
-        userStore.logOut()
       })
+        .then(() => {
+          userStore.logOut()
+        })
+        .catch(() => {
+          // 用户取消登出，不做任何操作，避免控制台错误
+          console.log('用户取消登出')
+        })
     }, 200)
   }
 
