@@ -159,8 +159,10 @@ async function handleDynamicRoutes(
     const isRefresh = from.path === '/'
     if (isRefresh || !userStore.info || Object.keys(userStore.info).length === 0) {
       try {
-        const data = await UserService.getUserInfo()
-        userStore.setUserInfo(data)
+        const response = await UserService.getUserInfo()
+        // 根据响应格式提取用户信息
+        const userInfo = response.data || response
+        userStore.setUserInfo(userInfo)
       } catch (error) {
         console.error('获取用户信息失败', error)
       }

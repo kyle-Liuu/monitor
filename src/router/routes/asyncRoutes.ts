@@ -62,7 +62,8 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.monitor.title',
       icon: '&#xe8ba;',
-      keepAlive: true
+      keepAlive: true,
+      isFullPage: true
     }
   },
   {

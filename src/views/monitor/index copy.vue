@@ -18,9 +18,9 @@
             p-id="1923"
           ></path>
         </svg>
-        <span class="control-text">设置</span>
+        <span class="control-text">后台设置</span>
       </span>
-      <h1>视频监控大屏</h1>
+      <h1>AI监控大屏</h1>
       <span class="control-icon logout-control" @click="handleLogout">
         <svg
           t="1754477792307"
@@ -43,7 +43,7 @@
             fill="#00d4ff"
           ></path>
         </svg>
-        <span class="control-text">退出</span>
+        <span class="control-text">退出登录</span>
       </span>
     </div>
 
@@ -82,6 +82,7 @@
             <span class="time-display" style="margin-left: 20px; display: none">{{
               currentTime
             }}</span>
+
             <div class="screen-switch">
               <span class="control-icon" @click="onPlayer">
                 <svg
@@ -272,105 +273,50 @@
 
     <div v-if="drawerVisible" class="alert-drawer-overlay" @click.self="closeAlertDrawer">
       <div class="alert-drawer monitor-alert-drawer">
-        <!-- 弹窗标题 -->
-        <div class="monitor-alert-title">人体侦测告警</div>
-
-        <!-- 主要内容区域 -->
-        <div class="monitor-alert-main">
-          <!-- 图片显示区域 -->
-          <div class="monitor-alert-img-container">
-            <!-- 控制按钮移动到图片右上角 -->
-            <div class="monitor-alert-controls">
-              <button
-                class="overlay-toggle-btn"
-                @click="overlayVisible = !overlayVisible"
-                :class="{ active: overlayVisible }"
-                title="显示/隐藏详细信息"
-              >
-                <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path
-                    fill="currentColor"
-                    d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <img
-              :src="drawerData?.img || '/assets/bus.jpg'"
-              alt="抓拍图片"
-              class="monitor-alert-img"
-            />
-
-            <!-- 蒙层信息区域 -->
-            <Transition name="overlay">
-              <div v-show="overlayVisible" class="monitor-alert-overlay">
-                <div class="monitor-alert-overlay-content">
-                  <!-- 左侧信息列 -->
-                  <div class="alert-info-column">
-                    <div class="info-item">
-                      <span class="info-label">所属摄像机：</span>
-                      <span class="info-value highlight">HIK003</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">所属区域：</span>
-                      <span class="info-value highlight">1</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">告警时间：</span>
-                      <span class="info-value">{{
-                        drawerData?.time || '2025-08-07 14:32:36'
-                      }}</span>
-                    </div>
-                  </div>
-
-                  <!-- 右侧信息列 -->
-                  <div class="alert-info-column">
-                    <div class="info-item">
-                      <span class="info-label">状态：</span>
-                      <span
-                        class="info-value"
-                        :style="{
-                          color: drawerData?.status === '未处理' ? '#ff6b6b' : '#67c23a',
-                          fontWeight: 600
-                        }"
-                        >{{ drawerData?.status || '未处理' }}</span
-                      >
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">数据源：</span>
-                      <span class="info-value"> {{ drawerData?.location || '办公楼南侧' }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">IP：</span>
-                      <span class="info-value">{{ drawerData?.ip || '192.168.1.102' }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">危险等级：</span>
-                      <span class="info-value" style="color: #ffa726; font-weight: 600">{{
-                        drawerData?.level || '一般'
-                      }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">告警类型：</span>
-                      <span class="info-value" style="color: #42a5f5; font-weight: 600">{{
-                        drawerData?.type || '安全'
-                      }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">检测时间：</span>
-                      <span class="info-value">
-                        {{ drawerData?.time || '2025-08-07 14:32:36' }}</span
-                      >
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Transition>
-          </div>
+        <div class="monitor-alert-header">
+          <div class="monitor-alert-title">告警详情</div>
         </div>
-
-        <!-- 处理操作区域 -->
+        <div class="monitor-alert-info-grid">
+          <div class="info-block"
+            ><span class="info-label">状态：</span
+            ><span
+              :style="{
+                color: drawerData?.status === '未处理' ? '#f56c6c' : '#67c23a',
+                fontWeight: 600
+              }"
+              >{{ drawerData?.status || '未处理' }}</span
+            ></div
+          >
+          <div class="info-block"
+            ><span class="info-label">数据源：</span><span>{{ drawerData?.location || '-' }}</span>
+          </div>
+          <div class="info-block"
+            ><span class="info-label">IP：</span><span>{{ drawerData?.ip || '-' }}</span></div
+          >
+          <div class="info-block"
+            ><span class="info-label">危险等级：</span
+            ><span style="font-weight: 600; color: #e6a23c">{{
+              drawerData?.level || '-'
+            }}</span></div
+          >
+          <div class="info-block"
+            ><span class="info-label">告警类型：</span
+            ><span style="font-weight: 600; color: #409eff">{{
+              drawerData?.type || '-'
+            }}</span></div
+          >
+          <div class="info-block"
+            ><span class="info-label">检测时间：</span
+            ><span>{{ drawerData?.time || '-' }}</span></div
+          >
+        </div>
+        <div class="monitor-alert-img-box">
+          <img
+            :src="drawerData?.img || '/assets/bus.jpg'"
+            alt="抓拍图片"
+            class="monitor-alert-img"
+          />
+        </div>
         <div class="monitor-alert-bottom-bar">
           <input class="monitor-alert-input" v-model="drawerRemark" placeholder="处理意见" />
           <div class="monitor-alert-btns">
@@ -378,39 +324,15 @@
               class="monitor-btn confirm"
               @click="drawerData && onAlertActionConfirm(drawerData)"
               :disabled="!drawerData"
-              title="确认"
+              >确认</button
             >
-              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
-                <path
-                  fill="currentColor"
-                  d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"
-                />
-              </svg>
-              <span class="btn-text">确认</span>
-            </button>
             <button
               class="monitor-btn error"
               @click="drawerData && onAlertActionError(drawerData)"
               :disabled="!drawerData"
-              title="误报"
+              >误报</button
             >
-              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
-                <path
-                  fill="currentColor"
-                  d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-                />
-              </svg>
-              <span class="btn-text">误报</span>
-            </button>
-            <button class="monitor-btn reset" @click="onAlertReset(drawerData)" title="重置">
-              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16">
-                <path
-                  fill="currentColor"
-                  d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"
-                />
-              </svg>
-              <span class="btn-text">重置</span>
-            </button>
+            <button class="monitor-btn reset" @click="onAlertReset(drawerData)">重置</button>
           </div>
         </div>
       </div>
@@ -472,7 +394,6 @@
   const drawerVisible = ref(false)
   const drawerRemark = ref('')
   const drawerData = ref<AlertItem | null>(null)
-  const overlayVisible = ref(true) // 蒙层显示状态，默认显示
 
   // 播放器相关 - 优化数据结构
   const playerStates = reactive<
@@ -1241,7 +1162,6 @@
     drawerVisible.value = false
     drawerData.value = null
     drawerRemark.value = ''
-    overlayVisible.value = true // 重置蒙层显示状态
   }
 
   const onAlertActionConfirm = (item: AlertItem) => {
@@ -1257,10 +1177,7 @@
     if (success) {
       console.log('确认告警:', item.title)
       refreshAlertList()
-      // 更新当前弹窗数据状态
-      if (drawerData.value) {
-        drawerData.value.status = '已处理'
-      }
+      closeAlertDrawer()
     }
   }
 
@@ -1277,10 +1194,7 @@
     if (success) {
       console.log('误报告警:', item.title)
       refreshAlertList()
-      // 更新当前弹窗数据状态
-      if (drawerData.value) {
-        drawerData.value.status = '误报'
-      }
+      closeAlertDrawer()
     }
   }
 
@@ -1298,10 +1212,7 @@
       console.log('重置告警:', item.title)
       refreshAlertList()
       drawerRemark.value = ''
-      // 更新当前弹窗数据状态
-      if (drawerData.value) {
-        drawerData.value.status = '未处理'
-      }
+      closeAlertDrawer()
     }
   }
 
