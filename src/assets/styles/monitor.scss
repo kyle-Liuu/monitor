@@ -246,11 +246,24 @@ body.monitor-page {
 // 顶部控制按钮统一样式 - 使用主题色保持一致
 .control-icon.back-control,
 .control-icon.logout-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
   background: rgba(0, 212, 255, 0.08) !important; // 主题蓝色
   border: 1px solid rgba(0, 212, 255, 0.3) !important; // 主题蓝色边框
   border-radius: 6px;
   padding: 6px 12px !important;
   color: #00d4ff; // 主题蓝色
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    transition: all 0.2s;
+  }
 
   .control-text {
     margin-left: 6px;
@@ -1317,7 +1330,7 @@ body.monitor-page {
 
 .screen-btn,
 .fullscreen-btn,
-.control-icon {
+.control-icon:not(.back-control):not(.logout-control) {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1545,14 +1558,14 @@ body.monitor-page {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 0 20px;
+  padding: 0 15px;
 }
 
 .monitor-alert-img {
   width: 100%;
   height: 100%;
   object-fit: cover; // 改为cover，填满容器
-  border-radius: 8px;
+  // border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 

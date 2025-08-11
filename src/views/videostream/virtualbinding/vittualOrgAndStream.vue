@@ -215,7 +215,6 @@
   import { OrganizationService, type OrganizationNode } from '@/api/organizationApi'
   import { VirtualOrgService } from '@/api/virtualOrgApi'
   import { useOptions } from '@/composables/useOptions'
-  import { defineProps } from 'vue'
   import type { TransferDataItem, TransferKey, TransferDirection } from 'element-plus'
 
   // 定义本地StreamItem类型，与前端模板兼容

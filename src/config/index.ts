@@ -11,6 +11,8 @@ import { headerBarConfig } from './headerBar'
 const appConfig: SystemConfig = {
   // 系统信息
   systemInfo: {
+    // name: 'VeeGuard Lite' // 系统名称
+    // name: '科义·智瞳' // 系统名称
     name: 'Art Design Pro' // 系统名称
   },
   // Element Plus 主题

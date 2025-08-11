@@ -540,7 +540,6 @@
   import ArtTableHeader from '@/components/core/tables/art-table-header/index.vue'
   import ArtTable from '@/components/core/tables/art-table/index.vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { BgColorEnum } from '@/enums/appEnum'
   import type { FormInstance } from 'element-plus'
   import { StreamService, type StreamItem as APIStreamItem } from '@/api/streamApi'
   import { AlgorithmService, type AlgorithmItem as APIAlgorithmItem } from '@/api/algorithmApi'
