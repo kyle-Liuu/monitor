@@ -60,6 +60,7 @@ export enum RoutesAlias {
   StreamInfo = '/videostream/streaminfo', // 视频流信息
   VirtualBinding = '/videostream/virtualbinding', // 虚拟绑定
   Organization = '/videostream/organization', // 组织列表
+  StreamPlayer = '/videostream/player', // 播放器
   AlgorithmInfo = '/algorithm/algoinfo', // 算法信息
   RepositoryFace = '/repository/face', // 人脸底库
   RepositoryOpen = '/repository/open', // 开放底库

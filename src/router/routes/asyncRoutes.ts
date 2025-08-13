@@ -743,6 +743,15 @@ export const asyncRoutes: AppRouteRecord[] = [
           title: 'menus.videostream.organization',
           keepAlive: true
         }
+      },{
+        path: 'player',
+        name: 'StreamPlayer',
+        component: RoutesAlias.StreamPlayer,
+        meta: {
+          title: 'menus.videostream.player',
+          isHide: true,
+          keepAlive: false
+        }
       }
     ]
   },

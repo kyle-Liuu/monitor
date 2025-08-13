@@ -331,7 +331,8 @@
       "title": "Video Stream Management",
       "streaminfo": "Stream Info",
       "virtualbinding": "Virtual Binding",
-      "organization": "Organization List"
+      "organization": "Organization List",
+      "player": "Player"
     },
     "algorithm": {
       "title": "Algorithm Management",
